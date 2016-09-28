@@ -1,0 +1,35 @@
+{
+    "package.json": true,
+    "author": "kai zhu <kaizhu256@gmail.com>",
+    "bin": { "uglifyjs-lite": "index.js" },
+    "description": "this package will run a standalone, browser-compatible version of uglifyjs with zero npm-dependencies",
+    "devDependencies": {
+        "electron-lite": "kaizhu256/node-electron-lite#alpha",
+        "utility2": "kaizhu256/node-utility2#alpha"
+    },
+    "engines": { "node": ">=4.0" },
+    "homepage": "https://github.com/kaizhu256/node-uglifyjs-lite",
+    "keywords": [
+        "browser",
+        "minify",
+        "obfuscate",
+        "uglify", "uglifyjs",
+        "web"
+    ],
+    "license": "MIT",
+    "name": "uglifyjs-lite",
+    "os": ["darwin", "linux"],
+    "repository" : {
+        "type" : "git",
+        "url" : "https://github.com/kaizhu256/node-uglifyjs-lite.git"
+    },
+    "scripts": {
+        "build-ci": "utility2 shRun shReadmeBuild",
+        "start": "export PORT=${PORT:-8080} && export npm_config_mode_auto_restart=1 && utility2 shRun shIstanbulCover test.js",
+
+
+
+        "test": "export PORT=$(utility2 shServerPortRandom) && utility2 test test.js"
+    },
+    "version": "2015.8.1"
+}
