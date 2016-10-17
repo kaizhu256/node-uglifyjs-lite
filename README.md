@@ -19,11 +19,12 @@ this package will run a standalone, browser-compatible version of uglifyjs with 
 
 # documentation
 #### todo
+- add css minification
 - none
 
-#### change since 9fe8c225
-- npm publish 2015.8.1
-- initial working version
+#### change since 14adbdca
+- npm publish 2016.8.2
+- add 'hide internal test' button to demo
 - none
 
 #### this package requires
@@ -126,10 +127,6 @@ instruction
             : module.isRollup
             ? module
             : require('uglifyjs-lite').local;
-        // init global
-        local.global = local.modeJs === 'browser'
-            ? window
-            : global;
         // export local
         local.global.local = local;
     }());
@@ -143,8 +140,15 @@ instruction
         local.testRun = function (event) {
             switch (event && event.currentTarget.id) {
             case 'testRunButton1':
-                local.modeTest = true;
-                local.utility2.testRun(local);
+                if (document.querySelector('.testReportDiv').style.display === 'none') {
+                    document.querySelector('.testReportDiv').style.display = 'block';
+                    document.querySelector('#testRunButton1').innerText = 'hide internal test';
+                    local.modeTest = true;
+                    local.utility2.testRun(local);
+                } else {
+                    document.querySelector('.testReportDiv').style.display = 'none';
+                    document.querySelector('#testRunButton1').innerText = 'run internal test';
+                }
                 break;
             default:
                 // try to uglify input-code
@@ -158,19 +162,12 @@ instruction
             }
         };
         // init event-handling
-        [
-            '#inputTextarea1',
-            '#testRunButton1'
-        ].forEach(function (element) {
-            element = document.querySelector(element);
-            switch (element && element.id) {
-            case 'inputTextarea1':
-                element.addEventListener('keyup', local.testRun);
-                break;
-            case 'testRunButton1':
-                element.addEventListener('click', local.testRun);
-                break;
-            }
+        ['click', 'keyup'].forEach(function (event) {
+            Array.prototype.slice.call(
+                document.querySelectorAll('.on' + event)
+            ).forEach(function (element) {
+                element.addEventListener(event, local.testRun);
+            });
         });
         // run tests
         local.testRun();
@@ -195,6 +192,7 @@ instruction
 <html lang="en">\n\
 <head>\n\
 <meta charset="UTF-8">\n\
+<meta name="viewport" content="width=device-width, initial-scale=1">\n\
 <title>\n\
 {{envDict.npm_package_name}} v{{envDict.npm_package_version}}\n\
 </title>\n\
@@ -209,7 +207,7 @@ instruction
 }\n\
 body {\n\
     background-color: #fff;\n\
-    font-family: Helvetica Neue,Helvetica,Arial,sans-serif;\n\
+    font-family: Arial, Helvetica, sans-serif;\n\
 }\n\
 body > * {\n\
     margin-bottom: 1rem;\n\
@@ -238,21 +236,16 @@ utility2-comment -->\n\
 <!-- utility2-comment\n\
         </a>\n\
 utility2-comment -->\n\
-<!-- utility2-comment\n\
-        {{#if envDict.NODE_ENV}}\n\
-        (NODE_ENV={{envDict.NODE_ENV}})\n\
-        {{/if envDict.NODE_ENV}}\n\
-utility2-comment -->\n\
     </h1>\n\
     <h3>{{envDict.npm_package_description}}</h3>\n\
 <!-- utility2-comment\n\
     <h4><a download href="assets.app.js">download standalone app</a></h4>\n\
-    <button id="testRunButton1">run internal test</button><br>\n\
+    <button class="onclick" id="testRunButton1">run internal test</button><br>\n\
 utility2-comment -->\n\
     <div class="testReportDiv" style="display: none;"></div>\n\
 \n\
     <label>edit or paste script below to cover and eval</label>\n\
-<textarea id="inputTextarea1">\n\
+<textarea class="onkeyup" id="inputTextarea1">\n\
 var aa;\n\
 aa = "hello";\n\
 console.log(aa);\n\
@@ -371,7 +364,7 @@ export npm_config_mode_auto_restart=1 && \
 utility2 shRun shIstanbulCover test.js",
         "test": "export PORT=$(utility2 shServerPortRandom) && utility2 test test.js"
     },
-    "version": "2015.8.1"
+    "version": "2016.8.2"
 }
 ```
 
@@ -394,9 +387,9 @@ shBuildCiTestPre() {(set -e
     # test example.js
     (export MODE_BUILD=testExampleJs &&
         shRunScreenCapture shReadmeTestJs example.js) || return $?
-    #!! # test published-package
-    #!! (export MODE_BUILD=npmTestPublished &&
-        #!! shRunScreenCapture shNpmTestPublished) || return $?
+    # test published-package
+    (export MODE_BUILD=npmTestPublished &&
+        shRunScreenCapture shNpmTestPublished) || return $?
 )}
 
 shBuildCiTestPost() {(set -e

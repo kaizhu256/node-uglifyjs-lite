@@ -18,7 +18,7 @@
     // run shared js-env code - pre-init
     (function () {
         // init Error.stackTraceLimit
-        Error.stackTraceLimit = Infinity;
+        Error.stackTraceLimit = 16;
         // init local
         local = {};
         // init modeJs
@@ -46,7 +46,6 @@
             local = (module.utility2 || require('utility2')).requireExampleJsFromReadme({
                 __dirname: __dirname,
                 module: module,
-                moduleExports: __dirname + '/index.js',
                 moduleName: 'uglifyjs-lite'
             });
             break;
@@ -219,7 +218,9 @@
     // run browser js-env code - post-init
     case 'browser':
         // run tests
-        local.utility2.testRun(local);
+        local.utility2.nop(
+            local.utility2.modeTest && document.querySelector('#testRunButton1').click()
+        );
         break;
 
 
