@@ -1,12 +1,18 @@
 uglifyjs-lite
 =============
-this package will run a standalone, browser-compatible version of uglifyjs with zero npm-dependencies
+this zero-dependency package will provide a browser-compatible version of the uglifyjs javascript-minifier
 
 [![travis-ci.org build-status](https://api.travis-ci.org/kaizhu256/node-uglifyjs-lite.svg)](https://travis-ci.org/kaizhu256/node-uglifyjs-lite)
 
 [![NPM](https://nodei.co/npm/uglifyjs-lite.png?downloads=true)](https://www.npmjs.com/package/uglifyjs-lite)
 
 [![package-listing](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.gitLsTree.svg)](https://github.com/kaizhu256/node-uglifyjs-lite)
+
+
+
+# cdn download
+- [http://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/app/assets.uglifyjs-lite.js](http://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/app/assets.uglifyjs-lite.js)
+- [http://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/app/assets.uglifyjs-lite.min.js](http://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/app/assets.uglifyjs-lite.min.js)
 
 
 
@@ -18,25 +24,28 @@ this package will run a standalone, browser-compatible version of uglifyjs with 
 
 
 # documentation
+#### api-doc
+- [https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/doc.api.html](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/doc.api.html)
+
+[![api-doc](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/screen-capture.docApiCreate.browser._2Fhome_2Ftravis_2Fbuild_2Fkaizhu256_2Fnode-uglifyjs-lite_2Ftmp_2Fbuild_2Fdoc.api.html.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/doc.api.html)
+
 #### todo
 - add css minification
 - none
 
-#### change since 14adbdca
-- npm publish 2016.8.2
-- add 'hide internal test' button to demo
+#### change since f0285b98
+- npm publish 2016.11.1
+- change preferred column-size from 256 to 80
+- README.md - add cdn-download links
+- README.md - replace alpha api-doc with beta api-doc
 - none
 
 #### this package requires
 - darwin or linux os
 
 #### additional info
-- uglifyjs derived from https://github.com/mishoo/UglifyJS/tree/v1.3.5 (this version does not support es6 or higher)
-
-#### api-doc
-- [https://kaizhu256.github.io/node-uglifyjs-lite/build/doc.api.html](https://kaizhu256.github.io/node-uglifyjs-lite/build/doc.api.html)
-
-[![api-doc](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.docApiCreate.browser._2Fhome_2Ftravis_2Fbuild_2Fkaizhu256_2Fnode-uglifyjs-lite_2Ftmp_2Fbuild_2Fdoc.api.html.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build/doc.api.html)
+- this version does not support es6-syntax or higher
+- uglifyjs derived from https://github.com/mishoo/UglifyJS/tree/v1.3.5
 
 
 
@@ -80,9 +89,10 @@ this script will will demo the browser-version of uglifyjs
 instruction
     1. save this script as example.js
     2. run the shell command:
-        $ npm install uglifyjs-lite && export PORT=8081 && node example.js
-    3. open a browser to http://localhost:8081
-    4. edit or paste script in browser to uglify
+        $ npm install uglifyjs-lite && \
+            export PORT=8081 && \
+            node example.js
+    3. run the browser-demo on http://localhost:8081
 */
 
 /* istanbul instrument in package uglifyjs-lite */
@@ -120,13 +130,14 @@ instruction
                     'node';
             }
         }());
-        /* istanbul ignore next */
-        // re-init local
-        local = local.modeJs === 'browser'
-            ? window.utility2_uglifyjs.local
-            : module.isRollup
-            ? module
-            : require('uglifyjs-lite').local;
+        // init global
+        local.global = local.modeJs === 'browser'
+            ? window
+            : global;
+        // init utility2_rollup
+        local = local.global.utility2_rollup || (local.modeJs === 'browser'
+            ? local.global.utility2_uglifyjs
+            : require('uglifyjs-lite'));
         // export local
         local.global.local = local;
     }());
@@ -140,32 +151,52 @@ instruction
         local.testRun = function (event) {
             switch (event && event.currentTarget.id) {
             case 'testRunButton1':
-                if (document.querySelector('.testReportDiv').style.display === 'none') {
-                    document.querySelector('.testReportDiv').style.display = 'block';
+                // show tests
+                if (document.querySelector('#testReportDiv1').style.display === 'none') {
+                    document.querySelector('#testReportDiv1').style.display = 'block';
                     document.querySelector('#testRunButton1').innerText = 'hide internal test';
                     local.modeTest = true;
-                    local.utility2.testRun(local);
+                    local.testRunDefault(local);
+                // hide tests
                 } else {
-                    document.querySelector('.testReportDiv').style.display = 'none';
+                    document.querySelector('#testReportDiv1').style.display = 'none';
                     document.querySelector('#testRunButton1').innerText = 'run internal test';
                 }
                 break;
             default:
-                // try to uglify input-code
+                // reset stdout
+                document.querySelector('#outputTextarea2').value = '';
+                // try to uglify and eval input-code
                 try {
                     /*jslint evil: true*/
+                    document.querySelector('#outputTextarea1').value = '';
                     document.querySelector('#outputTextarea1').value =
                         local.uglifyjs.uglify(document.querySelector('#inputTextarea1').value);
+                    eval(document.querySelector('#outputTextarea1').value);
                 } catch (errorCaught) {
-                    document.querySelector('#outputTextarea1').value = errorCaught.stack;
+                    console.error(errorCaught.stack);
                 }
+                // scroll stdout to bottom
+                document.querySelector('#outputTextarea2').scrollTop =
+                    document.querySelector('#outputTextarea2').scrollHeight;
             }
         };
+        // log stderr and stdout to #outputTextarea2
+        ['error', 'log'].forEach(function (key) {
+            console['_' + key] = console[key];
+            console[key] = function () {
+                console['_' + key].apply(console, arguments);
+                document.querySelector('#outputTextarea2').value +=
+                    Array.from(arguments).map(function (arg) {
+                        return typeof arg === 'string'
+                            ? arg
+                            : JSON.stringify(arg, null, 4);
+                    }).join(' ') + '\n';
+            };
+        });
         // init event-handling
         ['click', 'keyup'].forEach(function (event) {
-            Array.prototype.slice.call(
-                document.querySelectorAll('.on' + event)
-            ).forEach(function (element) {
+            Array.from(document.querySelectorAll('.on' + event)).forEach(function (element) {
                 element.addEventListener(event, local.testRun);
             });
         });
@@ -193,9 +224,7 @@ instruction
 <head>\n\
 <meta charset="UTF-8">\n\
 <meta name="viewport" content="width=device-width, initial-scale=1">\n\
-<title>\n\
-{{envDict.npm_package_name}} v{{envDict.npm_package_version}}\n\
-</title>\n\
+<title>{{env.npm_package_name}} v{{env.npm_package_version}}</title>\n\
 <style>\n\
 /*csslint\n\
     box-sizing: false,\n\
@@ -206,52 +235,57 @@ instruction
     box-sizing: border-box;\n\
 }\n\
 body {\n\
-    background-color: #fff;\n\
+    background: #fff;\n\
     font-family: Arial, Helvetica, sans-serif;\n\
+    margin: 1rem;\n\
 }\n\
 body > * {\n\
     margin-bottom: 1rem;\n\
 }\n\
 textarea {\n\
     font-family: monospace;\n\
-    height: 16rem;\n\
+    height: 10rem;\n\
     width: 100%;\n\
 }\n\
 textarea[readonly] {\n\
-    background-color: #ddd;\n\
+    background: #ddd;\n\
 }\n\
 </style>\n\
 </head>\n\
 <body>\n\
     <h1>\n\
 <!-- utility2-comment\n\
+        <div id="ajaxProgressDiv1" style="background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 0.5s, width 1.5s; width: 25%;"></div>\n\
         <a\n\
-            {{#if envDict.npm_package_homepage}}\n\
-            href="{{envDict.npm_package_homepage}}"\n\
-            {{/if envDict.npm_package_homepage}}\n\
+            {{#if env.npm_package_homepage}}\n\
+            href="{{env.npm_package_homepage}}"\n\
+            {{/if env.npm_package_homepage}}\n\
             target="_blank"\n\
         >\n\
 utility2-comment -->\n\
-            {{envDict.npm_package_name}} v{{envDict.npm_package_version}}\n\
+            {{env.npm_package_name}} v{{env.npm_package_version}}\n\
 <!-- utility2-comment\n\
         </a>\n\
 utility2-comment -->\n\
     </h1>\n\
-    <h3>{{envDict.npm_package_description}}</h3>\n\
+    <h3>{{env.npm_package_description}}</h3>\n\
 <!-- utility2-comment\n\
     <h4><a download href="assets.app.js">download standalone app</a></h4>\n\
     <button class="onclick" id="testRunButton1">run internal test</button><br>\n\
 utility2-comment -->\n\
-    <div class="testReportDiv" style="display: none;"></div>\n\
+    <div id="testReportDiv1" style="display: none;"></div>\n\
 \n\
     <label>edit or paste script below to cover and eval</label>\n\
 <textarea class="onkeyup" id="inputTextarea1">\n\
 var aa;\n\
 aa = "hello";\n\
 console.log(aa);\n\
+console.log(null);\n\
 </textarea>\n\
     <label>uglified code</label>\n\
     <textarea id="outputTextarea1" readonly></textarea>\n\
+    <label>stderr and stdout</label>\n\
+    <textarea id="outputTextarea2" readonly></textarea>\n\
 <!-- utility2-comment\n\
     {{#if isRollup}}\n\
     <script src="assets.app.min.js"></script>\n\
@@ -270,7 +304,7 @@ utility2-comment -->\n\
 ';
         /* jslint-ignore-end */
         local['/'] = local.templateIndexHtml
-            .replace((/\{\{envDict\.(\w+?)\}\}/g), function (match0, match1) {
+            .replace((/\{\{env\.(\w+?)\}\}/g), function (match0, match1) {
                 // jslint-hack
                 String(match0);
                 switch (match1) {
@@ -282,7 +316,7 @@ utility2-comment -->\n\
                     return '0.0.1';
                 }
             });
-        if (module.isRollup) {
+        if (local.global.utility2_rollup) {
             break;
         }
         try {
@@ -290,7 +324,7 @@ utility2-comment -->\n\
         } catch (ignore) {
         }
         local['/assets.uglifyjs-lite.js'] = '//' + local.fs.readFileSync(
-            local.uglifyjs.__dirname + '/index.js',
+            local.uglifyjs.__dirname + '/lib.uglifyjs.js',
             'utf8'
         );
         // run the cli
@@ -311,7 +345,7 @@ utility2-comment -->\n\
                 response.end();
             }
         }).listen(process.env.PORT);
-        // if $npm_config_timeout_exit is defined,
+        // if $npm_config_timeout_exit exists,
         // then exit this process after $npm_config_timeout_exit ms
         if (Number(process.env.npm_config_timeout_exit)) {
             setTimeout(process.exit, Number(process.env.npm_config_timeout_exit));
@@ -334,7 +368,7 @@ utility2-comment -->\n\
 {
     "package.json": true,
     "author": "kai zhu <kaizhu256@gmail.com>",
-    "bin": { "uglifyjs-lite": "index.js" },
+    "bin": { "uglifyjs-lite": "lib.uglifyjs.js" },
     "description": "{{packageJson.description}}",
     "devDependencies": {
         "electron-lite": "kaizhu256/node-electron-lite#alpha",
@@ -350,6 +384,7 @@ utility2-comment -->\n\
         "web"
     ],
     "license": "MIT",
+    "main": "lib.uglifyjs",
     "name": "uglifyjs-lite",
     "os": ["darwin", "linux"],
     "repository" : {
@@ -364,7 +399,7 @@ export npm_config_mode_auto_restart=1 && \
 utility2 shRun shIstanbulCover test.js",
         "test": "export PORT=$(utility2 shServerPortRandom) && utility2 test test.js"
     },
-    "version": "2016.8.2"
+    "version": "2016.11.1"
 }
 ```
 
@@ -395,7 +430,7 @@ shBuildCiTestPre() {(set -e
 shBuildCiTestPost() {(set -e
 # this function will run the post-test build
     # if running legacy-node, then return
-    [ "$(node --version)" \< "v5.0" ] && return || true
+    [ "$(node --version)" \< "v7.0" ] && return || true
     export NODE_ENV=production
     # deploy app to gh-pages
     export TEST_URL="https://$(printf "$GITHUB_REPO" | \

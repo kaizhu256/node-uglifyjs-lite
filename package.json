@@ -1,8 +1,8 @@
 {
     "package.json": true,
     "author": "kai zhu <kaizhu256@gmail.com>",
-    "bin": { "uglifyjs-lite": "index.js" },
-    "description": "this package will run a standalone, browser-compatible version of uglifyjs with zero npm-dependencies",
+    "bin": { "uglifyjs-lite": "lib.uglifyjs.js" },
+    "description": "this zero-dependency package will provide a browser-compatible version of the uglifyjs javascript-minifier",
     "devDependencies": {
         "electron-lite": "kaizhu256/node-electron-lite#alpha",
         "utility2": "kaizhu256/node-utility2#alpha"
@@ -17,6 +17,7 @@
         "web"
     ],
     "license": "MIT",
+    "main": "lib.uglifyjs",
     "name": "uglifyjs-lite",
     "os": ["darwin", "linux"],
     "repository" : {
@@ -31,5 +32,5 @@
 
         "test": "export PORT=$(utility2 shServerPortRandom) && utility2 test test.js"
     },
-    "version": "2016.8.2"
+    "version": "2016.11.1"
 }
