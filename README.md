@@ -11,8 +11,8 @@ this zero-dependency package will provide a browser-compatible version of the ug
 
 
 # cdn download
-- [http://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/app/assets.uglifyjs-lite.js](http://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/app/assets.uglifyjs-lite.js)
-- [http://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/app/assets.uglifyjs-lite.min.js](http://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/app/assets.uglifyjs-lite.min.js)
+- [https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/app/assets.uglifyjs-lite.js](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/app/assets.uglifyjs-lite.js)
+- [https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/app/assets.uglifyjs-lite.min.js](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/app/assets.uglifyjs-lite.min.js)
 
 
 
@@ -30,21 +30,17 @@ this zero-dependency package will provide a browser-compatible version of the ug
 [![api-doc](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/screen-capture.docApiCreate.browser._2Fhome_2Ftravis_2Fbuild_2Fkaizhu256_2Fnode-uglifyjs-lite_2Ftmp_2Fbuild_2Fdoc.api.html.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/doc.api.html)
 
 #### todo
-- add css minification
 - none
 
-#### change since f0285b98
-- npm publish 2016.11.1
-- change preferred column-size from 256 to 80
-- README.md - add cdn-download links
-- README.md - replace alpha api-doc with beta api-doc
+#### change since 3360d323
+- npm publish 2016.12.1
+- add ability to uglify css
 - none
 
 #### this package requires
 - darwin or linux os
 
 #### additional info
-- this version does not support es6-syntax or higher
 - uglifyjs derived from https://github.com/mishoo/UglifyJS/tree/v1.3.5
 
 
@@ -92,7 +88,7 @@ instruction
         $ npm install uglifyjs-lite && \
             export PORT=8081 && \
             node example.js
-    3. run the browser-demo on http://localhost:8081
+    3. play with the browser-demo on http://localhost:8081
 */
 
 /* istanbul instrument in package uglifyjs-lite */
@@ -170,8 +166,10 @@ instruction
                 try {
                     /*jslint evil: true*/
                     document.querySelector('#outputTextarea1').value = '';
-                    document.querySelector('#outputTextarea1').value =
-                        local.uglifyjs.uglify(document.querySelector('#inputTextarea1').value);
+                    document.querySelector('#outputTextarea1').value = local.uglifyjs.uglify(
+                        document.querySelector('#inputTextarea1').value,
+                        'inputTextarea1.js'
+                    );
                     eval(document.querySelector('#outputTextarea1').value);
                 } catch (errorCaught) {
                     console.error(errorCaught.stack);
@@ -253,9 +251,11 @@ textarea[readonly] {\n\
 </style>\n\
 </head>\n\
 <body>\n\
+<!-- utility2-comment\n\
+    <div id="ajaxProgressDiv1" style="background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 0.5s, width 1.5s; width: 25%;"></div>\n\
+utility2-comment -->\n\
     <h1>\n\
 <!-- utility2-comment\n\
-        <div id="ajaxProgressDiv1" style="background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 0.5s, width 1.5s; width: 25%;"></div>\n\
         <a\n\
             {{#if env.npm_package_homepage}}\n\
             href="{{env.npm_package_homepage}}"\n\
@@ -292,7 +292,7 @@ console.log(null);\n\
     {{#unless isRollup}}\n\
 utility2-comment -->\n\
     <script src="assets.utility2.rollup.js"></script>\n\
-    <script src="jsonp.utility2.stateInit?callback=window.utility2.stateInit"></script>\n\
+    <script src="jsonp.utility2._stateInit?callback=window.utility2._stateInit"></script>\n\
     <script src="assets.uglifyjs-lite.js"></script>\n\
     <script src="assets.example.js"></script>\n\
     <script src="assets.test.js"></script>\n\
@@ -399,7 +399,7 @@ export npm_config_mode_auto_restart=1 && \
 utility2 shRun shIstanbulCover test.js",
         "test": "export PORT=$(utility2 shServerPortRandom) && utility2 test test.js"
     },
-    "version": "2016.11.1"
+    "version": "2016.12.1"
 }
 ```
 

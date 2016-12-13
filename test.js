@@ -62,7 +62,12 @@
          * this function will test uglify's default handling-behavior
          */
             options = {};
-            options.data = local.uglifyjs.uglify('aa = 1');
+            // test css handling-behavior
+            options.data = local.uglify('body { margin: 0; }', 'aa.css');
+            // validate data
+            local.assertJsonEqual(options.data, 'body{margin:0;}');
+            // test js handling-behavior
+            options.data = local.uglify('aa = 1', 'aa.js');
             // validate data
             local.assertJsonEqual(options.data, 'aa=1');
             onError();
@@ -111,7 +116,6 @@
 
 
 
-    /* istanbul ignore next */
     // run node js-env code - post-init
     case 'node':
         // run test-server
