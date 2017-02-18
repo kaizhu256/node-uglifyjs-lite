@@ -1,36 +1,43 @@
 {
-    "package.json": true,
     "author": "kai zhu <kaizhu256@gmail.com>",
-    "bin": { "uglifyjs-lite": "lib.uglifyjs.js" },
-    "description": "this zero-dependency package will provide a browser-compatible version of the uglifyjs javascript-minifier",
+    "bin": {
+        "uglifyjs-lite": "lib.uglifyjs.js"
+    },
+    "description": "this zero-dependency package will provide a browser-compatible version of the uglifyjs v1.3.5 javascript-minifier",
     "devDependencies": {
         "electron-lite": "kaizhu256/node-electron-lite#alpha",
         "utility2": "kaizhu256/node-utility2#alpha"
     },
-    "engines": { "node": ">=4.0" },
+    "engines": {
+        "node": ">=4.0"
+    },
     "homepage": "https://github.com/kaizhu256/node-uglifyjs-lite",
     "keywords": [
         "browser",
         "minify",
         "obfuscate",
-        "uglify", "uglifyjs",
-        "web"
+        "uglify",
+        "uglifyjs"
     ],
     "license": "MIT",
-    "main": "lib.uglifyjs",
+    "main": "lib.uglifyjs.js",
     "name": "uglifyjs-lite",
-    "os": ["darwin", "linux"],
-    "repository" : {
-        "type" : "git",
-        "url" : "https://github.com/kaizhu256/node-uglifyjs-lite.git"
+    "nameAlias": "uglifyjs",
+    "os": [
+        "darwin",
+        "linux"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/kaizhu256/node-uglifyjs-lite.git"
     },
     "scripts": {
         "build-ci": "utility2 shRun shReadmeBuild",
+        "heroku-postbuild": "npm install 'kaizhu256/node-utility2#alpha' && utility2 shRun shDeployHeroku",
+        "postinstall": "if [ -f lib.uglifyjs-lite.npm-scripts.sh ]; then ./lib.uglifyjs-lite.npm-scripts.sh postinstall; fi",
+        "publish-alias": "for ALIAS in uglify-lite; do shNpmPublish uglifyjs-lite $ALIAS; done",
         "start": "export PORT=${PORT:-8080} && export npm_config_mode_auto_restart=1 && utility2 shRun shIstanbulCover test.js",
-
-
-
         "test": "export PORT=$(utility2 shServerPortRandom) && utility2 test test.js"
     },
-    "version": "2016.12.1"
+    "version": "2017.2.18"
 }

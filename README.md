@@ -1,8 +1,8 @@
 uglifyjs-lite
 =============
-this zero-dependency package will provide a browser-compatible version of the uglifyjs javascript-minifier
+this zero-dependency package will provide a browser-compatible version of the uglifyjs v1.3.5 javascript-minifier
 
-[![travis-ci.org build-status](https://api.travis-ci.org/kaizhu256/node-uglifyjs-lite.svg)](https://travis-ci.org/kaizhu256/node-uglifyjs-lite)
+[![travis-ci.org build-status](https://api.travis-ci.org/kaizhu256/node-uglifyjs-lite.svg)](https://travis-ci.org/kaizhu256/node-uglifyjs-lite) [![istanbul-coverage](https://kaizhu256.github.io/node-uglifyjs-lite/build..alpha..travis-ci.org/coverage.badge.svg)](https://kaizhu256.github.io/node-uglifyjs-lite/build..alpha..travis-ci.org/coverage.html/index.html)
 
 [![NPM](https://nodei.co/npm/uglifyjs-lite.png?downloads=true)](https://www.npmjs.com/package/uglifyjs-lite)
 
@@ -11,49 +11,51 @@ this zero-dependency package will provide a browser-compatible version of the ug
 
 
 # cdn download
-- [https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/app/assets.uglifyjs-lite.js](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/app/assets.uglifyjs-lite.js)
-- [https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/app/assets.uglifyjs-lite.min.js](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/app/assets.uglifyjs-lite.min.js)
+- [https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/app/assets.uglifyjs.rollup.js](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/app/assets.uglifyjs.rollup.js)
 
 
 
 # live demo
 - [https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/app/index.html](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/app/index.html)
 
-[![github.com test-server](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.githubDeploy.browser._2Fnode-uglifyjs-lite_2Fbuild..alpha..travis-ci.org_2Fapp_2Findex.html.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/app/index.html)
+[![github.com test-server](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.deployGithub.browser._2Fnode-uglifyjs-lite_2Fbuild..alpha..travis-ci.org_2Fapp_2Findex.html.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/app/index.html)
 
 
 
 # documentation
 #### api-doc
-- [https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/doc.api.html](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/doc.api.html)
+- [https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/api-doc.html](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/api-doc.html)
 
-[![api-doc](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/screen-capture.docApiCreate.browser._2Fhome_2Ftravis_2Fbuild_2Fkaizhu256_2Fnode-uglifyjs-lite_2Ftmp_2Fbuild_2Fdoc.api.html.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/doc.api.html)
+[![api-doc](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.apiDoc.browser._2Fhome_2Ftravis_2Fbuild_2Fkaizhu256_2Fnode-uglifyjs-lite_2Ftmp_2Fbuild_2Fapi-doc.html.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/api-doc.html)
 
 #### todo
 - none
 
-#### change since 3360d323
-- npm publish 2016.12.1
-- add ability to uglify css
+#### change since 70eb3f92
+- npm publish 2017.2.18
+- add file assets.uglifyjs.rollup.js
+- add heroku-postbuild npm-script
+- do not auto-uglify js-assets in production
+- revamp README.md
 - none
 
 #### this package requires
 - darwin or linux os
 
 #### additional info
-- uglifyjs derived from https://github.com/mishoo/UglifyJS/tree/v1.3.5
+- uglifyjs code derived from https://github.com/mishoo/UglifyJS/tree/v1.3.5
 
 
 
-# build-status [![travis-ci.org build-status](https://api.travis-ci.org/kaizhu256/node-uglifyjs-lite.svg)](https://travis-ci.org/kaizhu256/node-uglifyjs-lite)
+# build status [![travis-ci.org build-status](https://api.travis-ci.org/kaizhu256/node-uglifyjs-lite.svg)](https://travis-ci.org/kaizhu256/node-uglifyjs-lite)
 [![build commit status](https://kaizhu256.github.io/node-uglifyjs-lite/build/build.badge.svg)](https://travis-ci.org/kaizhu256/node-uglifyjs-lite)
 
 | git-branch : | [master](https://github.com/kaizhu256/node-uglifyjs-lite/tree/master) | [beta](https://github.com/kaizhu256/node-uglifyjs-lite/tree/beta) | [alpha](https://github.com/kaizhu256/node-uglifyjs-lite/tree/alpha)|
 |--:|:--|:--|:--|
 | test-server-1 : | [![github.com test-server](https://kaizhu256.github.io/node-uglifyjs-lite/GitHub-Mark-32px.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build..master..travis-ci.org/app/index.html) | [![github.com test-server](https://kaizhu256.github.io/node-uglifyjs-lite/GitHub-Mark-32px.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/app/index.html) | [![github.com test-server](https://kaizhu256.github.io/node-uglifyjs-lite/GitHub-Mark-32px.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build..alpha..travis-ci.org/app/index.html)|
-| test-server-2 : | [![heroku.com test-server](https://kaizhu256.github.io/node-uglifyjs-lite/heroku-logo.75x25.png)](https://hrku01-uglifyjs-lite-master.herokuapp.com) | [![heroku.com test-server](https://kaizhu256.github.io/node-uglifyjs-lite/heroku-logo.75x25.png)](https://hrku01-uglifyjs-lite-beta.herokuapp.com) | [![heroku.com test-server](https://kaizhu256.github.io/node-uglifyjs-lite/heroku-logo.75x25.png)](https://hrku01-uglifyjs-lite-alpha.herokuapp.com)|
+| test-server-2 : | [![heroku.com test-server](https://kaizhu256.github.io/node-uglifyjs-lite/heroku-logo.75x25.png)](https://h1-uglifyjs-master.herokuapp.com) | [![heroku.com test-server](https://kaizhu256.github.io/node-uglifyjs-lite/heroku-logo.75x25.png)](https://h1-uglifyjs-beta.herokuapp.com) | [![heroku.com test-server](https://kaizhu256.github.io/node-uglifyjs-lite/heroku-logo.75x25.png)](https://h1-uglifyjs-alpha.herokuapp.com)|
 | test-report : | [![test-report](https://kaizhu256.github.io/node-uglifyjs-lite/build..master..travis-ci.org/test-report.badge.svg)](https://kaizhu256.github.io/node-uglifyjs-lite/build..master..travis-ci.org/test-report.html) | [![test-report](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/test-report.badge.svg)](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/test-report.html) | [![test-report](https://kaizhu256.github.io/node-uglifyjs-lite/build..alpha..travis-ci.org/test-report.badge.svg)](https://kaizhu256.github.io/node-uglifyjs-lite/build..alpha..travis-ci.org/test-report.html)|
-| coverage : | [![istanbul coverage](https://kaizhu256.github.io/node-uglifyjs-lite/build..master..travis-ci.org/coverage.badge.svg)](https://kaizhu256.github.io/node-uglifyjs-lite/build..master..travis-ci.org/coverage.html/index.html) | [![istanbul coverage](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/coverage.badge.svg)](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/coverage.html/index.html) | [![istanbul coverage](https://kaizhu256.github.io/node-uglifyjs-lite/build..alpha..travis-ci.org/coverage.badge.svg)](https://kaizhu256.github.io/node-uglifyjs-lite/build..alpha..travis-ci.org/coverage.html/index.html)|
+| coverage : | [![istanbul-coverage](https://kaizhu256.github.io/node-uglifyjs-lite/build..master..travis-ci.org/coverage.badge.svg)](https://kaizhu256.github.io/node-uglifyjs-lite/build..master..travis-ci.org/coverage.html/index.html) | [![istanbul-coverage](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/coverage.badge.svg)](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/coverage.html/index.html) | [![istanbul-coverage](https://kaizhu256.github.io/node-uglifyjs-lite/build..alpha..travis-ci.org/coverage.badge.svg)](https://kaizhu256.github.io/node-uglifyjs-lite/build..alpha..travis-ci.org/coverage.html/index.html)|
 | build-artifacts : | [![build-artifacts](https://kaizhu256.github.io/node-uglifyjs-lite/glyphicons_144_folder_open.png)](https://github.com/kaizhu256/node-uglifyjs-lite/tree/gh-pages/build..master..travis-ci.org) | [![build-artifacts](https://kaizhu256.github.io/node-uglifyjs-lite/glyphicons_144_folder_open.png)](https://github.com/kaizhu256/node-uglifyjs-lite/tree/gh-pages/build..beta..travis-ci.org) | [![build-artifacts](https://kaizhu256.github.io/node-uglifyjs-lite/glyphicons_144_folder_open.png)](https://github.com/kaizhu256/node-uglifyjs-lite/tree/gh-pages/build..alpha..travis-ci.org)|
 
 #### master branch
@@ -80,18 +82,17 @@ this zero-dependency package will provide a browser-compatible version of the ug
 /*
 example.js
 
-this script will will demo the browser-version of uglifyjs
+this script will demo the browser-version of uglifyjs
 
 instruction
     1. save this script as example.js
     2. run the shell command:
-        $ npm install uglifyjs-lite && \
-            export PORT=8081 && \
-            node example.js
-    3. play with the browser-demo on http://localhost:8081
+        $ npm install uglifyjs-lite && PORT=8081 node example.js
+    3. play with the browser-demo on http://127.0.0.1:8081
 */
 
-/* istanbul instrument in package uglifyjs-lite */
+
+
 /*jslint
     bitwise: true,
     browser: true,
@@ -143,7 +144,6 @@ instruction
 
     // run browser js-env code - post-init
     case 'browser':
-        /* istanbul ignore next */
         local.testRun = function (event) {
             switch (event && event.currentTarget.id) {
             case 'testRunButton1':
@@ -204,7 +204,6 @@ instruction
 
 
 
-    /* istanbul ignore next */
     // run node js-env code - post-init
     case 'node':
         // export local
@@ -212,34 +211,37 @@ instruction
         // require modules
         local.fs = require('fs');
         local.http = require('http');
-        local.path = require('path');
         local.url = require('url');
         // init assets
+        local.assetsDict = local.assetsDict || {};
         /* jslint-ignore-begin */
-        local.templateIndexHtml = '\
+        local.assetsDict['/assets.index.template.html'] = '\
 <!doctype html>\n\
 <html lang="en">\n\
 <head>\n\
 <meta charset="UTF-8">\n\
 <meta name="viewport" content="width=device-width, initial-scale=1">\n\
-<title>{{env.npm_package_name}} v{{env.npm_package_version}}</title>\n\
+<title>{{env.npm_package_nameAlias}} v{{env.npm_package_version}}</title>\n\
 <style>\n\
 /*csslint\n\
     box-sizing: false,\n\
-    ids: false,\n\
     universal-selector: false\n\
 */\n\
 * {\n\
     box-sizing: border-box;\n\
 }\n\
 body {\n\
-    background: #fff;\n\
+    background: #dde;\n\
     font-family: Arial, Helvetica, sans-serif;\n\
-    margin: 1rem;\n\
+    margin: 2rem;\n\
 }\n\
 body > * {\n\
     margin-bottom: 1rem;\n\
 }\n\
+</style>\n\
+<style>\n\
+/*csslint\n\
+*/\n\
 textarea {\n\
     font-family: monospace;\n\
     height: 10rem;\n\
@@ -263,7 +265,7 @@ utility2-comment -->\n\
             target="_blank"\n\
         >\n\
 utility2-comment -->\n\
-            {{env.npm_package_name}} v{{env.npm_package_version}}\n\
+            {{env.npm_package_nameAlias}} v{{env.npm_package_version}}\n\
 <!-- utility2-comment\n\
         </a>\n\
 utility2-comment -->\n\
@@ -272,8 +274,8 @@ utility2-comment -->\n\
 <!-- utility2-comment\n\
     <h4><a download href="assets.app.js">download standalone app</a></h4>\n\
     <button class="onclick" id="testRunButton1">run internal test</button><br>\n\
-utility2-comment -->\n\
     <div id="testReportDiv1" style="display: none;"></div>\n\
+utility2-comment -->\n\
 \n\
     <label>edit or paste script below to cover and eval</label>\n\
 <textarea class="onkeyup" id="inputTextarea1">\n\
@@ -282,18 +284,18 @@ aa = "hello";\n\
 console.log(aa);\n\
 console.log(null);\n\
 </textarea>\n\
-    <label>uglified code</label>\n\
+    <label>uglified-code</label>\n\
     <textarea id="outputTextarea1" readonly></textarea>\n\
     <label>stderr and stdout</label>\n\
     <textarea id="outputTextarea2" readonly></textarea>\n\
 <!-- utility2-comment\n\
     {{#if isRollup}}\n\
-    <script src="assets.app.min.js"></script>\n\
+    <script src="assets.app.js"></script>\n\
     {{#unless isRollup}}\n\
 utility2-comment -->\n\
     <script src="assets.utility2.rollup.js"></script>\n\
     <script src="jsonp.utility2._stateInit?callback=window.utility2._stateInit"></script>\n\
-    <script src="assets.uglifyjs-lite.js"></script>\n\
+    <script src="assets.uglifyjs.rollup.js"></script>\n\
     <script src="assets.example.js"></script>\n\
     <script src="assets.test.js"></script>\n\
 <!-- utility2-comment\n\
@@ -303,53 +305,64 @@ utility2-comment -->\n\
 </html>\n\
 ';
         /* jslint-ignore-end */
-        local['/'] = local.templateIndexHtml
-            .replace((/\{\{env\.(\w+?)\}\}/g), function (match0, match1) {
-                // jslint-hack
-                String(match0);
-                switch (match1) {
-                case 'npm_package_description':
-                    return 'example module';
-                case 'npm_package_name':
-                    return 'example';
-                case 'npm_package_version':
-                    return '0.0.1';
+        if (local.templateRender) {
+            local.assetsDict['/'] = local.templateRender(
+                local.assetsDict['/assets.index.template.html'],
+                {
+                    env: local.objectSetDefault(local.env, {
+                        npm_package_description: 'example module',
+                        npm_package_nameAlias: 'example',
+                        npm_package_version: '0.0.1'
+                    })
                 }
-            });
-        if (local.global.utility2_rollup) {
-            break;
+            );
+        } else {
+            local.assetsDict['/'] = local.assetsDict['/assets.index.template.html']
+                .replace((/\{\{env\.(\w+?)\}\}/g), function (match0, match1) {
+                    // jslint-hack
+                    String(match0);
+                    switch (match1) {
+                    case 'npm_package_description':
+                        return 'example module';
+                    case 'npm_package_nameAlias':
+                        return 'example';
+                    case 'npm_package_version':
+                        return '0.0.1';
+                    }
+                });
         }
-        try {
-            local['/assets.example.js'] = local.fs.readFileSync(__filename, 'utf8');
-        } catch (ignore) {
-        }
-        local['/assets.uglifyjs-lite.js'] = '//' + local.fs.readFileSync(
-            local.uglifyjs.__dirname + '/lib.uglifyjs.js',
-            'utf8'
-        );
         // run the cli
-        if (module !== require.main) {
+        if (local.global.utility2_rollup || module !== require.main) {
             break;
         }
-        // start server
-        console.log('server starting on port ' + process.env.PORT);
-        local.http.createServer(function (request, response) {
-            switch (local.url.parse(request.url).pathname) {
-            case '/':
-            case '/assets.example.js':
-            case '/assets.uglifyjs-lite.js':
-            case '/assets.test.js':
-                response.end(local[local.url.parse(request.url).pathname]);
-                break;
-            default:
-                response.end();
-            }
-        }).listen(process.env.PORT);
+        local.assetsDict['/assets.example.js'] = local.assetsDict['/assets.example.js'] ||
+            local.fs.readFileSync(__filename, 'utf8');
+        local.assetsDict['/assets.uglifyjs.rollup.js'] =
+            local.assetsDict['/assets.uglifyjs.rollup.js'] || local.fs.readFileSync(
+                local.uglifyjs.__dirname + '/lib.uglifyjs.js',
+                'utf8'
+            ).replace((/^#!/), '//');
+        local.assetsDict['/favicon.ico'] = local.assetsDict['/favicon.ico'] || '';
         // if $npm_config_timeout_exit exists,
         // then exit this process after $npm_config_timeout_exit ms
         if (Number(process.env.npm_config_timeout_exit)) {
             setTimeout(process.exit, Number(process.env.npm_config_timeout_exit));
         }
+        // start server
+        if (local.global.utility2_serverHttp1) {
+            break;
+        }
+        process.env.PORT = process.env.PORT || '8081';
+        console.log('server starting on port ' + process.env.PORT);
+        local.http.createServer(function (request, response) {
+            request.urlParsed = local.url.parse(request.url);
+            if (local.assetsDict[request.urlParsed.pathname] !== undefined) {
+                response.end(local.assetsDict[request.urlParsed.pathname]);
+                return;
+            }
+            response.statusCode = 404;
+            response.end();
+        }).listen(process.env.PORT);
         break;
     }
 }());
@@ -366,40 +379,47 @@ utility2-comment -->\n\
 # package.json
 ```json
 {
-    "package.json": true,
     "author": "kai zhu <kaizhu256@gmail.com>",
-    "bin": { "uglifyjs-lite": "lib.uglifyjs.js" },
-    "description": "{{packageJson.description}}",
+    "bin": {
+        "uglifyjs-lite": "lib.uglifyjs.js"
+    },
+    "description": "this zero-dependency package will provide a browser-compatible version of the uglifyjs v1.3.5 javascript-minifier",
     "devDependencies": {
         "electron-lite": "kaizhu256/node-electron-lite#alpha",
         "utility2": "kaizhu256/node-utility2#alpha"
     },
-    "engines": { "node": ">=4.0" },
+    "engines": {
+        "node": ">=4.0"
+    },
     "homepage": "https://github.com/kaizhu256/node-uglifyjs-lite",
     "keywords": [
         "browser",
         "minify",
         "obfuscate",
-        "uglify", "uglifyjs",
-        "web"
+        "uglify",
+        "uglifyjs"
     ],
     "license": "MIT",
-    "main": "lib.uglifyjs",
+    "main": "lib.uglifyjs.js",
     "name": "uglifyjs-lite",
-    "os": ["darwin", "linux"],
-    "repository" : {
-        "type" : "git",
-        "url" : "https://github.com/kaizhu256/node-uglifyjs-lite.git"
+    "nameAlias": "uglifyjs",
+    "os": [
+        "darwin",
+        "linux"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/kaizhu256/node-uglifyjs-lite.git"
     },
     "scripts": {
         "build-ci": "utility2 shRun shReadmeBuild",
-        "start": "\
-export PORT=${PORT:-8080} && \
-export npm_config_mode_auto_restart=1 && \
-utility2 shRun shIstanbulCover test.js",
+        "heroku-postbuild": "npm install 'kaizhu256/node-utility2#alpha' && utility2 shRun shDeployHeroku",
+        "postinstall": "if [ -f lib.uglifyjs-lite.npm-scripts.sh ]; then ./lib.uglifyjs-lite.npm-scripts.sh postinstall; fi",
+        "publish-alias": "for ALIAS in uglify-lite; do shNpmPublish uglifyjs-lite $ALIAS; done",
+        "start": "export PORT=${PORT:-8080} && export npm_config_mode_auto_restart=1 && utility2 shRun shIstanbulCover test.js",
         "test": "export PORT=$(utility2 shServerPortRandom) && utility2 test test.js"
     },
-    "version": "2016.12.1"
+    "version": "2017.2.18"
 }
 ```
 
@@ -417,48 +437,6 @@ utility2 shRun shIstanbulCover test.js",
 
 # this shell script will run the build for this package
 
-shBuildCiTestPre() {(set -e
-# this function will run the pre-test build
-    # test example.js
-    (export MODE_BUILD=testExampleJs &&
-        shRunScreenCapture shReadmeTestJs example.js) || return $?
-    # test published-package
-    (export MODE_BUILD=npmTestPublished &&
-        shRunScreenCapture shNpmTestPublished) || return $?
-)}
-
-shBuildCiTestPost() {(set -e
-# this function will run the post-test build
-    # if running legacy-node, then return
-    [ "$(node --version)" \< "v7.0" ] && return || true
-    export NODE_ENV=production
-    # deploy app to gh-pages
-    export TEST_URL="https://$(printf "$GITHUB_REPO" | \
-        sed 's/\//.github.io\//')/build..$CI_BRANCH..travis-ci.org/app/index.html"
-    (export MODE_BUILD=githubDeploy &&
-        shGithubDeploy) || return $?
-    # test deployed app to gh-pages
-    (export MODE_BUILD=githubTest &&
-        export modeBrowserTest=test &&
-        export url="$TEST_URL?modeTest=1&timeExit={{timeExit}}" &&
-        shBrowserTest) || return $?
-    # deploy app to heroku
-    export HEROKU_REPO="hrku01-$npm_package_name-$CI_BRANCH"
-    export TEST_URL="https://$HEROKU_REPO.herokuapp.com"
-    shGitRepoBranchUpdateLocal() {(set -e
-    # this function will local-update git-repo-branch
-        cp "$npm_config_dir_build/app/assets.app.js" .
-        printf "web: npm_config_mode_backend=1 node assets.app.js" > Procfile
-    )}
-    (export MODE_BUILD=herokuDeploy &&
-        shHerokuDeploy) || return $?
-    # test deployed app to heroku
-    (export MODE_BUILD=herokuTest &&
-        export modeBrowserTest=test &&
-        export url="$TEST_URL?modeTest=1&timeExit={{timeExit}}" &&
-        shBrowserTest) || return $?
-)}
-
 shBuild() {(set -e
 # this function will run the main build
     # init env
@@ -475,5 +453,25 @@ shBuild() {(set -e
         shBuildCiDefault
     fi
 )}
+
+shBuildCiTestPost() {(set -e
+# this function will run the post-test build
+    # if running legacy-node, then return
+    [ "$(node --version)" \< "v7.0" ] && return || true
+    export NODE_ENV=production
+    # deploy app to gh-pages
+    (export MODE_BUILD=deployGithub && shDeployGithub) || return $?
+    # deploy app to heroku
+    (export MODE_BUILD=deployHeroku && shDeployHeroku) || return $?
+)}
+
+shBuildCiTestPre() {(set -e
+# this function will run the pre-test build
+    # test example.js
+    (export MODE_BUILD=testExampleJs && shRunScreenCapture shReadmeTestExampleJs) || return $?
+    # test published-package
+    (export MODE_BUILD=npmTestPublished && shRunScreenCapture shNpmTestPublished) || return $?
+)}
+
 shBuild
 ```
