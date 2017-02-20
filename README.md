@@ -31,12 +31,10 @@ this zero-dependency package will provide a browser-compatible version of the ug
 #### todo
 - none
 
-#### change since 70eb3f92
-- npm publish 2017.2.18
-- add file assets.uglifyjs.rollup.js
-- add heroku-postbuild npm-script
-- do not auto-uglify js-assets in production
-- revamp README.md
+#### change since e0235d04
+- npm publish 2017.2.19
+- create published-alias uglify-lite
+- replace env var npm_package_name with npm_package_nameAlias in istanbul code-coverage
 - none
 
 #### this package requires
@@ -93,6 +91,7 @@ instruction
 
 
 
+/* istanbul instrument in package uglifyjs */
 /*jslint
     bitwise: true,
     browser: true,
@@ -142,10 +141,12 @@ instruction
 
 
 
+    // post-init
+    /* istanbul ignore next */
     // run browser js-env code - post-init
     case 'browser':
-        local.testRun = function (event) {
-            switch (event && event.currentTarget.id) {
+        local.testRunBrowser = function (event) {
+            switch (event.currentTarget.id) {
             case 'testRunButton1':
                 // show tests
                 if (document.querySelector('#testReportDiv1').style.display === 'none') {
@@ -161,7 +162,7 @@ instruction
                 break;
             default:
                 // reset stdout
-                document.querySelector('#outputTextarea2').value = '';
+                document.querySelector('#outputTextareaStdout1').value = '';
                 // try to uglify and eval input-code
                 try {
                     /*jslint evil: true*/
@@ -175,16 +176,16 @@ instruction
                     console.error(errorCaught.stack);
                 }
                 // scroll stdout to bottom
-                document.querySelector('#outputTextarea2').scrollTop =
-                    document.querySelector('#outputTextarea2').scrollHeight;
+                document.querySelector('#outputTextareaStdout1').scrollTop =
+                    document.querySelector('#outputTextareaStdout1').scrollHeight;
             }
         };
-        // log stderr and stdout to #outputTextarea2
+        // log stderr and stdout to #outputTextareaStdout1
         ['error', 'log'].forEach(function (key) {
             console['_' + key] = console[key];
             console[key] = function () {
                 console['_' + key].apply(console, arguments);
-                document.querySelector('#outputTextarea2').value +=
+                (document.querySelector('#outputTextareaStdout1') || { value: '' }).value +=
                     Array.from(arguments).map(function (arg) {
                         return typeof arg === 'string'
                             ? arg
@@ -193,17 +194,18 @@ instruction
             };
         });
         // init event-handling
-        ['click', 'keyup'].forEach(function (event) {
+        ['change', 'click', 'keyup'].forEach(function (event) {
             Array.from(document.querySelectorAll('.on' + event)).forEach(function (element) {
-                element.addEventListener(event, local.testRun);
+                element.addEventListener(event, local.testRunBrowser);
             });
         });
         // run tests
-        local.testRun();
+        local.testRunBrowser({ currentTarget: { id: 'default' } });
         break;
 
 
 
+    /* istanbul ignore next */
     // run node js-env code - post-init
     case 'node':
         // export local
@@ -287,7 +289,7 @@ console.log(null);\n\
     <label>uglified-code</label>\n\
     <textarea id="outputTextarea1" readonly></textarea>\n\
     <label>stderr and stdout</label>\n\
-    <textarea id="outputTextarea2" readonly></textarea>\n\
+    <textarea id="outputTextareaStdout1" readonly></textarea>\n\
 <!-- utility2-comment\n\
     {{#if isRollup}}\n\
     <script src="assets.app.js"></script>\n\
@@ -403,6 +405,7 @@ utility2-comment -->\n\
     "main": "lib.uglifyjs.js",
     "name": "uglifyjs-lite",
     "nameAlias": "uglifyjs",
+    "nameOriginal": "uglifyjs-lite",
     "os": [
         "darwin",
         "linux"
@@ -415,11 +418,11 @@ utility2-comment -->\n\
         "build-ci": "utility2 shRun shReadmeBuild",
         "heroku-postbuild": "npm install 'kaizhu256/node-utility2#alpha' && utility2 shRun shDeployHeroku",
         "postinstall": "if [ -f lib.uglifyjs-lite.npm-scripts.sh ]; then ./lib.uglifyjs-lite.npm-scripts.sh postinstall; fi",
-        "publish-alias": "for ALIAS in uglify-lite; do shNpmPublish uglifyjs-lite $ALIAS; done",
+        "publish-alias": "for ALIAS in uglify-lite; do utility2 shRun shNpmPublish $ALIAS; utility2 shRun shNpmTestPublished $ALIAS || exit $?; done",
         "start": "export PORT=${PORT:-8080} && export npm_config_mode_auto_restart=1 && utility2 shRun shIstanbulCover test.js",
         "test": "export PORT=$(utility2 shServerPortRandom) && utility2 test test.js"
     },
-    "version": "2017.2.18"
+    "version": "2017.2.19"
 }
 ```
 
@@ -444,14 +447,18 @@ shBuild() {(set -e
     # cleanup github-gh-pages dir
     # export BUILD_GITHUB_UPLOAD_PRE_SH="rm -fr build"
     # init github-gh-pages commit-limit
-    export COMMIT_LIMIT=16
-    # if branch is alpha, beta, or master, then run default build
-    if [ "$CI_BRANCH" = alpha ] ||
-        [ "$CI_BRANCH" = beta ] ||
-        [ "$CI_BRANCH" = master ]
-    then
+    export COMMIT_LIMIT=20
+    case "$CI_BRANCH" in
+    alpha)
         shBuildCiDefault
-    fi
+        ;;
+    beta)
+        shBuildCiDefault
+        ;;
+    master)
+        shBuildCiDefault
+        ;;
+    esac
 )}
 
 shBuildCiTestPost() {(set -e

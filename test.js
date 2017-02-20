@@ -1,4 +1,4 @@
-/* istanbul instrument in package uglifyjs-lite */
+/* istanbul instrument in package uglifyjs */
 /*jslint
     bitwise: true,
     browser: true,
