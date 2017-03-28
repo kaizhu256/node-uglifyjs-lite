@@ -30,9 +30,9 @@ this zero-dependency package will provide a browser-compatible version of the ug
 #### todo
 - none
 
-#### changes for v2017.3.27
-- npm publish 2017.3.27
-- use remote-credentials for travis-ci build
+#### changes for v2017.3.28
+- npm publish 2017.3.28
+- update .travis.yml
 - none
 
 #### this package requires
@@ -477,7 +477,7 @@ utility2-comment -->\n\
         "start": "(set -e; export PORT=${PORT:-8080}; utility2 start test.js)",
         "test": "(set -e; export PORT=$(utility2 shServerPortRandom); utility2 test test.js)"
     },
-    "version": "2017.3.27"
+    "version": "2017.3.28"
 }
 ```
 

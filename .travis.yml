@@ -15,7 +15,7 @@ branches:
 env:
     global:
     # this value is auto-created by shTravisCryptoAesEncryptYml
-    - secure: y6awgmYMyEOMOlzOvh7/spHWhBnBcEIvthzMR/Al20FnrnibJra9JA6Yx++V9GVMmz/ucoBadLBk6vJU79/meW8UHk2tb5MNGkIdhexvAhNnD0aMUXmHJdtPTEbwrQPx77gkZGHsD6mRNb9fKc8S7muqd2Z2E3ua4yR+8LHmn/8= # CRYPTO_AES_KEY
+    - secure: Kq1Ex0ir+Mj6Y5S5zwZIQcegljouu/QTl9fJ8HzsYtfiKkdBZNtnHwSZHfWQUtg8fuPa9RJzO59bXdodHFZbbDNvJ++e1I6nEYxMp6rw+nyu2TR1gp2PGS3KI5QJWv9tBtM3ImLzEoIv8jUsCpIZNsT9nHye7BNoBhW1pvQdLZOObCMZDBfQLAqwzoTWFYHY2C53tn76pf9kiPQoPYkrwG4IrkopQ1l+TKUzEiKKJ0bMEkQfBUu75OqL9uDv8+aKwf36DjIaCwkrTNvJEle0jD1akgy4BiVkKKGh3yBO1HDoFhhI5C+7Rd0iW2zkQKFOsJW/m0OkpJTV93Xtt5ro1sI/t6MRXfcimS4FEUXFBmX4hQklvfJKbBUty9kao7i2hC3tLcOrSPzIlPe46m4ooCq3Esn/M841lWVTwsLB1+t+4YIJ/DAwkBrrsrSDO5b0MZYJfa8CG1LF7ZwCSENDfDntNNzVx6m0n+tTC4wXCmSG9LKXlw6fnw1tZeAHJ6b4RUvVZswrEEj6DEaym+oyf+Xw/HcdChKvglKrFpgE8CzutVYLqLzPdmWLp0F3hwJRwqwwjpPS+8PGtkLM88gAF919x+jQ7gCOP752eM1Us57BRM+I317GqI/7kS7ProYGsc+XYCw4nT4oktWjiyu4Gpl+dqbKspQAkRh3HvX5880= # CRYPTO_AES_KEY
 language:
     - node_js
 node_js:
