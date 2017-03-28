@@ -23,22 +23,25 @@
     "main": "lib.uglifyjs.js",
     "name": "uglifyjs-lite",
     "nameAlias": "uglifyjs",
+    "nameAliasDeprecate": "uglifyjs_lite",
+    "nameAliasPublish": "uglifyjs-classic",
     "nameOriginal": "uglifyjs-lite",
     "os": [
         "darwin",
         "linux"
     ],
+    "readmeParse": "1",
     "repository": {
         "type": "git",
         "url": "https://github.com/kaizhu256/node-uglifyjs-lite.git"
     },
     "scripts": {
-        "build-ci": "utility2 shRun shReadmeBuild",
-        "heroku-postbuild": "npm install 'kaizhu256/node-utility2#alpha' && utility2 shRun shDeployHeroku",
-        "postinstall": "if [ -f lib.uglifyjs-lite.npm-scripts.sh ]; then ./lib.uglifyjs-lite.npm-scripts.sh postinstall; fi",
-        "publish-alias": "for ALIAS in uglify-lite; do utility2 shRun shNpmPublish $ALIAS; utility2 shRun shNpmTestPublished $ALIAS || exit $?; done",
-        "start": "export PORT=${PORT:-8080} && export npm_config_mode_auto_restart=1 && utility2 shRun shIstanbulCover test.js",
-        "test": "export PORT=$(utility2 shServerPortRandom) && utility2 test test.js"
+        "build-ci": "utility2 shReadmeTest build_ci.sh",
+        "env": "env",
+        "heroku-postbuild": "(set -e; npm install 'kaizhu256/node-utility2#alpha'; utility2 shDeployHeroku)",
+        "postinstall": "if [ -f npm_scripts.sh ]; then ./npm_scripts.sh postinstall; fi",
+        "start": "(set -e; export PORT=${PORT:-8080}; utility2 start test.js)",
+        "test": "(set -e; export PORT=$(utility2 shServerPortRandom); utility2 test test.js)"
     },
-    "version": "2017.2.19"
+    "version": "2017.3.27"
 }
