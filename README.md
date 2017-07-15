@@ -1,7 +1,7 @@
 # uglifyjs-lite
 this zero-dependency package will provide a browser-compatible version of the uglifyjs v1.3.5 javascript-minifier
 
-[![travis-ci.org build-status](https://api.travis-ci.org/kaizhu256/node-uglifyjs-lite.svg)](https://travis-ci.org/kaizhu256/node-uglifyjs-lite)
+[![travis-ci.org build-status](https://api.travis-ci.org/kaizhu256/node-uglifyjs-lite.svg)](https://travis-ci.org/kaizhu256/node-uglifyjs-lite) [![coverage](https://kaizhu256.github.io/node-uglifyjs-lite/build/coverage.badge.svg)](https://kaizhu256.github.io/node-uglifyjs-lite/build/coverage.html/index.html)
 
 [![NPM](https://nodei.co/npm/uglifyjs-lite.png?downloads=true)](https://www.npmjs.com/package/uglifyjs-lite)
 
@@ -15,59 +15,23 @@ this zero-dependency package will provide a browser-compatible version of the ug
 | coverage : | [![coverage](https://kaizhu256.github.io/node-uglifyjs-lite/build..master..travis-ci.org/coverage.badge.svg)](https://kaizhu256.github.io/node-uglifyjs-lite/build..master..travis-ci.org/coverage.html/index.html) | [![coverage](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/coverage.badge.svg)](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/coverage.html/index.html) | [![coverage](https://kaizhu256.github.io/node-uglifyjs-lite/build..alpha..travis-ci.org/coverage.badge.svg)](https://kaizhu256.github.io/node-uglifyjs-lite/build..alpha..travis-ci.org/coverage.html/index.html)|
 | build-artifacts : | [![build-artifacts](https://kaizhu256.github.io/node-uglifyjs-lite/glyphicons_144_folder_open.png)](https://github.com/kaizhu256/node-uglifyjs-lite/tree/gh-pages/build..master..travis-ci.org) | [![build-artifacts](https://kaizhu256.github.io/node-uglifyjs-lite/glyphicons_144_folder_open.png)](https://github.com/kaizhu256/node-uglifyjs-lite/tree/gh-pages/build..beta..travis-ci.org) | [![build-artifacts](https://kaizhu256.github.io/node-uglifyjs-lite/glyphicons_144_folder_open.png)](https://github.com/kaizhu256/node-uglifyjs-lite/tree/gh-pages/build..alpha..travis-ci.org)|
 
-[![npmPackageListing](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.npmPackageListing.svg)](https://github.com/kaizhu256/node-uglifyjs-lite)
+[![npmPackageListing](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.npmPackageListing.svg)](https://github.com/kaizhu256/node-uglifyjs-lite)
 
-![npmPackageDependencyTree](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.npmPackageDependencyTree.svg)
+![npmPackageDependencyTree](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.npmPackageDependencyTree.svg)
 
 
 
-# package.json
-```json
-{
-    "author": "kai zhu <kaizhu256@gmail.com>",
-    "bin": {
-        "uglifyjs-lite": "lib.uglifyjs.js"
-    },
-    "description": "this zero-dependency package will provide a browser-compatible version of the uglifyjs v1.3.5 javascript-minifier",
-    "devDependencies": {
-        "electron-lite": "kaizhu256/node-electron-lite#alpha",
-        "utility2": "kaizhu256/node-utility2#alpha"
-    },
-    "engines": {
-        "node": ">=4.0"
-    },
-    "homepage": "https://github.com/kaizhu256/node-uglifyjs-lite",
-    "keywords": [
-        "minify",
-        "obfuscate",
-        "uglify",
-        "uglifyjs"
-    ],
-    "license": "MIT",
-    "main": "lib.uglifyjs.js",
-    "name": "uglifyjs-lite",
-    "nameAlias": "uglifyjs",
-    "nameAliasPublish": "uglifyjs-classic",
-    "nameOriginal": "uglifyjs-lite",
-    "os": [
-        "darwin",
-        "linux"
-    ],
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/kaizhu256/node-uglifyjs-lite.git"
-    },
-    "scripts": {
-        "build-ci": "utility2 shReadmeTest build_ci.sh",
-        "env": "env",
-        "heroku-postbuild": "npm install \"kaizhu256/node-utility2#alpha\" && utility2 shDeployHeroku",
-        "postinstall": "[ ! -f npm_scripts.sh ] || ./npm_scripts.sh postinstall",
-        "start": "PORT=${PORT:-8080} utility2 start test.js",
-        "test": "PORT=$(utility2 shServerPortRandom) utility2 test test.js"
-    },
-    "version": "2017.5.20"
-}
-```
+# table of contents
+1. [cdn download](#cdn-download)
+1. [live demo](#live-demo)
+1. [documentation](#documentation)
+1. [quickstart standalone app](#quickstart-standalone-app)
+1. [quickstart example.js](#quickstart-examplejs)
+1. [extra screenshots](#extra-screenshots)
+1. [package.json](#packagejson)
+1. [changelog of last 50 commits](#changelog-of-last-50-commits)
+1. [internal build script](#internal-build-script)
+1. [misc](#misc)
 
 
 
@@ -79,7 +43,7 @@ this zero-dependency package will provide a browser-compatible version of the ug
 # live demo
 - [https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/app](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/app)
 
-[![github.com test-server](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.deployGithub.browser.%252Fnode-uglifyjs-lite%252Fbuild%252Fapp.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/app)
+[![github.com test-server](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.deployGithub.browser.%252Fnode-uglifyjs-lite%252Fbuild%252Fapp.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/app)
 
 
 
@@ -87,15 +51,15 @@ this zero-dependency package will provide a browser-compatible version of the ug
 #### apidoc
 - [https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/apidoc.html](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/apidoc.html)
 
-[![apidoc](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.buildCi.browser.%252Ftmp%252Fbuild%252Fapidoc.html.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/apidoc.html)
+[![apidoc](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Fapidoc.html.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/apidoc.html)
 
 #### todo
 - none
 
-#### changelog for v2017.5.20
-- npm publish 2017.5.20
+#### changelog for v2017.7.15
+- npm publish 2017.7.15
 - deduplicate file assets.uglifyjs.rollup.js
-- add README section 'internal screen-capture'
+- add README section 'extra screenshots'
 - add README section 'quickstart standalone app'
 - rename README section 'quickstart web example' -> 'quickstart example.js'
 - none
@@ -110,29 +74,30 @@ this zero-dependency package will provide a browser-compatible version of the ug
 
 # quickstart standalone app
 #### to run this example, follow the instruction in the script below
-- [example.sh](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/example.sh)
 - [assets.app.js](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/app/assets.app.js)
 ```shell
 # example.sh
+
+# this shell script will download and run a web demo of uglifyjs-lite as a standalone app
 
 # 1. download standalone app
 curl -O https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/app/assets.app.js
 # 2. run standalone app
 node ./assets.app.js
 # 3. open a browser to http://127.0.0.1:8081 and play with the web demo
-# 4. edit standalone app to suit your needs
+# 4. edit file assets.app.js to suit your needs
 ```
 
 #### output from browser
-[![screen-capture](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.testExampleSh.browser.%252F.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build/app/assets.example.html)
+[![screenshot](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.testExampleSh.browser.%252F.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build/app/assets.example.html)
 
 #### output from shell
-![screen-capture](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.testExampleSh.svg)
+![screenshot](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.testExampleSh.svg)
 
 
 
 # quickstart example.js
-[![screen-capture](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.testExampleJs.browser.%252F.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build/app/assets.example.html)
+[![screenshot](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.testExampleJs.browser.%252F.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build/app/assets.example.html)
 
 #### to run this example, follow the instruction in the script below
 - [example.js](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/example.js)
@@ -140,13 +105,14 @@ node ./assets.app.js
 /*
 example.js
 
-this script will create a web demo of uglifyjs-lite
+this script will run a web demo of uglifyjs-lite
 
 instruction
     1. save this script as example.js
     2. run the shell command:
         $ npm install uglifyjs-lite && PORT=8081 node example.js
     3. open a browser to http://127.0.0.1:8081 and play with the web demo
+    4. edit this script to suit your needs
 */
 
 
@@ -228,15 +194,15 @@ instruction
             switch (event && event.currentTarget && event.currentTarget.id) {
             case 'testRunButton1':
                 // show tests
-                if (document.querySelector('#testReportDiv1').style.display === 'none') {
-                    document.querySelector('#testReportDiv1').style.display = 'block';
+                if (document.querySelector('#testReportDiv1').style.maxHeight === '0px') {
+                    local.uiAnimateSlideDown(document.querySelector('#testReportDiv1'));
                     document.querySelector('#testRunButton1').textContent =
                         'hide internal test';
                     local.modeTest = true;
                     local.testRunDefault(local);
                 // hide tests
                 } else {
-                    document.querySelector('#testReportDiv1').style.display = 'none';
+                    local.uiAnimateSlideUp(document.querySelector('#testReportDiv1'));
                     document.querySelector('#testRunButton1').textContent = 'run internal test';
                 }
                 break;
@@ -336,9 +302,26 @@ body {\n\
 body > * {\n\
     margin-bottom: 1rem;\n\
 }\n\
+body > button {\n\
+    width: 20rem;\n\
+}\n\
+button {\n\
+    cursor: pointer;\n\
+}\n\
+.uiAnimateSlide {\n\
+    overflow-y: hidden;\n\
+    transition: border-bottom 250ms, border-top 250ms, margin-bottom 250ms, margin-top 250ms, max-height 250ms, min-height 250ms, padding-bottom 250ms, padding-top 250ms;\n\
+}\n\
 .utility2FooterDiv {\n\
     margin-top: 20px;\n\
     text-align: center;\n\
+}\n\
+.zeroPixel {\n\
+    border: 0;\n\
+    height: 0;\n\
+    margin: 0;\n\
+    padding: 0;\n\
+    width: 0;\n\
 }\n\
 </style>\n\
 <style>\n\
@@ -356,7 +339,7 @@ textarea[readonly] {\n\
 </head>\n\
 <body>\n\
 <!-- utility2-comment\n\
-<div id="ajaxProgressDiv1" style="background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; width: 25%;"></div>\n\
+<div id="ajaxProgressDiv1" style="background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 25%;"></div>\n\
 utility2-comment -->\n\
 <h1>\n\
 <!-- utility2-comment\n\
@@ -376,7 +359,7 @@ utility2-comment -->\n\
 <!-- utility2-comment\n\
 <h4><a download href="assets.app.js">download standalone app</a></h4>\n\
 <button class="onclick onreset" id="testRunButton1">run internal test</button><br>\n\
-<div id="testReportDiv1" style="display: none;"></div>\n\
+<div class="uiAnimateSlide" id="testReportDiv1" style="border-bottom: 0; border-top: 0; margin-bottom: 0; margin-top: 0; max-height: 0; padding-bottom: 0; padding-top: 0;"></div>\n\
 utility2-comment -->\n\
 \n\
 \n\
@@ -398,10 +381,12 @@ console.log(null);\n\
 {{#unless isRollup}}\n\
 utility2-comment -->\n\
 <script src="assets.utility2.rollup.js"></script>\n\
+<script>window.utility2.onResetBefore.counter += 1;</script>\n\
 <script src="jsonp.utility2.stateInit?callback=window.utility2.stateInit"></script>\n\
 <script src="assets.uglifyjs.js"></script>\n\
 <script src="assets.example.js"></script>\n\
 <script src="assets.test.js"></script>\n\
+<script>window.utility2.onResetBefore();</script>\n\
 <!-- utility2-comment\n\
 {{/if isRollup}}\n\
 utility2-comment -->\n\
@@ -420,10 +405,11 @@ utility2-comment -->\n\
             'assets.swgg.swagger.json',
             'assets.swgg.swagger.server.json'
         ].forEach(function (file) {
-            local.assetsDict['/' + file] = local.assetsDict['/' + file] || '';
-            if (local.fs.existsSync(local.__dirname + '/' + file)) {
-                local.assetsDict['/' + file] = local.fs.readFileSync(
-                    local.__dirname + '/' + file,
+            file = '/' + file;
+            local.assetsDict[file] = local.assetsDict[file] || '';
+            if (local.fs.existsSync(local.__dirname + file)) {
+                local.assetsDict[file] = local.fs.readFileSync(
+                    local.__dirname + file,
                     'utf8'
                 );
             }
@@ -490,19 +476,111 @@ utility2-comment -->\n\
 ```
 
 #### output from browser
-[![screen-capture](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.testExampleJs.browser.%252F.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build/app/assets.example.html)
+[![screenshot](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.testExampleJs.browser.%252F.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build/app/assets.example.html)
 
 #### output from shell
-![screen-capture](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.testExampleJs.svg)
+![screenshot](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.testExampleJs.svg)
+
+
+
+# extra screenshots
+1. [https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Fapidoc.html.png](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Fapidoc.html.png)
+[![screenshot](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Fapidoc.html.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Fapidoc.html.png)
+
+1. [https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Fcoverage.lib.html.png](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Fcoverage.lib.html.png)
+[![screenshot](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Fcoverage.lib.html.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Fcoverage.lib.html.png)
+
+1. [https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Ftest-report.html.png](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Ftest-report.html.png)
+[![screenshot](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Ftest-report.html.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Ftest-report.html.png)
+
+1. [https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.deployGithub.browser.%252Fnode-uglifyjs-lite%252Fbuild%252Fapp%252Fassets.swgg.html.png](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.deployGithub.browser.%252Fnode-uglifyjs-lite%252Fbuild%252Fapp%252Fassets.swgg.html.png)
+[![screenshot](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.deployGithub.browser.%252Fnode-uglifyjs-lite%252Fbuild%252Fapp%252Fassets.swgg.html.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.deployGithub.browser.%252Fnode-uglifyjs-lite%252Fbuild%252Fapp%252Fassets.swgg.html.png)
+
+1. [https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.deployGithub.browser.%252Fnode-uglifyjs-lite%252Fbuild%252Fapp.png](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.deployGithub.browser.%252Fnode-uglifyjs-lite%252Fbuild%252Fapp.png)
+[![screenshot](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.deployGithub.browser.%252Fnode-uglifyjs-lite%252Fbuild%252Fapp.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.deployGithub.browser.%252Fnode-uglifyjs-lite%252Fbuild%252Fapp.png)
+
+1. [https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.deployGithubTest.browser.%252Fnode-uglifyjs-lite%252Fbuild%252Fapp.png](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.deployGithubTest.browser.%252Fnode-uglifyjs-lite%252Fbuild%252Fapp.png)
+[![screenshot](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.deployGithubTest.browser.%252Fnode-uglifyjs-lite%252Fbuild%252Fapp.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.deployGithubTest.browser.%252Fnode-uglifyjs-lite%252Fbuild%252Fapp.png)
+
+1. [https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.deployHeroku.browser.%252Fassets.swgg.html.png](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.deployHeroku.browser.%252Fassets.swgg.html.png)
+[![screenshot](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.deployHeroku.browser.%252Fassets.swgg.html.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.deployHeroku.browser.%252Fassets.swgg.html.png)
+
+1. [https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.deployHeroku.browser.%252F.png](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.deployHeroku.browser.%252F.png)
+[![screenshot](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.deployHeroku.browser.%252F.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.deployHeroku.browser.%252F.png)
+
+1. [https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.deployHerokuTest.browser.%252F.png](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.deployHerokuTest.browser.%252F.png)
+[![screenshot](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.deployHerokuTest.browser.%252F.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.deployHerokuTest.browser.%252F.png)
+
+1. [https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.npmTest.browser.%252F.png](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.npmTest.browser.%252F.png)
+[![screenshot](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.npmTest.browser.%252F.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.npmTest.browser.%252F.png)
+
+1. [https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.npmTestPublished.browser.%252F.png](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.npmTestPublished.browser.%252F.png)
+[![screenshot](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.npmTestPublished.browser.%252F.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.npmTestPublished.browser.%252F.png)
+
+1. [https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.testExampleJs.browser.%252F.png](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.testExampleJs.browser.%252F.png)
+[![screenshot](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.testExampleJs.browser.%252F.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.testExampleJs.browser.%252F.png)
+
+1. [https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.testExampleSh.browser.%252F.png](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.testExampleSh.browser.%252F.png)
+[![screenshot](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.testExampleSh.browser.%252F.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.testExampleSh.browser.%252F.png)
+
+
+
+# package.json
+```json
+{
+    "author": "kai zhu <kaizhu256@gmail.com>",
+    "bin": {
+        "uglifyjs-lite": "lib.uglifyjs.js"
+    },
+    "description": "this zero-dependency package will provide a browser-compatible version of the uglifyjs v1.3.5 javascript-minifier",
+    "devDependencies": {
+        "electron-lite": "kaizhu256/node-electron-lite#alpha",
+        "utility2": "kaizhu256/node-utility2#alpha"
+    },
+    "engines": {
+        "node": ">=4.0"
+    },
+    "homepage": "https://github.com/kaizhu256/node-uglifyjs-lite",
+    "keywords": [
+        "minify",
+        "obfuscate",
+        "uglify",
+        "uglifyjs"
+    ],
+    "license": "MIT",
+    "main": "lib.uglifyjs.js",
+    "name": "uglifyjs-lite",
+    "nameAlias": "uglifyjs",
+    "nameAliasPublish": "uglifyjs-classic",
+    "nameOriginal": "uglifyjs-lite",
+    "os": [
+        "darwin",
+        "linux"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/kaizhu256/node-uglifyjs-lite.git"
+    },
+    "scripts": {
+        "build-ci": "utility2 shReadmeTest build_ci.sh",
+        "env": "env",
+        "heroku-postbuild": "npm install \"kaizhu256/node-utility2#alpha\" && utility2 shDeployHeroku",
+        "postinstall": "[ ! -f npm_scripts.sh ] || ./npm_scripts.sh postinstall",
+        "start": "PORT=${PORT:-8080} utility2 start test.js",
+        "test": "PORT=$(utility2 shServerPortRandom) utility2 test test.js"
+    },
+    "version": "2017.7.15"
+}
+```
 
 
 
 # changelog of last 50 commits
-[![screen-capture](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.gitLog.svg)](https://github.com/kaizhu256/node-uglifyjs-lite/commits)
+[![screenshot](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.gitLog.svg)](https://github.com/kaizhu256/node-uglifyjs-lite/commits)
 
 
 
-# internal build-script
+# internal build script
 - build_ci.sh
 ```shell
 # build_ci.sh
@@ -510,60 +588,22 @@ utility2-comment -->\n\
 # this shell script will run the build for this package
 
 shBuildCiAfter() {(set -e
+    shNpmTestPublished
+    shReadmeTest example.js
     shDeployGithub
     shDeployHeroku
-    shReadmeBuildLinkVerify
+    shReadmeTest example.sh
 )}
 
 shBuildCiBefore() {(set -e
-    shReadmeTest example.js
-    shReadmeTest example.sh
     shNpmTestPublished
+    shReadmeTest example.js
 )}
 
 # run shBuildCi
 eval $(utility2 source)
 shBuildCi
 ```
-
-
-
-# internal screen-capture
-- [https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.buildCi.browser.%252Ftmp%252Fbuild%252Fapidoc.html.png](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.buildCi.browser.%252Ftmp%252Fbuild%252Fapidoc.html.png)
-[![screen-capture](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.buildCi.browser.%252Ftmp%252Fbuild%252Fapidoc.html.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.buildCi.browser.%252Ftmp%252Fbuild%252Fapidoc.html.png)
-
-- [https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.buildCi.browser.%252Ftmp%252Fbuild%252Fcoverage.lib.html.png](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.buildCi.browser.%252Ftmp%252Fbuild%252Fcoverage.lib.html.png)
-[![screen-capture](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.buildCi.browser.%252Ftmp%252Fbuild%252Fcoverage.lib.html.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.buildCi.browser.%252Ftmp%252Fbuild%252Fcoverage.lib.html.png)
-
-- [https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.buildCi.browser.%252Ftmp%252Fbuild%252Ftest-report.html.png](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.buildCi.browser.%252Ftmp%252Fbuild%252Ftest-report.html.png)
-[![screen-capture](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.buildCi.browser.%252Ftmp%252Fbuild%252Ftest-report.html.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.buildCi.browser.%252Ftmp%252Fbuild%252Ftest-report.html.png)
-
-- [https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.deployGithub.browser.%252Fnode-uglifyjs-lite%252Fbuild%252Fapp.png](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.deployGithub.browser.%252Fnode-uglifyjs-lite%252Fbuild%252Fapp.png)
-[![screen-capture](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.deployGithub.browser.%252Fnode-uglifyjs-lite%252Fbuild%252Fapp.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.deployGithub.browser.%252Fnode-uglifyjs-lite%252Fbuild%252Fapp.png)
-
-- [https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.deployGithub.browser.%252Fnode-uglifyjs-lite%252Fbuild%252Fapp%252Fassets.swgg.html.png](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.deployGithub.browser.%252Fnode-uglifyjs-lite%252Fbuild%252Fapp%252Fassets.swgg.html.png)
-[![screen-capture](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.deployGithub.browser.%252Fnode-uglifyjs-lite%252Fbuild%252Fapp%252Fassets.swgg.html.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.deployGithub.browser.%252Fnode-uglifyjs-lite%252Fbuild%252Fapp%252Fassets.swgg.html.png)
-
-- [https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.deployGithubTest.browser.%252Fnode-uglifyjs-lite%252Fbuild%252Fapp.png](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.deployGithubTest.browser.%252Fnode-uglifyjs-lite%252Fbuild%252Fapp.png)
-[![screen-capture](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.deployGithubTest.browser.%252Fnode-uglifyjs-lite%252Fbuild%252Fapp.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.deployGithubTest.browser.%252Fnode-uglifyjs-lite%252Fbuild%252Fapp.png)
-
-- [https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.deployHeroku.browser.%252F.png](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.deployHeroku.browser.%252F.png)
-[![screen-capture](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.deployHeroku.browser.%252F.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.deployHeroku.browser.%252F.png)
-
-- [https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.deployHeroku.browser.%252Fassets.swgg.html.png](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.deployHeroku.browser.%252Fassets.swgg.html.png)
-[![screen-capture](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.deployHeroku.browser.%252Fassets.swgg.html.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.deployHeroku.browser.%252Fassets.swgg.html.png)
-
-- [https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.deployHerokuTest.browser.%252F.png](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.deployHerokuTest.browser.%252F.png)
-[![screen-capture](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.deployHerokuTest.browser.%252F.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.deployHerokuTest.browser.%252F.png)
-
-- [https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.npmTest.browser.%252F.png](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.npmTest.browser.%252F.png)
-[![screen-capture](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.npmTest.browser.%252F.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.npmTest.browser.%252F.png)
-
-- [https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.testExampleJs.browser.%252F.png](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.testExampleJs.browser.%252F.png)
-[![screen-capture](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.testExampleJs.browser.%252F.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.testExampleJs.browser.%252F.png)
-
-- [https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.testExampleSh.browser.%252F.png](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.testExampleSh.browser.%252F.png)
-[![screen-capture](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.testExampleSh.browser.%252F.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build/screen-capture.testExampleSh.browser.%252F.png)
 
 
 
