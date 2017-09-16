@@ -210,7 +210,15 @@
         /*
          * this function will test webpage's default handling-behavior
          */
-            options = { modeCoverageMerge: true, url: local.serverLocalHost + '?modeTest=1' };
+            options = {
+                fileScreenshotBase: local.env.npm_config_dir_build +
+                    '/screenshot.' + local.env.MODE_BUILD + '.browser.%2F',
+                modeCoverageMerge: true,
+                url: local.assetsDict['/']
+                    .indexOf('<script src="assets.test.js"></script>') >= 0
+                    ? local.serverLocalHost + '?modeTest=1'
+                    : local.serverLocalHost + '/index.default.html?modeTest=1'
+            };
             local.browserTest(options, onError);
         };
 

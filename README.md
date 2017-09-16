@@ -1,7 +1,14 @@
 # uglifyjs-lite
-this zero-dependency package will provide a browser-compatible version of the uglifyjs v1.3.5 javascript-minifier
+this zero-dependency package will provide a browser-compatible version of the uglifyjs (v1.3.5) javascript-minifier
 
-[![travis-ci.org build-status](https://api.travis-ci.org/kaizhu256/node-uglifyjs-lite.svg)](https://travis-ci.org/kaizhu256/node-uglifyjs-lite) [![coverage](https://kaizhu256.github.io/node-uglifyjs-lite/build/coverage.badge.svg)](https://kaizhu256.github.io/node-uglifyjs-lite/build/coverage.html/index.html)
+# live demo
+- [https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/app](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/app)
+
+[![screenshot](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.deployGithub.browser.%252Fnode-uglifyjs-lite%252Fbuild%252Fapp.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/app)
+
+
+
+[![travis-ci.org build-status](https://api.travis-ci.org/kaizhu256/node-uglifyjs-lite.svg)](https://travis-ci.org/kaizhu256/node-uglifyjs-lite) [![coverage](https://kaizhu256.github.io/node-uglifyjs-lite/build/coverage.badge.svg)](https://kaizhu256.github.io/node-uglifyjs-lite/build/coverage.html/index.html) [![snyk.io vulnerabilities](https://snyk.io/test/github/kaizhu256/node-uglifyjs-lite/badge.svg)](https://snyk.io/test/github/kaizhu256/node-uglifyjs-lite)
 
 [![NPM](https://nodei.co/npm/uglifyjs-lite.png?downloads=true)](https://www.npmjs.com/package/uglifyjs-lite)
 
@@ -23,7 +30,6 @@ this zero-dependency package will provide a browser-compatible version of the ug
 
 # table of contents
 1. [cdn download](#cdn-download)
-1. [live demo](#live-demo)
 1. [documentation](#documentation)
 1. [quickstart standalone app](#quickstart-standalone-app)
 1. [quickstart example.js](#quickstart-examplejs)
@@ -40,14 +46,10 @@ this zero-dependency package will provide a browser-compatible version of the ug
 
 
 
-# live demo
-- [https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/app](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/app)
-
-[![github.com test-server](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.deployGithub.browser.%252Fnode-uglifyjs-lite%252Fbuild%252Fapp.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/app)
-
-
-
 # documentation
+#### cli help
+![screenshot](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.npmPackageCliHelp.svg)
+
 #### apidoc
 - [https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/apidoc.html](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/apidoc.html)
 
@@ -56,12 +58,9 @@ this zero-dependency package will provide a browser-compatible version of the ug
 #### todo
 - none
 
-#### changelog for v2017.7.15
-- npm publish 2017.7.15
-- deduplicate file assets.uglifyjs.rollup.js
-- add README section 'extra screenshots'
-- add README section 'quickstart standalone app'
-- rename README section 'quickstart web example' -> 'quickstart example.js'
+#### changelog for v2017.9.15
+- npm publish 2017.9.15
+- add cli-help doc to README.md
 - none
 
 #### this package requires
@@ -272,10 +271,12 @@ instruction
     case 'node':
         // init exports
         module.exports = local;
-        // require modules
-        local.fs = require('fs');
-        local.http = require('http');
-        local.url = require('url');
+        // require builtins
+        Object.keys(process.binding('natives')).forEach(function (key) {
+            if (!local[key] && !(/\/|^_|^sys$/).test(key)) {
+                local[key] = require(key);
+            }
+        });
         // init assets
         local.assetsDict = local.assetsDict || {};
         /* jslint-ignore-begin */
@@ -285,6 +286,7 @@ instruction
 <head>\n\
 <meta charset="UTF-8">\n\
 <meta name="viewport" content="width=device-width, initial-scale=1">\n\
+<!-- "assets.index.default.template.html" -->\n\
 <title>{{env.npm_package_name}} (v{{env.npm_package_version}})</title>\n\
 <style>\n\
 /*csslint\n\
@@ -339,7 +341,32 @@ textarea[readonly] {\n\
 </head>\n\
 <body>\n\
 <!-- utility2-comment\n\
-<div id="ajaxProgressDiv1" style="background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 25%;"></div>\n\
+<div id="ajaxProgressDiv1" style="background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%;"></div>\n\
+<script>\n\
+/*jslint\n\
+    bitwise: true,\n\
+    browser: true,\n\
+    maxerr: 8,\n\
+    maxlen: 96,\n\
+    node: true,\n\
+    nomen: true,\n\
+    regexp: true,\n\
+    stupid: true\n\
+*/\n\
+(function () {\n\
+    "use strict";\n\
+    var ajaxProgressDiv1, ajaxProgressState;\n\
+    ajaxProgressDiv1 = document.querySelector("#ajaxProgressDiv1");\n\
+    ajaxProgressState = 0;\n\
+    window.timerIntervalAjaxProgressUpdate = setInterval(function () {\n\
+        ajaxProgressState += 1;\n\
+        ajaxProgressDiv1.style.width = Math.max(\n\
+            100 - 100 * Math.exp(-0.0625 * ajaxProgressState),\n\
+            Number(ajaxProgressDiv1.style.width.slice(0, -1)) || 0\n\
+        ) + "%";\n\
+    }, 1000);\n\
+}());\n\
+</script>\n\
 utility2-comment -->\n\
 <h1>\n\
 <!-- utility2-comment\n\
@@ -433,8 +460,8 @@ utility2-comment -->\n\
                     return match0;
                 }
             });
-        // run the cli
-        if (local.global.utility2_rollup || module !== require.main) {
+        // init cli
+        if (module !== require.main || local.global.utility2_rollup) {
             break;
         }
         local.assetsDict['/assets.example.js'] =
@@ -532,7 +559,7 @@ utility2-comment -->\n\
     "bin": {
         "uglifyjs-lite": "lib.uglifyjs.js"
     },
-    "description": "this zero-dependency package will provide a browser-compatible version of the uglifyjs v1.3.5 javascript-minifier",
+    "description": "this zero-dependency package will provide a browser-compatible version of the uglifyjs (v1.3.5) javascript-minifier",
     "devDependencies": {
         "electron-lite": "kaizhu256/node-electron-lite#alpha",
         "utility2": "kaizhu256/node-utility2#alpha"
@@ -543,7 +570,6 @@ utility2-comment -->\n\
     "homepage": "https://github.com/kaizhu256/node-uglifyjs-lite",
     "keywords": [
         "minify",
-        "obfuscate",
         "uglify",
         "uglifyjs"
     ],
@@ -564,12 +590,12 @@ utility2-comment -->\n\
     "scripts": {
         "build-ci": "utility2 shReadmeTest build_ci.sh",
         "env": "env",
-        "heroku-postbuild": "npm install \"kaizhu256/node-utility2#alpha\" && utility2 shDeployHeroku",
+        "heroku-postbuild": "npm uninstall utility2 2>/dev/null; npm install kaizhu256/node-utility2#alpha && utility2 shDeployHeroku",
         "postinstall": "[ ! -f npm_scripts.sh ] || ./npm_scripts.sh postinstall",
         "start": "PORT=${PORT:-8080} utility2 start test.js",
         "test": "PORT=$(utility2 shServerPortRandom) utility2 test test.js"
     },
-    "version": "2017.7.15"
+    "version": "2017.9.15"
 }
 ```
 
@@ -588,8 +614,6 @@ utility2-comment -->\n\
 # this shell script will run the build for this package
 
 shBuildCiAfter() {(set -e
-    shNpmTestPublished
-    shReadmeTest example.js
     shDeployGithub
     shDeployHeroku
     shReadmeTest example.sh
