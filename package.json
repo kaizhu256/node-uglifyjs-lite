@@ -3,7 +3,7 @@
     "bin": {
         "uglifyjs-lite": "lib.uglifyjs.js"
     },
-    "description": "this zero-dependency package will provide a browser-compatible version of the uglifyjs (v1.3.5) javascript-minifier",
+    "description": "this zero-dependency package will provide a browser-compatible version of the uglifyjs (v1.3.5) javascript-minifier, with a working web-demo",
     "devDependencies": {
         "electron-lite": "kaizhu256/node-electron-lite#alpha",
         "utility2": "kaizhu256/node-utility2#alpha"
@@ -20,8 +20,8 @@
     "license": "MIT",
     "main": "lib.uglifyjs.js",
     "name": "uglifyjs-lite",
-    "nameAlias": "uglifyjs",
     "nameAliasPublish": "uglifyjs-classic",
+    "nameLib": "uglifyjs",
     "nameOriginal": "uglifyjs-lite",
     "os": [
         "darwin",
@@ -39,5 +39,5 @@
         "start": "PORT=${PORT:-8080} utility2 start test.js",
         "test": "PORT=$(utility2 shServerPortRandom) utility2 test test.js"
     },
-    "version": "2017.9.15"
+    "version": "2017.10.28"
 }
