@@ -1,8 +1,9 @@
 /* istanbul instrument in package uglifyjs */
+/* jslint-utility2 */
 /*jslint
     bitwise: true,
     browser: true,
-    maxerr: 8,
+    maxerr: 4,
     maxlen: 100,
     node: true,
     nomen: true,
@@ -64,18 +65,4 @@
             onError();
         };
     }());
-    switch (local.modeJs) {
-
-
-
-    // run browser js-env code - function
-    case 'browser':
-        break;
-
-
-
-    // run node js-env code - function
-    case 'node':
-        break;
-    }
 }());
