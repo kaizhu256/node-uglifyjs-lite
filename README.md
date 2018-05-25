@@ -56,12 +56,11 @@ this zero-dependency package will provide a browser-compatible version of the ug
 [![apidoc](https://kaizhu256.github.io/node-uglifyjs-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Fapidoc.html.png)](https://kaizhu256.github.io/node-uglifyjs-lite/build..beta..travis-ci.org/apidoc.html)
 
 #### todo
+- npm publish 2018.5.25
+- update build
 - none
 
-#### changelog for v2018.4.8
-- npm publish v2018.4.8
-- fix build-ci for nodejs v9.x
-- escape \\r and \\t
+#### changelog 2018.5.25
 - none
 
 #### this package requires
@@ -140,24 +139,20 @@ instruction
         // init local
         local = {};
         // init modeJs
-        local.modeJs = (function () {
+        (function () {
             try {
-                return typeof navigator.userAgent === 'string' &&
-                    typeof document.querySelector('body') === 'object' &&
-                    typeof XMLHttpRequest.prototype.open === 'function' &&
-                    'browser';
-            } catch (errorCaughtBrowser) {
-                return module.exports &&
-                    typeof process.versions.node === 'string' &&
+                local.modeJs = typeof process.versions.node === 'string' &&
                     typeof require('http').createServer === 'function' &&
                     'node';
+            } catch (ignore) {
             }
+            local.modeJs = local.modeJs || 'browser';
         }());
         // init global
         local.global = local.modeJs === 'browser'
             ? window
             : global;
-        // init utility2_rollup
+        // re-init local
         local = local.global.utility2_rollup || (local.modeJs === 'browser'
             ? local.global.utility2_uglifyjs
             : require('uglifyjs-lite'));
@@ -305,9 +300,23 @@ instruction
         local.v8 = require('v8');
         local.vm = require('vm');
         local.zlib = require('zlib');
-/* validateLineSortedReset */
+        /* validateLineSortedReset */
         // init assets
         local.assetsDict = local.assetsDict || {};
+        [
+            'assets.index.template.html',
+            'assets.swgg.swagger.json',
+            'assets.swgg.swagger.server.json'
+        ].forEach(function (file) {
+            file = '/' + file;
+            local.assetsDict[file] = local.assetsDict[file] || '';
+            if (local.fs.existsSync(local.__dirname + file)) {
+                local.assetsDict[file] = local.fs.readFileSync(
+                    local.__dirname + file,
+                    'utf8'
+                );
+            }
+        });
         /* jslint-ignore-begin */
         local.assetsDict['/assets.index.template.html'] = '\
 <!doctype html>\n\
@@ -315,8 +324,8 @@ instruction
 <head>\n\
 <meta charset="UTF-8">\n\
 <meta name="viewport" content="width=device-width, initial-scale=1">\n\
-<!-- "assets.index.default.template.html" -->\n\
-<title>{{env.npm_package_name}} (v{{env.npm_package_version}})</title>\n\
+<!-- "assets.utility2.template.html" -->\n\
+<title>{{env.npm_package_name}} ({{env.npm_package_version}})</title>\n\
 <style>\n\
 /* jslint-utility2 */\n\
 /*csslint\n\
@@ -349,6 +358,11 @@ instruction
 }\n\
 a {\n\
     overflow-wrap: break-word;\n\
+}\n\
+body {\n\
+    background: #eef;\n\
+    font-family: Arial, Helvetica, sans-serif;\n\
+    margin: 0 40px;\n\
 }\n\
 body > div,\n\
 body > pre,\n\
@@ -423,10 +437,10 @@ textarea {\n\
 }\n\
 </style>\n\
 </head>\n\
-<body style="background: #eef; font-family: Arial, Helvetica, sans-serif; margin: 0 40px;">\n\
+<body>\n\
 <div id="ajaxProgressDiv1" style="background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;"></div>\n\
 <div class="uiAnimateSpin" style="animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;"></div>\n\
-<code style="display: none;"></code><div class="button uiAnimateShake uiAnimateSlide utility2FooterDiv zeroPixel" style="display: none;"></div><pre style="display: none;"></pre><textarea readonly style="display: none;"></textarea>\n\
+<code style="display: none;"></code><div class="button colorError uiAnimateShake uiAnimateSlide utility2FooterDiv zeroPixel" style="display: none;"></div><pre style="display: none;"></pre><textarea readonly style="display: none;"></textarea>\n\
 <script>\n\
 /* jslint-utility2 */\n\
 /*jslint\n\
@@ -439,12 +453,18 @@ textarea {\n\
     regexp: true,\n\
     stupid: true\n\
 */\n\
+// init timerIntervalAjaxProgressUpdate\n\
 (function () {\n\
+/*\n\
+ * this function will increment the ajax-progress-bar until the webpage has loaded\n\
+ */\n\
     "use strict";\n\
     var ajaxProgressDiv1,\n\
         ajaxProgressState,\n\
-        ajaxProgressUpdate,\n\
-        timerIntervalAjaxProgressUpdate;\n\
+        ajaxProgressUpdate;\n\
+    if (window.timerIntervalAjaxProgressUpdate) {\n\
+        return;\n\
+    }\n\
     ajaxProgressDiv1 = document.querySelector("#ajaxProgressDiv1");\n\
     setTimeout(function () {\n\
         ajaxProgressDiv1.style.width = "25%";\n\
@@ -460,17 +480,43 @@ textarea {\n\
             }, 500);\n\
         }, 1500);\n\
     };\n\
-    timerIntervalAjaxProgressUpdate = setInterval(function () {\n\
+    window.timerIntervalAjaxProgressUpdate = setInterval(function () {\n\
         ajaxProgressState += 1;\n\
         ajaxProgressDiv1.style.width = Math.max(\n\
             100 - 75 * Math.exp(-0.125 * ajaxProgressState),\n\
-            Number(ajaxProgressDiv1.style.width.slice(0, -1)) || 0\n\
+            ajaxProgressDiv1.style.width.slice(0, -1) | 0\n\
         ) + "%";\n\
     }, 1000);\n\
     window.addEventListener("load", function () {\n\
-        clearInterval(timerIntervalAjaxProgressUpdate);\n\
+        clearInterval(window.timerIntervalAjaxProgressUpdate);\n\
         ajaxProgressUpdate();\n\
     });\n\
+}());\n\
+// init domOnEventSelectAllWithinPre\n\
+(function () {\n\
+/*\n\
+ * this function will limit select-all within <pre tabIndex="0"> elements\n\
+ * https://stackoverflow.com/questions/985272/selecting-text-in-an-element-akin-to-highlighting-with-your-mouse\n\
+ */\n\
+    "use strict";\n\
+    if (window.domOnEventSelectAllWithinPre) {\n\
+        return;\n\
+    }\n\
+    window.domOnEventSelectAllWithinPre = function (event) {\n\
+        var range, selection;\n\
+        if (event &&\n\
+                event.code === "KeyA" &&\n\
+                (event.ctrlKey || event.metaKey) &&\n\
+                event.target.closest("pre")) {\n\
+            range = document.createRange();\n\
+            range.selectNodeContents(event.target.closest("pre"));\n\
+            selection = window.getSelection();\n\
+            selection.removeAllRanges();\n\
+            selection.addRange(range);\n\
+            event.preventDefault();\n\
+        }\n\
+    };\n\
+    document.addEventListener("keydown", window.domOnEventSelectAllWithinPre);\n\
 }());\n\
 </script>\n\
 <h1>\n\
@@ -482,7 +528,7 @@ textarea {\n\
         target="_blank"\n\
     >\n\
 utility2-comment -->\n\
-        {{env.npm_package_name}} (v{{env.npm_package_version}})\n\
+        {{env.npm_package_name}} ({{env.npm_package_version}})\n\
 <!-- utility2-comment\n\
     </a>\n\
 utility2-comment -->\n\
@@ -531,28 +577,15 @@ utility2-comment -->\n\
 </html>\n\
 ';
         /* jslint-ignore-end */
-        [
-            'assets.index.css',
-            'assets.index.template.html',
-            'assets.swgg.swagger.json',
-            'assets.swgg.swagger.server.json'
-        ].forEach(function (file) {
-            file = '/' + file;
-            local.assetsDict[file] = local.assetsDict[file] || '';
-            if (local.fs.existsSync(local.__dirname + file)) {
-                local.assetsDict[file] = local.fs.readFileSync(
-                    local.__dirname + file,
-                    'utf8'
-                );
-            }
-        });
-/* validateLineSortedReset */
-        // bug-workaround - long $npm_package_buildCustomOrg
+        /* validateLineSortedReset */
         /* jslint-ignore-begin */
-        local.assetsDict['/assets.uglifyjs.js'] = local.assetsDict['/assets.uglifyjs.js'] ||
+        // bug-workaround - long $npm_package_buildCustomOrg
+        local.assetsDict['/assets.uglifyjs.js'] =
+            local.assetsDict['/assets.uglifyjs.js'] ||
             local.fs.readFileSync(local.__dirname + '/lib.uglifyjs.js', 'utf8'
-        ).replace((/^#!/), '//');
-/* validateLineSortedReset */
+        ).replace((/^#!\//), '// ');
+        /* jslint-ignore-end */
+        /* validateLineSortedReset */
         local.assetsDict['/'] =
             local.assetsDict['/assets.example.html'] =
             local.assetsDict['/assets.index.template.html']
@@ -577,7 +610,6 @@ utility2-comment -->\n\
         local.assetsDict['/assets.example.js'] =
             local.assetsDict['/assets.example.js'] ||
             local.fs.readFileSync(__filename, 'utf8');
-        /* jslint-ignore-end */
         local.assetsDict['/favicon.ico'] = local.assetsDict['/favicon.ico'] || '';
         // if $npm_config_timeout_exit exists,
         // then exit this process after $npm_config_timeout_exit ms
@@ -687,16 +719,15 @@ utility2-comment -->\n\
         "url": "https://github.com/kaizhu256/node-uglifyjs-lite.git"
     },
     "scripts": {
-        "apidocRawCreate": "[ ! -f npm_scripts.sh ] || ./npm_scripts.sh shNpmScriptApidocRawCreate",
-        "apidocRawFetch": "[ ! -f npm_scripts.sh ] || ./npm_scripts.sh shNpmScriptApidocRawFetch",
-        "build-ci": "utility2 shReadmeTest build_ci.sh",
-        "env": "env",
-        "heroku-postbuild": "npm uninstall utility2 2>/dev/null; npm install kaizhu256/node-utility2#alpha && utility2 shDeployHeroku",
-        "postinstall": "[ ! -f npm_scripts.sh ] || ./npm_scripts.sh shNpmScriptPostinstall",
-        "start": "PORT=${PORT:-8080} utility2 start test.js",
-        "test": "PORT=$(utility2 shServerPortRandom) utility2 test test.js"
+        "build-ci": "./npm_scripts.sh",
+        "eval": "./npm_scripts.sh",
+        "heroku-postbuild": "./npm_scripts.sh",
+        "postinstall": "./npm_scripts.sh",
+        "start": "./npm_scripts.sh",
+        "test": "./npm_scripts.sh",
+        "utility2": "./npm_scripts.sh"
     },
-    "version": "2018.4.8"
+    "version": "2018.5.25"
 }
 ```
 
@@ -727,7 +758,7 @@ shBuildCiBefore () {(set -e
 )}
 
 # run shBuildCi
-eval $(utility2 source)
+eval "$(utility2 source)"
 shBuildCi
 ```
 
