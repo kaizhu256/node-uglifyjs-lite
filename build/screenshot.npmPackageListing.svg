@@ -5,7 +5,7 @@
 
 <tspan x="10" y="42"></tspan>
 
-<tspan x="10" y="58">0.   2018-08-11 21:08:18 +0700   111581 bytes  .</tspan>
+<tspan x="10" y="58">0.   2018-08-11 22:59:20 +0700   111113 bytes  .</tspan>
 
 <tspan x="10" y="74">1.   2018-05-25 21:22:11 +0800      117 bytes  .gitignore</tspan>
 
@@ -13,9 +13,9 @@
 
 <tspan x="10" y="106">3.   2018-06-23 09:49:48 -0500     1090 bytes  LICENSE</tspan>
 
-<tspan x="10" y="122">4.   2018-08-11 21:08:18 +0700    38072 bytes  README.md</tspan>
+<tspan x="10" y="122">4.   2018-08-11 22:59:20 +0700    37848 bytes  README.md</tspan>
 
-<tspan x="10" y="138">5.   2018-06-23 09:49:48 -0500    65568 bytes  lib.uglifyjs.js</tspan>
+<tspan x="10" y="138">5.   2018-08-11 22:59:20 +0700    65324 bytes  lib.uglifyjs.js</tspan>
 
 <tspan x="10" y="154">6.   2018-05-25 21:22:11 +0800     2188 bytes  npm_scripts.sh</tspan>
 
