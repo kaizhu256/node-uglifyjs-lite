@@ -1,0 +1,131 @@
+<svg height="1038" width="720" xmlns="http://www.w3.org/2000/svg">
+<rect height="1038" fill="#555" width="720"></rect>
+<text fill="#7f7" font-family="Courier New" font-size="12" xml:space="preserve">
+<tspan x="10" y="26">2018-08-11 21:08:18 +0700u000aupdate.build</tspan>
+
+<tspan x="10" y="42"></tspan>
+
+<tspan x="10" y="58">2018-06-23 09:49:48 -0500u000a- migrate from modeJs -&gt; isBrowser</tspan>
+
+<tspan x="10" y="74"></tspan>
+
+<tspan x="10" y="90">2018-05-25 21:22:11 +0800u000a[npm publish] - npm publish 2018.5.25</tspan>
+
+<tspan x="10" y="106">- update build</tspan>
+
+<tspan x="10" y="122"></tspan>
+
+<tspan x="10" y="138">2018-04-09 08:43:17 +0800u000a[npm publish] - npm publish v2018.4.8</tspan>
+
+<tspan x="10" y="154">- fix build-ci for nodejs v9.x</tspan>
+
+<tspan x="10" y="170">- escape \r and \t</tspan>
+
+<tspan x="10" y="186"></tspan>
+
+<tspan x="10" y="202">2018-01-16 10:11:48 +0700u000a[npm publish] - npm publish 2018.1.15</tspan>
+
+<tspan x="10" y="218">- update build</tspan>
+
+<tspan x="10" y="234"></tspan>
+
+<tspan x="10" y="250">2017-10-29 23:58:48 +0800u000a[npm publish] - npm publish 2017.10.28</tspan>
+
+<tspan x="10" y="266">- update build</tspan>
+
+<tspan x="10" y="282"></tspan>
+
+<tspan x="10" y="298">2017-09-16 17:00:13 +0700u000a[npm publish] - npm publish 2017.9.15</tspan>
+
+<tspan x="10" y="314">- add cli-help doc to README.md</tspan>
+
+<tspan x="10" y="330"></tspan>
+
+<tspan x="10" y="346">2017-07-16 03:29:16 +0800u000a[npm publish] - npm publish 2017.7.15</tspan>
+
+<tspan x="10" y="362">- deduplicate file assets.uglifyjs.rollup.js</tspan>
+
+<tspan x="10" y="378">- add README section 'extra screenshots'</tspan>
+
+<tspan x="10" y="394">- add README section 'quickstart standalone app'</tspan>
+
+<tspan x="10" y="410">- rename README section 'quickstart web example' -&gt; 'quickstart example.js'</tspan>
+
+<tspan x="10" y="426"></tspan>
+
+<tspan x="10" y="442">2017-05-22 03:37:41 +0800u000a[npm publish] - npm publish 2017.5.20</tspan>
+
+<tspan x="10" y="458">- deduplicate file assets.uglifyjs.rollup.js</tspan>
+
+<tspan x="10" y="474">- add README section 'internal screen-capture'</tspan>
+
+<tspan x="10" y="490">- add README section 'quickstart standalone app'</tspan>
+
+<tspan x="10" y="506">- rename README section 'quickstart web example' -&gt; 'quickstart example.js'</tspan>
+
+<tspan x="10" y="522"></tspan>
+
+<tspan x="10" y="538">2017-03-29 00:12:14 +0800u000a[npm publish] - npm publish 2017.3.28</tspan>
+
+<tspan x="10" y="554">- update .travis.yml</tspan>
+
+<tspan x="10" y="570"></tspan>
+
+<tspan x="10" y="586">2017-03-28 23:19:09 +0800u000a- npm publish 2017.3.27</tspan>
+
+<tspan x="10" y="602">- use remote-credentials for travis-ci build</tspan>
+
+<tspan x="10" y="618"></tspan>
+
+<tspan x="10" y="634">2017-02-21 02:06:18 +0800u000a- npm publish 2017.2.19</tspan>
+
+<tspan x="10" y="650">- create published-alias uglify-lite</tspan>
+
+<tspan x="10" y="666">- replace env var npm_package_name with npm_package_nameAlias in istanbul code-coverage</tspan>
+
+<tspan x="10" y="682"></tspan>
+
+<tspan x="10" y="698">2017-02-19 01:35:39 +0800u000a- npm publish 2017.2.18</tspan>
+
+<tspan x="10" y="714">- add file assets.uglifyjs.rollup.js</tspan>
+
+<tspan x="10" y="730">- add heroku-postbuild npm-script</tspan>
+
+<tspan x="10" y="746">- do not auto-uglify js-assets in production</tspan>
+
+<tspan x="10" y="762">- revamp README.md</tspan>
+
+<tspan x="10" y="778"></tspan>
+
+<tspan x="10" y="794">2016-12-13 21:34:47 +0800u000a- npm publish 2016.12.1</tspan>
+
+<tspan x="10" y="810">- add ability to uglify css</tspan>
+
+<tspan x="10" y="826"></tspan>
+
+<tspan x="10" y="842">2016-11-29 15:54:05 +0800u000a- npm publish 2016.11.1</tspan>
+
+<tspan x="10" y="858">- change preferred column-size from 256 to 80</tspan>
+
+<tspan x="10" y="874">- README.md - add cdn-download links</tspan>
+
+<tspan x="10" y="890">- README.md - replace alpha api-doc with beta api-doc</tspan>
+
+<tspan x="10" y="906"></tspan>
+
+<tspan x="10" y="922">2016-10-17 21:28:04 +0800u000a- npm publish 2016.8.2</tspan>
+
+<tspan x="10" y="938">- add 'hide internal test' button to demo</tspan>
+
+<tspan x="10" y="954"></tspan>
+
+<tspan x="10" y="970">2016-09-29 03:12:49 +0800u000a- npm publish 2015.8.1</tspan>
+
+<tspan x="10" y="986">- initial working version</tspan>
+
+<tspan x="10" y="1002"></tspan>
+
+<tspan x="10" y="1018">2014-03-26 02:31:50 +0700u000aadd blank README.md</tspan>
+
+</text>
+</svg>
