@@ -161,8 +161,6 @@ instruction
             local.buffer = require('buffer');
             local.child_process = require('child_process');
             local.cluster = require('cluster');
-            local.console = require('console');
-            local.constants = require('constants');
             local.crypto = require('crypto');
             local.dgram = require('dgram');
             local.dns = require('dns');
@@ -171,12 +169,9 @@ instruction
             local.fs = require('fs');
             local.http = require('http');
             local.https = require('https');
-            local.module = require('module');
             local.net = require('net');
             local.os = require('os');
             local.path = require('path');
-            local.process = require('process');
-            local.punycode = require('punycode');
             local.querystring = require('querystring');
             local.readline = require('readline');
             local.repl = require('repl');
@@ -817,7 +812,7 @@ local.templateApidocHtml = '\
             // init options
             options.dir = local.moduleDirname(
                 options.dir,
-                options.modulePathList || local.module.paths
+                options.modulePathList || require('module').paths
             );
             local.objectSetDefault(options, {
                 env: { npm_package_description: '' },
@@ -1283,8 +1278,6 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
             local.buffer = require('buffer');
             local.child_process = require('child_process');
             local.cluster = require('cluster');
-            local.console = require('console');
-            local.constants = require('constants');
             local.crypto = require('crypto');
             local.dgram = require('dgram');
             local.dns = require('dns');
@@ -1293,12 +1286,9 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
             local.fs = require('fs');
             local.http = require('http');
             local.https = require('https');
-            local.module = require('module');
             local.net = require('net');
             local.os = require('os');
             local.path = require('path');
-            local.process = require('process');
-            local.punycode = require('punycode');
             local.querystring = require('querystring');
             local.readline = require('readline');
             local.repl = require('repl');
@@ -1592,6 +1582,7 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
             if (error && !local.global.__coverage__) {
                 console.error(error);
             }
+            return error;
         };
 
         local.onErrorWithStack = function (onError) {
@@ -1690,47 +1681,53 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
             self.evalDefault = self.eval;
             // hook custom repl eval function
             self.eval = function (script, context, file, onError) {
-                var match, onError2;
-                match = (/^(\S+)(.*?)\n/).exec(script) || {};
+                var  onError2;
                 onError2 = function (error, data) {
                     // debug error
                     global.utility2_debugReplError = error || global.utility2_debugReplError;
                     onError(error, data);
                 };
-                switch (match[1]) {
-                // syntax sugar to run async shell command
-                case '$':
-                    switch (match[2]) {
-                    // syntax sugar to run git diff
-                    case ' git diff':
-                        match[2] = ' git diff --color | cat';
+                script.replace((/^(\S+)(.*?)\n/), function (match0, match1, match2) {
+                    match0 = match1;
+                    switch (match0) {
+                    // syntax sugar to run async shell command
+                    case '$':
+                        switch (match2) {
+                        // syntax sugar to run git diff
+                        case ' git diff':
+                            match2 = ' git diff --color | cat';
+                            break;
+                        // syntax sugar to run git log
+                        case ' git log':
+                            match2 = ' git log -n 4 | cat';
+                            break;
+                        }
+                        // source lib.utility2.sh
+                        if (process.env.npm_config_dir_utility2 && (match2 !== ' :')) {
+                            match2 = '. ' + process.env.npm_config_dir_utility2 +
+                                '/lib.utility2.sh;' + match2;
+                        }
+                        // run async shell command
+                        require('child_process').spawn(match2, {
+                            shell: true,
+                            stdio: ['ignore', 1, 2]
+                        })
+                            // on shell exit, print return prompt
+                            .on('exit', function (exitCode) {
+                                console.error('exit-code ' + exitCode);
+                                self.evalDefault(
+                                    '\n',
+                                    context,
+                                    file,
+                                    onError2
+                                );
+                            });
+                        script = '\n';
                         break;
-                    // syntax sugar to run git log
-                    case ' git log':
-                        match[2] = ' git log -n 4 | cat';
-                        break;
-                    }
-                    // run async shell command
-                    require('child_process').spawn(match[2], {
-                        shell: true,
-                        stdio: ['ignore', 1, 2]
-                    })
-                        // on shell exit, print return prompt
-                        .on('exit', function (exitCode) {
-                            console.error('exit-code ' + exitCode);
-                            self.evalDefault(
-                                '\n',
-                                context,
-                                file,
-                                onError2
-                            );
-                        });
-                    script = '\n';
-                    break;
-                // syntax sugar to grep current dir
-                case 'grep':
-                    // run async shell command
-                    require('child_process').spawn('find . -type f | grep -v -E ' +
+                    // syntax sugar to grep current dir
+                    case 'grep':
+                        // run async shell command
+                        require('child_process').spawn('find . -type f | grep -v -E ' +
 /* jslint-ignore-begin */
 '"\
 /\\.|(\\b|_)(\\.\\d|\
@@ -1751,32 +1748,33 @@ tmp|\
 vendor)s{0,1}(\\b|_)\
 " ' +
 /* jslint-ignore-end */
-                            '| tr "\\n" "\\000" | xargs -0 grep -HIin -E "' +
-                            match[2].trim() + '"', { shell: true, stdio: ['ignore', 1, 2] })
-                        // on shell exit, print return prompt
-                        .on('exit', function (exitCode) {
-                            console.error('exit-code ' + exitCode);
-                            self.evalDefault(
-                                '\n',
-                                context,
-                                file,
-                                onError2
-                            );
-                        });
-                    script = '\n';
-                    break;
-                // syntax sugar to list object's keys, sorted by item-type
-                case 'keys':
-                    script = 'console.error(Object.keys(' + match[2] +
-                        ').map(function (key) {' +
-                        'return typeof ' + match[2] + '[key] + " " + key + "\\n";' +
-                        '}).sort().join("") + Object.keys(' + match[2] + ').length)\n';
-                    break;
-                // syntax sugar to print stringified arg
-                case 'print':
-                    script = 'console.error(String(' + match[2] + '))\n';
-                    break;
-                }
+                                '| tr "\\n" "\\000" | xargs -0 grep -HIin -E "' +
+                                match2.trim() + '"', { shell: true, stdio: ['ignore', 1, 2] })
+                            // on shell exit, print return prompt
+                            .on('exit', function (exitCode) {
+                                console.error('exit-code ' + exitCode);
+                                self.evalDefault(
+                                    '\n',
+                                    context,
+                                    file,
+                                    onError2
+                                );
+                            });
+                        script = '\n';
+                        break;
+                    // syntax sugar to list object's keys, sorted by item-type
+                    case 'keys':
+                        script = 'console.error(Object.keys(' + match2 +
+                            ').map(function (key) {' +
+                            'return typeof ' + match2 + '[key] + " " + key + "\\n";' +
+                            '}).sort().join("") + Object.keys(' + match2 + ').length)\n';
+                        break;
+                    // syntax sugar to print stringified arg
+                    case 'print':
+                        script = 'console.error(String(' + match2 + '))\n';
+                        break;
+                    }
+                });
                 // eval the script
                 self.evalDefault(script, context, file, onError2);
             };
@@ -3328,8 +3326,6 @@ vendor)s{0,1}(\\b|_)\
             local.buffer = require('buffer');
             local.child_process = require('child_process');
             local.cluster = require('cluster');
-            local.console = require('console');
-            local.constants = require('constants');
             local.crypto = require('crypto');
             local.dgram = require('dgram');
             local.dns = require('dns');
@@ -3338,12 +3334,9 @@ vendor)s{0,1}(\\b|_)\
             local.fs = require('fs');
             local.http = require('http');
             local.https = require('https');
-            local.module = require('module');
             local.net = require('net');
             local.os = require('os');
             local.path = require('path');
-            local.process = require('process');
-            local.punycode = require('punycode');
             local.querystring = require('querystring');
             local.readline = require('readline');
             local.repl = require('repl');
@@ -6877,7 +6870,7 @@ local['head.txt'] = '\
     window.domOnEventSelectAllWithinPre = function (event) {\n\
         var range, selection;\n\
         if (event &&\n\
-                event.code === "KeyA" &&\n\
+                event.key === "a" &&\n\
                 (event.ctrlKey || event.metaKey) &&\n\
                 event.target.closest("pre")) {\n\
             range = document.createRange();\n\
@@ -7355,8 +7348,6 @@ local.templateCoverageBadgeSvg =
             local.buffer = require('buffer');
             local.child_process = require('child_process');
             local.cluster = require('cluster');
-            local.console = require('console');
-            local.constants = require('constants');
             local.crypto = require('crypto');
             local.dgram = require('dgram');
             local.dns = require('dns');
@@ -7365,12 +7356,9 @@ local.templateCoverageBadgeSvg =
             local.fs = require('fs');
             local.http = require('http');
             local.https = require('https');
-            local.module = require('module');
             local.net = require('net');
             local.os = require('os');
             local.path = require('path');
-            local.process = require('process');
-            local.punycode = require('punycode');
             local.querystring = require('querystring');
             local.readline = require('readline');
             local.repl = require('repl');
@@ -9561,7 +9549,7 @@ var JSLINT = (function () {
         tox = /^\W*to\s*do(?:\W|$)/i,
 // token
         // tx = /^\s*([(){}\[\]\?.,:;'"~#@`]|={1,3}|\/(\*(jslint|properties|property|members?|globals?)?|=|\/)?|\*[\/=]?|\+(?:=|\++)?|-(?:=|-+)?|[\^%]=?|&[&=]?|\|[|=]?|>{1,3}=?|<(?:[\/=!]|\!(\[|--)?|<=?)?|\!(\!|==?)?|[a-zA-Z_$][a-zA-Z0-9_$]*|[0-9]+(?:[xX][0-9a-fA-F]+|\.[0-9]*)?(?:[eE][+\-]?[0-9]+)?)/;
-        tx = /^\s*([(){}\[\]\?.,:;'"~#@`]|={1,3}|\/(\*(jslint|properties|property|members?|globals?)?|=|\/)?|\*[\/=]?|\+(?:=|\++)?|-(?:=|-+)?|[\^%]=?|&[&=]?|\|[|=]?|>{1,3}=?|<(?:[\/=!]|\!(\[|--)?|<=?)?|\!(\!|==?)?|[a-zA-Z_$][a-zA-Z0-9_$]*|[0-9]+(?:[xX][0-9a-fA-F]+|\.[0-9]*)?(?:[eE][+\-]?[0-9]+)?n?)/;
+        tx = /^\s*([(){}\[\]\?.,:;'"~#@`]|={1,3}|\/(\*(jslint|properties|property|members?|globals?)?|=|\/)?|\*[\/=]?|\+(?:=|\++)?|-(?:=|-+)?|[\^%]=?|&[&=]?|\|[|=]?|>{1,3}=?|<(?:[\/=!]|\!(\[|--)?|<=?)?|\!(\!|==?)?|[a-zA-Z_$][a-zA-Z0-9_$]*|[0-9]+(?:[xX][0-9a-fA-F]+|\.[0-9]*)?(?:[eE][+\-]?[0-9]+)?n?)/; // BigInt
 
 
     if (typeof String.prototype.entityify !== 'function') {
@@ -14054,16 +14042,16 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT, local.jslintEs6 = jslint; }());
             script.replace((/^.*?$/gm), function (line) {
                 current = line.trim();
                 ii += 1;
-                // validate tag.classList sorted
+                // validate domElement.classList sorted
                 tmp = (/class=\\?"([^"]+?)\\?"/g).exec(current);
-                tmp = JSON.stringify(
-                    (tmp && tmp[1].match(/\w\S*?\{\{[^}]*?\}\}|\w\S*|\{\{[^}]*?\}\}/g)) || []
-                );
+                tmp = JSON.stringify((tmp && tmp[1].replace((/^ /), 'zSpace').match(
+                    / {2}| $|\w\S*?\{\{[^}]*?\}\}|\w\S*|\{\{[^}]*?\}\}/g
+                )) || []);
                 if (JSON.stringify(JSON.parse(tmp).sort()) !== tmp) {
                     local.errorList.push({
                         col: 0,
                         line: ii,
-                        message: 'tag.classList not sorted - ' + tmp,
+                        message: 'domElement.classList not sorted - ' + tmp,
                         value: line
                     });
                 }
@@ -14944,8 +14932,6 @@ f,0,f.length*32-u*8)}}}
             local.buffer = require('buffer');
             local.child_process = require('child_process');
             local.cluster = require('cluster');
-            local.console = require('console');
-            local.constants = require('constants');
             local.crypto = require('crypto');
             local.dgram = require('dgram');
             local.dns = require('dns');
@@ -14954,12 +14940,9 @@ f,0,f.length*32-u*8)}}}
             local.fs = require('fs');
             local.http = require('http');
             local.https = require('https');
-            local.module = require('module');
             local.net = require('net');
             local.os = require('os');
             local.path = require('path');
-            local.process = require('process');
-            local.punycode = require('punycode');
             local.querystring = require('querystring');
             local.readline = require('readline');
             local.repl = require('repl');
@@ -15898,7 +15881,7 @@ local.assetsDict['/assets.utility2.template.html'] = '\
 <!doctype html>\n\
 <html lang="en">\n\
 <head>\n\
-<meta charset="UTF-8">\n\
+<meta charset="utf-8">\n\
 <meta name="viewport" content="width=device-width, initial-scale=1">\n\
 <!-- "assets.utility2.template.html" -->\n\
 <title>{{env.npm_package_name}} ({{env.npm_package_version}})</title>\n\
@@ -16024,6 +16007,8 @@ textarea {\n\
 </style>\n\
 </head>\n\
 <body>\n\
+<div id="ajaxProgressDiv1" style="background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;"></div>\n\
+<div class="uiAnimateSpin" style="animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;"></div>\n\
 <script>\n\
 /* jslint-utility2 */\n\
 /*jslint\n\
@@ -16055,21 +16040,6 @@ textarea {\n\
         }, 100);\n\
     });\n\
 }());\n\
-</script>\n\
-<div id="ajaxProgressDiv1" style="background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;"></div>\n\
-<div class="uiAnimateSpin" style="animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;"></div>\n\
-<script>\n\
-/* jslint-utility2 */\n\
-/*jslint\n\
-    bitwise: true,\n\
-    browser: true,\n\
-    maxerr: 4,\n\
-    maxlen: 100,\n\
-    node: true,\n\
-    nomen: true,\n\
-    regexp: true,\n\
-    stupid: true\n\
-*/\n\
 // init timerIntervalAjaxProgressUpdate\n\
 (function () {\n\
 /*\n\
@@ -16122,9 +16092,9 @@ textarea {\n\
     onEvent = window.domOnEventMediaHotkeys = function (event) {\n\
         var media;\n\
         if (event === "init") {\n\
-            Array.from(\n\
-                document.querySelectorAll(".domOnEventMediaHotkeysInit")\n\
-            ).forEach(function (media) {\n\
+            Array.from(document.querySelectorAll(\n\
+                ".domOnEventMediaHotkeysInit"\n\
+            )).forEach(function (media) {\n\
                 media.classList.remove("domOnEventMediaHotkeysInit");\n\
                 media.classList.add("domOnEventMediaHotkeys");\n\
                 ["play", "pause", "seeking"].forEach(function (event) {\n\
@@ -16349,9 +16319,9 @@ instruction\n\
                     event.currentTarget.className.includes &&\n\
                     event.currentTarget.className.includes(\'onreset\'))) {\n\
                 // reset output\n\
-                Array.from(\n\
-                    document.querySelectorAll(\'body > .resettable\')\n\
-                ).forEach(function (element) {\n\
+                Array.from(document.querySelectorAll(\n\
+                    \'body > .resettable\'\n\
+                )).forEach(function (element) {\n\
                     switch (element.tagName) {\n\
                     case \'INPUT\':\n\
                     case \'TEXTAREA\':\n\
@@ -18309,6 +18279,7 @@ local.assetsDict['/favicon.ico'] = '';
                         postProcess: local.echo,
                         rgxCrawl: (/<a\b[\S\s]*?href="(.*?)"/g),
                         rgxParent0: (/z^/),
+                        urlParsed0: {},
                         urlList: []
                     });
                     options.urlList.forEach(function (url) {
@@ -19182,7 +19153,7 @@ local.assetsDict['/favicon.ico'] = '';
             options = local.objectSetDefault(options, { assetsList: [] });
             // build assets
             local.fsRmrSync(local.env.npm_config_dir_build + '/app');
-            local.onParallelList({ list: options.assetsList.concat([{
+            local.onParallelList({ list: [{
                 file: '/LICENSE',
                 url: '/LICENSE'
             }, {
@@ -19230,7 +19201,7 @@ local.assetsDict['/favicon.ico'] = '';
             }, {
                 file: '/jsonp.utility2.stateInit',
                 url: '/jsonp.utility2.stateInit?callback=window.utility2.stateInit'
-            }]) }, function (options2, onParallel) {
+            }].concat(options.assetsList) }, function (options2, onParallel) {
                 options2 = options2.element;
                 onParallel.counter += 1;
                 local.ajax(options2, function (error, xhr) {
@@ -19379,7 +19350,7 @@ local.assetsDict['/favicon.ico'] = '';
                     '            local.global.utility2_rollup_old || '
                 );
             }
-            options.customize();
+            options.customize(options);
             // save lib.xxx.js
             local.fs.writeFileSync(
                 'lib.' + local.env.npm_package_nameLib + '.js',
@@ -19555,7 +19526,17 @@ local.assetsDict['/favicon.ico'] = '';
                     '\n' + match0 + '\n'
                 );
             });
-            options.customize();
+            options.customize(options);
+            // customize assets.index.template.html
+            if (local.assetsDict['/assets.index.template.html']
+                    .indexOf('"assets.utility2.template.html"') < 0) {
+                options.dataTo = options.dataTo.replace(
+                    new RegExp('\\n {8}\\/\\* jslint-ignore-begin \\*\\/\\n' +
+                        ' {8}local.assetsDict\\[\'\\/assets.index.template.html\'\\] = \'\\\\\\n' +
+                        '[\\S\\s]*?\\n {8}\\/\\* jslint-ignore-end \\*\\/\\n'),
+                    '\n'
+                );
+            }
             // customize shDeployCustom
             if (options.dataFrom.indexOf('    shDeployCustom\n') >= 0) {
                 [
@@ -19615,16 +19596,6 @@ local.assetsDict['/favicon.ico'] = '';
                 // customize screenshot
                 options.dataTo = options.dataTo.replace(element[1], '');
             });
-            // customize assets.index.template.html
-            if (local.assetsDict['/assets.index.template.html']
-                    .indexOf('"assets.utility2.template.html"') < 0) {
-                options.dataTo = options.dataTo.replace(
-                    new RegExp('\\n {8}\\/\\* jslint-ignore-begin \\*\\/\\n' +
-                        ' {8}local.assetsDict\\[\'\\/assets.index.template.html\'\\] = \'\\\\\\n' +
-                        '[\\S\\s]*?\\n {8}\\/\\* jslint-ignore-end \\*\\/\\n'),
-                    '\n'
-                );
-            }
             // render dataTo - customizeAfter
             options.customizeAfter = true;
             options.dataTo = local.templateRenderJslintLite(options.dataTo, options);
@@ -19659,7 +19630,8 @@ local.assetsDict['/favicon.ico'] = '';
                     'x-swgg-homepage': options.packageJson.homepage
                 } }, 2);
                 options.dataTo.replace((/\bhttps:\/\/.*?\/assets\.app\.js/), function (match0) {
-                    options.swaggerJson['x-swgg-downloadStandaloneApp'] = match0;
+                    options.swaggerJson['x-swgg-downloadStandaloneApp'] =
+                        !local.env.npm_package_isPrivate && match0;
                 });
                 // save assets.swgg.swagger.json
                 local.fs.writeFileSync('assets.swgg.swagger.json', local.jsonStringifyOrdered(
@@ -19706,7 +19678,7 @@ local.assetsDict['/favicon.ico'] = '';
                     );
                 }
             });
-            options.customize();
+            options.customize(options);
             // save test.js
             local.fs.writeFileSync('test.js', options.dataTo);
             onError();
@@ -19752,7 +19724,7 @@ local.assetsDict['/favicon.ico'] = '';
         /*
          * this function will run child_process.spawn, with lib.utility2.sh sourced
          */
-            local.child_process.spawn(
+            require('child_process').spawn(
                 '. ' + (process.env.npm_config_dir_utility2 || __dirname) + '/lib.utility2.sh; ' +
                     script,
                 { shell: true, stdio: ['ignore', 1, 2] }
@@ -20887,7 +20859,7 @@ local.assetsDict['/favicon.ico'] = '';
             // set main-page content-type to text/html
             if (request.urlParsed.pathname === '/') {
                 local.serverRespondHeadSet(request, response, null, {
-                    'Content-Type': 'text/html; charset=UTF-8'
+                    'Content-Type': 'text/html; charset=utf-8'
                 });
             }
             // init response.end and response.write to accept Uint8Array instance
@@ -20928,6 +20900,7 @@ local.assetsDict['/favicon.ico'] = '';
                 env: {
                     NODE_ENV: local.env.NODE_ENV,
                     npm_config_mode_backend: local.env.npm_config_mode_backend,
+                    npm_package_assetsList: local.env.npm_package_assetsList,
                     npm_package_description: local.env.npm_package_description,
                     npm_package_homepage: local.env.npm_package_homepage,
                     npm_package_name: local.env.npm_package_name,
@@ -20935,6 +20908,11 @@ local.assetsDict['/favicon.ico'] = '';
                     npm_package_version: local.env.npm_package_version
                 }
             } };
+            (local.env.npm_package_assetsList || '').split(' ').forEach(function (file) {
+                state.utility2.assetsDict['/' + file] = local.assetsDict['/' + file] =
+                    local.assetsDict['/' + file] ||
+                    local.fsReadFileOrEmptyStringSync(file, 'utf8');
+            });
             if (request.stateInit) {
                 return state;
             }
@@ -22126,8 +22104,8 @@ instruction\n\
          * https://stackoverflow.com/questions/7381974/which-characters-need-to-be-escaped-on-html
          */
             return text
-                .replace((/"/g), '&quot;')
                 .replace((/&/g), '&amp;')
+                .replace((/"/g), '&quot;')
                 .replace((/'/g), '&apos;')
                 .replace((/</g), '&lt;')
                 .replace((/>/g), '&gt;')
@@ -23345,23 +23323,23 @@ instruction\n\
         local.cacheDict = {};
         local.contentTypeDict = {
             // application
-            '.js': 'application/javascript; charset=UTF-8',
-            '.json': 'application/json; charset=UTF-8',
+            '.js': 'application/javascript; charset=utf-8',
+            '.json': 'application/json; charset=utf-8',
             '.pdf': 'application/pdf',
-            '.xml': 'application/xml; charset=UTF-8',
+            '.xml': 'application/xml; charset=utf-8',
             // image
             '.bmp': 'image/bmp',
             '.gif': 'image/gif',
             '.jpeg': 'image/jpeg',
             '.jpg': 'image/jpeg',
             '.png': 'image/png',
-            '.svg': 'image/svg+xml; charset=UTF-8',
+            '.svg': 'image/svg+xml; charset=utf-8',
             // text
-            '.css': 'text/css; charset=UTF-8',
-            '.htm': 'text/html; charset=UTF-8',
-            '.html': 'text/html; charset=UTF-8',
-            '.md': 'text/markdown; charset=UTF-8',
-            '.txt': 'text/plain; charset=UTF-8'
+            '.css': 'text/css; charset=utf-8',
+            '.htm': 'text/html; charset=utf-8',
+            '.html': 'text/html; charset=utf-8',
+            '.md': 'text/markdown; charset=utf-8',
+            '.txt': 'text/plain; charset=utf-8'
         };
         // init env
         local.env = local.isBrowser
@@ -23496,6 +23474,13 @@ instruction\n\
         }
         // init cli
         local.cliDict = {};
+        local.cliDict['utility2.ajaxCrawl'] = function () {
+        /*
+         * <urlList>
+         * # web-crawl comma-separated <urlList> in parallel
+         */
+            local.ajaxCrawl({ urlList: process.argv[3].split(',') }, local.onErrorThrow);
+        };
         local.cliDict['utility2.browserTest'] = function () {
         /*
          * <url> <mode>
@@ -23568,7 +23553,7 @@ instruction\n\
                             data: '{"hook":{"active":true}}',
                             headers: {
                                 Authorization: 'token ' + process.env.TRAVIS_ACCESS_TOKEN,
-                                'Content-Type': 'application/json; charset=UTF-8'
+                                'Content-Type': 'application/json; charset=utf-8'
                             },
                             method: 'PUT',
                             url: 'https://api.' + process.env.TRAVIS_DOMAIN + '/hooks/' +
@@ -23585,7 +23570,7 @@ instruction\n\
                             data: '{"setting.value":true}',
                             headers: {
                                 Authorization: 'token ' + process.env.TRAVIS_ACCESS_TOKEN,
-                                'Content-Type': 'application/json; charset=UTF-8',
+                                'Content-Type': 'application/json; charset=utf-8',
                                 'Travis-API-Version': 3
                             },
                             method: 'PATCH',
@@ -23597,7 +23582,7 @@ instruction\n\
                             data: '{"setting.value":true}',
                             headers: {
                                 Authorization: 'token ' + process.env.TRAVIS_ACCESS_TOKEN,
-                                'Content-Type': 'application/json; charset=UTF-8',
+                                'Content-Type': 'application/json; charset=utf-8',
                                 'Travis-API-Version': 3
                             },
                             method: 'PATCH',
@@ -24076,8 +24061,6 @@ instruction\n\
             local.buffer = require('buffer');
             local.child_process = require('child_process');
             local.cluster = require('cluster');
-            local.console = require('console');
-            local.constants = require('constants');
             local.crypto = require('crypto');
             local.dgram = require('dgram');
             local.dns = require('dns');
@@ -24086,12 +24069,9 @@ instruction\n\
             local.fs = require('fs');
             local.http = require('http');
             local.https = require('https');
-            local.module = require('module');
             local.net = require('net');
             local.os = require('os');
             local.path = require('path');
-            local.process = require('process');
-            local.punycode = require('punycode');
             local.querystring = require('querystring');
             local.readline = require('readline');
             local.repl = require('repl');
@@ -24232,7 +24212,7 @@ local.swaggerErrorTypeDict = {
     // security-definitions.js:33: `${path} must have required string 'type' param`,
     semanticSecurityDefinitions1: '${path} must have required string "type" param',
     // security-definitions.js:44: "apiKey authorization must have required 'in' param, valid values are 'query' or 'header'.",
-    semanticSecurityDefinitions2: `apiKey authorization must have required "in" param, valid values are "query" or "header".`,
+    semanticSecurityDefinitions2: 'apiKey authorization must have required "in" param, valid values are "query" or "header".',
     // security-definitions.js:52: "apiKey authorization must have required 'name' string param. The name of the header or query parameter to be used.",
     semanticSecurityDefinitions3: "apiKey authorization must have required 'name' string param. The name of the header or query parameter to be used.",
     // security-definitions.js:66: "oauth2 authorization must have required 'flow' string param. Valid values are 'implicit', 'password', 'application' or 'accessCode'",
@@ -24958,7 +24938,7 @@ local.templateUiMain = '\
     id="swggUiReloadErrorDiv1"\n\
     style="background: none; border: 0;"\n\
 ></div>\n\
-<div class="info reset">\n\
+<div class="eventDelegateChange eventDelegateClick info reset">\n\
     {{#if info}}\n\
     {{#if info.x-swgg-homepage}}\n\
     <h2 class="hx">\n\
@@ -24978,6 +24958,18 @@ local.templateUiMain = '\
         download standalone app\n\
     </a><br>\n\
     {{/if x-swgg-downloadStandaloneApp}}\n\
+    {{#if x-swgg-buttonDatabase}}\n\
+    <button class="button onEventDbReset" id="swggDbResetButton1">\n\
+        reset database\n\
+    </button><br>\n\
+    <button class="button onEventDbReset" id="swggDbExportButton1">\n\
+        export database -&gt; file\n\
+    </button><a download="db.persistence.json" href="" id="swggDbExportA1"></a><br>\n\
+    <button class="button onEventDbReset" id="swggDbImportButton1">\n\
+        import database &lt;- file\n\
+    </button><br>\n\
+    <input class="onEventDbReset zeroPixel" type="file" id="swggDbImportInput1">\n\
+    {{/if x-swgg-buttonDatabase}}\n\
     <ul>\n\
         {{#if externalDocs.url}}\n\
         <li>\n\
@@ -25194,9 +25186,7 @@ function (error, data) {\n\
 // https://github.com/swagger-api/swagger-ui/blob/v2.1.3/src/main/template/resource.handlebars
 local.templateUiResource = '\
 <li\n\
-    class="\n\
-        eventDelegateChange eventDelegateClick eventDelegateKeyup eventDelegateSubmit resource\n\
-    "\n\
+    class="eventDelegateChange eventDelegateClick eventDelegateKeyup eventDelegateSubmit resource"\n\
     data-name="{{name}}"\n\
     id="{{id}}"\n\
 >\n\
@@ -25340,6 +25330,13 @@ local.assetsDict['/assets.swgg.html'] = local.assetsDict['/assets.utility2.templ
 .swggUiContainer .td textarea {\n\
     width: 100%;\n\
 }\n\
+.swggUiContainer .zeroPixel {\n\
+    border: 0;\n\
+    height: 0;\n\
+    margin: 0;\n\
+    padding: 0;\n\
+    width: 0;\n\
+}\n\
 /* validateLineSortedReset */\n\
 /* background */\n\
 .swggUiContainer code,\n\
@@ -25382,6 +25379,9 @@ local.assetsDict['/assets.swgg.html'] = local.assetsDict['/assets.utility2.templ
 .swggUiContainer .resource > .thead,\n\
 .swggUiContainer > .thead {\n\
     background: #7b7;\n\
+}\n\
+.swggUiContainer > .info > .button {\n\
+    width: 20rem;\n\
 }\n\
 .swggUiContainer > .thead > .td1 {\n\
     background: transparent url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAqRJREFUeNrEVz1s00AUfnGXii5maMXoEUEHVwIpEkPNgkBdMnQoU5ytiKHJwpp2Q2JIO8DCUDOxIJFIVOoWZyJSh3pp1Q2PVVlcCVBH3ufeVZZ9Zye1Ay86nXV+ue/9fO/lheg/Se02X1rvksmbnTiKvuxQMBNgBnN4a/LCbmnUAP6JV58NCUsBC8CuAJxGPF47OgNqBaA93tolUhnx6jC4NxGwyOEwlccyAs+3kwdzKq0HDn2vEBTi8J2XpyMaywNDE157BhXUE3zJhlq8GKq+Zd2zaWHepPA8oN9XkfLmRdOiJV4XUUg/IyWncLjCYY/SHndV2u7zHr3bPKZtdxgboJOnthvrfGj/oMf3G0r7JVmNlLfKklmrt2MvvcNO7LFOhoFHfuAJI5o6ta10jpt5CQLgwXhXG2YIwvu+34qf78ybOjWTnWwkgR36d7JqJOrW0hHmNrKg9xhiS4+1jFmrxymh03B0w+6kURIAu3yHtOD5oaUNojMnGgbcctNvwdAnyxvxRR+/vaJnjzbpzcZX+nN1SdGv85i9eH8w3qPO+mdm/y4dnQ1iI8Fq6Nf4cxL6GWSjiFDSs0VRnxC5g0xSB2cgHpaseTxfqOv5uoHkNQ6Ha/N1Yz9mNMppEkEkYKj79q6uCq4bCHcSX3fJ0Vk/k9siASjCm1N6gZH6Ec9IXt2WkFES2K/ixoIyktJPAu/ptOA1SgO5zqtr6KASJPF0nMV8dgMsRhRPOcMwqQAOoi0VAIMLAEWJ6YYC1c8ibj1GP51RqwzYwZVMHQuvOzMCBUtb2tGHx5NAdLKqp5AX7Ng4d+Zi8AGDI9z1ijx9yaCH04y3GCP2S+QcvaGl+pcxyUBvinFlawoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=) no-repeat left center;\n\
@@ -25618,7 +25618,7 @@ local.assetsDict['/assets.swgg.html'] = local.assetsDict['/assets.utility2.templ
 "use strict";\n\
 document.querySelector(".swggUiContainer > .thead > .td2").value =\n\
     ((/\\bmodeSwaggerJsonUrl=([^&]+)/g).exec(location.search) || {})[1] ||\n\
-        "assets.swgg.swagger.json";\n\
+    "assets.swgg.swagger.json";\n\
 </script>\n\
 <script src="assets.utility2.rollup.js"></script>\n\
 <script>\n\
@@ -25626,6 +25626,8 @@ document.querySelector(".swggUiContainer > .thead > .td2").value =\n\
 window.local = window.local || window.swgg;\n\
 window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
 </script>\n\
+<!-- swgg-script-extra-begin -->\n\
+<!-- swgg-script-extra-end -->\n\
 </body>\n\
 </html>\n\
 ');
@@ -28508,6 +28510,7 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
             event.targetOperation = event.target2.closest('.operation');
             Object.keys(local.uiEventListenerDict).sort().some(function (key) {
                 switch (key) {
+                case '.onEventDbReset':
                 case '.onEventOperationDisplayShow':
                     event.target2 = event.target2.closest(key) || event.target2;
                     break;
@@ -28536,6 +28539,47 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
         };
 
         local.uiEventListenerDict = {};
+
+        local.uiEventListenerDict['.onEventDbReset'] = function (event) {
+        /*
+         * this function will show/hide the textarea's multiline placeholder
+         */
+            var reader, tmp;
+            switch (event.target2.id) {
+            case 'swggDbExportButton1':
+                tmp = local.global.URL.createObjectURL(
+                    new local.global.Blob([local.db.dbExport()])
+                );
+                document.querySelector('#swggDbExportA1').href = tmp;
+                document.querySelector('#swggDbExportA1').click();
+                setTimeout(function () {
+                    local.global.URL.revokeObjectURL(tmp);
+                }, 30000);
+                break;
+            case 'swggDbImportButton1':
+                document.querySelector('#swggDbImportInput1').click();
+                break;
+            case 'swggDbImportInput1':
+                if (event.type !== 'change') {
+                    return;
+                }
+                local.ajaxProgressUpdate();
+                reader = new local.global.FileReader();
+                tmp = document.querySelector('#swggDbImportInput1').files[0];
+                if (!tmp) {
+                    return;
+                }
+                reader.addEventListener('load', function () {
+                    local.db.dbImport(reader.result);
+                    local.ajaxProgressUpdate();
+                });
+                reader.readAsText(tmp);
+                break;
+            case 'swggDbResetButton1':
+                local.utility2.testRunBefore();
+                break;
+            }
+        };
 
         local.uiEventListenerDict['.onEventInputTextareaChange'] = function (event) {
         /*
@@ -28743,7 +28787,7 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
                             data.contentType +
                             ';base64,' + local.base64FromBuffer(data.response) + '"></' +
                             data.mediaType + '>';
-                        window.domOnEventMediaHotkeys('init');
+                        local.global.domOnEventMediaHotkeys('init');
                         break;
                     default:
                         options.targetOperation.querySelector('.responseBody').textContent =
@@ -29008,15 +29052,16 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
                     operation = local.jsonCopy(operation);
                     resource = swaggerJson.resourceDict[tag];
                     local.objectSetDefault(operation, {
+                        description: 'no description',
                         responseList: Object.keys(operation.responses).sort().map(function (key) {
                             return {
                                 key: key,
                                 value: operation.responses[key]
                             };
-                        }),
-                        summary: operation.description
-                            .replace((/\bhttps?:\/\/[^\s<]+[^<.,:;"')\]\s]/g), '')
+                        })
                     });
+                    operation.summary = operation.summary ||
+                        operation.description.replace((/\bhttps?:\/\/[^\s<]+[^<.,:;"')\]\s]/g), '');
                     operation.parameters.forEach(local.uiRenderSchemaP);
                     // templateRender operation
                     swaggerJson.uiFragment.querySelector('#' + resource.id + ' .operationList')
@@ -29050,7 +29095,7 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
                 }
             });
             // init event-handling
-            ['Click', 'Keyup', 'Submit'].forEach(function (eventType) {
+            ['Change', 'Click', 'Keyup', 'Submit'].forEach(function (eventType) {
                 Array.from(document.querySelectorAll(
                     '.swggUiContainer .eventDelegate' + eventType
                 )).forEach(function (element) {
@@ -29282,7 +29327,7 @@ this script will demo automated browser-tests with coverage (via electron and is
 instruction\n\
     1. save this script as example.js\n\
     2. run the shell command:\n\
-        $ npm install kaizhu256/node-utility2#alpha electron-lite && \\\n\
+        $ npm install utility2 electron-lite && \\\n\
             PATH=\"$(pwd)/node_modules/.bin:$PATH\" \\\n\
             PORT=8081 \\\n\
             npm_config_mode_coverage=utility2 \\\n\
@@ -29414,9 +29459,9 @@ instruction\n\
                     event.currentTarget.className.includes &&\n\
                     event.currentTarget.className.includes('onreset'))) {\n\
                 // reset output\n\
-                Array.from(\n\
-                    document.querySelectorAll('body > .resettable')\n\
-                ).forEach(function (element) {\n\
+                Array.from(document.querySelectorAll(\n\
+                    'body > .resettable'\n\
+                )).forEach(function (element) {\n\
                     switch (element.tagName) {\n\
                     case 'INPUT':\n\
                     case 'TEXTAREA':\n\
@@ -29603,7 +29648,7 @@ instruction\n\
 <!doctype html>\\n\
 <html lang=\"en\">\\n\
 <head>\\n\
-<meta charset=\"UTF-8\">\\n\
+<meta charset=\"utf-8\">\\n\
 <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\\n\
 <!-- \"assets.utility2.template.html\" -->\\n\
 <title>{{env.npm_package_name}} ({{env.npm_package_version}})</title>\\n\
@@ -29729,6 +29774,8 @@ textarea {\\n\
 </style>\\n\
 </head>\\n\
 <body>\\n\
+<div id=\"ajaxProgressDiv1\" style=\"background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;\"></div>\\n\
+<div class=\"uiAnimateSpin\" style=\"animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;\"></div>\\n\
 <script>\\n\
 /* jslint-utility2 */\\n\
 /*jslint\\n\
@@ -29760,21 +29807,6 @@ textarea {\\n\
         }, 100);\\n\
     });\\n\
 }());\\n\
-</script>\\n\
-<div id=\"ajaxProgressDiv1\" style=\"background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;\"></div>\\n\
-<div class=\"uiAnimateSpin\" style=\"animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;\"></div>\\n\
-<script>\\n\
-/* jslint-utility2 */\\n\
-/*jslint\\n\
-    bitwise: true,\\n\
-    browser: true,\\n\
-    maxerr: 4,\\n\
-    maxlen: 100,\\n\
-    node: true,\\n\
-    nomen: true,\\n\
-    regexp: true,\\n\
-    stupid: true\\n\
-*/\\n\
 // init timerIntervalAjaxProgressUpdate\\n\
 (function () {\\n\
 /*\\n\
@@ -29827,9 +29859,9 @@ textarea {\\n\
     onEvent = window.domOnEventMediaHotkeys = function (event) {\\n\
         var media;\\n\
         if (event === \"init\") {\\n\
-            Array.from(\\n\
-                document.querySelectorAll(\".domOnEventMediaHotkeysInit\")\\n\
-            ).forEach(function (media) {\\n\
+            Array.from(document.querySelectorAll(\\n\
+                \".domOnEventMediaHotkeysInit\"\\n\
+            )).forEach(function (media) {\\n\
                 media.classList.remove(\"domOnEventMediaHotkeysInit\");\\n\
                 media.classList.add(\"domOnEventMediaHotkeys\");\\n\
                 [\"play\", \"pause\", \"seeking\"].forEach(function (event) {\\n\
@@ -30106,7 +30138,7 @@ utility2-comment -->\\n\
 local.assetsDict["/assets.utility2.html"] = "<!doctype html>\n\
 <html lang=\"en\">\n\
 <head>\n\
-<meta charset=\"UTF-8\">\n\
+<meta charset=\"utf-8\">\n\
 <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n\
 <!-- \"assets.utility2.template.html\" -->\n\
 <title>utility2 (0.0.1)</title>\n\
@@ -30232,6 +30264,8 @@ textarea {\n\
 </style>\n\
 </head>\n\
 <body>\n\
+<div id=\"ajaxProgressDiv1\" style=\"background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;\"></div>\n\
+<div class=\"uiAnimateSpin\" style=\"animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;\"></div>\n\
 <script>\n\
 /* jslint-utility2 */\n\
 /*jslint\n\
@@ -30263,21 +30297,6 @@ textarea {\n\
         }, 100);\n\
     });\n\
 }());\n\
-</script>\n\
-<div id=\"ajaxProgressDiv1\" style=\"background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;\"></div>\n\
-<div class=\"uiAnimateSpin\" style=\"animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;\"></div>\n\
-<script>\n\
-/* jslint-utility2 */\n\
-/*jslint\n\
-    bitwise: true,\n\
-    browser: true,\n\
-    maxerr: 4,\n\
-    maxlen: 100,\n\
-    node: true,\n\
-    nomen: true,\n\
-    regexp: true,\n\
-    stupid: true\n\
-*/\n\
 // init timerIntervalAjaxProgressUpdate\n\
 (function () {\n\
 /*\n\
@@ -30330,9 +30349,9 @@ textarea {\n\
     onEvent = window.domOnEventMediaHotkeys = function (event) {\n\
         var media;\n\
         if (event === \"init\") {\n\
-            Array.from(\n\
-                document.querySelectorAll(\".domOnEventMediaHotkeysInit\")\n\
-            ).forEach(function (media) {\n\
+            Array.from(document.querySelectorAll(\n\
+                \".domOnEventMediaHotkeysInit\"\n\
+            )).forEach(function (media) {\n\
                 media.classList.remove(\"domOnEventMediaHotkeysInit\");\n\
                 media.classList.add(\"domOnEventMediaHotkeys\");\n\
                 [\"play\", \"pause\", \"seeking\"].forEach(function (event) {\n\
@@ -31281,7 +31300,7 @@ x-request-header-test: aa\\r\\n\
             local.testCase_buildReadme_default(options, local.onErrorThrow);\n\
             local.testCase_buildLib_default(options, local.onErrorThrow);\n\
             local.testCase_buildTest_default(options, local.onErrorThrow);\n\
-            options = { assetsList: [{\n\
+            local.buildApp({ assetsList: [{\n\
                 file: '/assets.hello',\n\
                 url: '/assets.hello'\n\
             }, {\n\
@@ -31308,8 +31327,7 @@ x-request-header-test: aa\\r\\n\
             }, {\n\
                 file: '/assets.utility2.rollup.js',\n\
                 url: '/assets.utility2.rollup.js'\n\
-            }] };\n\
-            local.buildApp(options, onError);\n\
+            }] }, onError);\n\
         };\n\
 \n\
         local.testCase_buildCustomOrg_default = function (options, onError) {\n\
@@ -31636,6 +31654,13 @@ x-request-header-test: aa\\r\\n\
          */\n\
             options = {};\n\
             local.onNext(options, function (error, data) {\n\
+                // bug-workaround - crypto.subtle sometimes freezes in browser\n\
+                /* istanbul ignore next */\n\
+                setTimeout(function () {\n\
+                    if (local.isBrowser && options.modeNext <= 6) {\n\
+                        options.onNext();\n\
+                    }\n\
+                }, 1000);\n\
                 switch (options.modeNext) {\n\
                 case 1:\n\
                     // encrypt data\n\
@@ -31676,13 +31701,6 @@ x-request-header-test: aa\\r\\n\
                     onError(!local.isBrowser && error, options);\n\
                     onError = local.nop;\n\
                 }\n\
-                // bug-workaround - fix crypto.subtle freezing in browser\n\
-                /* istanbul ignore next */\n\
-                setTimeout(function () {\n\
-                    if (local.isBrowser && options.modeNext <= 6) {\n\
-                        options.onNext();\n\
-                    }\n\
-                }, 2000);\n\
             });\n\
             options.modeNext = 0;\n\
             options.onNext();\n\
@@ -32067,6 +32085,21 @@ console.log(\"aa\");',\n\
                 onParallel(null, options);\n\
             });\n\
             onParallel(null, options);\n\
+        };\n\
+\n\
+        local.testCase_middlewareJsonpStateInit_assetsList = function (options, onError) {\n\
+        /*\n\
+         * this function will middlewareJsonpStateInit's assetsList handling-behavior\n\
+         */\n\
+            local.testMock([\n\
+                [local.env, { npm_package_assetsList: 'undefined' }],\n\
+                [local, { assetsDict: {} }]\n\
+            ], function (onError) {\n\
+                local.middlewareJsonpStateInit({ stateInit: true });\n\
+                // validate data\n\
+                local.assertJsonEqual(local.assetsDict['/undefined'], '');\n\
+                onError(null, options);\n\
+            }, onError);\n\
         };\n\
 \n\
         local.testCase_moduleDirname_default = function (options, onError) {\n\
@@ -33496,12 +33529,13 @@ bb>```');\n\
 local.stateInit({
     "utility2": {
         "assetsDict": {
-            "/assets.example.html": "<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<!-- \"assets.utility2.template.html\" -->\n<title>uglifyjs-lite (0.0.1)</title>\n<style>\n/* jslint-utility2 */\n/*csslint\n*/\n/* jslint-ignore-begin */\n*,\n*:after,\n*:before {\n    box-sizing: border-box;\n}\n/* jslint-ignore-end */\n@keyframes uiAnimateShake {\n    0%, 50% {\n        transform: translateX(10px);\n    }\n    25%, 75% {\n        transform: translateX(-10px);\n    }\n    100% {\n        transform: translateX(0);\n    }\n}\n@keyframes uiAnimateSpin {\n    0% {\n        transform: rotate(0deg);\n    }\n    100% {\n        transform: rotate(360deg);\n    }\n}\na {\n    overflow-wrap: break-word;\n}\nbody {\n    background: #eef;\n    font-family: Arial, Helvetica, sans-serif;\n    margin: 0 40px;\n}\nbody > div,\nbody > form > div,\nbody > form > input,\nbody > form > pre,\nbody > form > textarea,\nbody > form > .button,\nbody > input,\nbody > pre,\nbody > textarea,\nbody > .button {\n    margin-bottom: 20px;\n}\nbody > form > input,\nbody > form > .button,\nbody > input,\nbody > .button {\n    width: 20rem;\n}\nbody > form > textarea,\nbody > textarea {\n    height: 10rem;\n    width: 100%;\n}\nbody > textarea[readonly] {\n    background: #ddd;\n}\ncode,\npre,\ntextarea {\n    font-family: Consolas, Menlo, monospace;\n    font-size: small;\n}\npre {\n    overflow-wrap: break-word;\n    white-space: pre-wrap;\n}\ntextarea {\n    overflow: auto;\n    white-space: pre;\n}\n.button {\n    background-color: #fff;\n    border: 1px solid;\n    border-bottom-color: rgb(186, 186, 186);\n    border-left-color: rgb(209, 209, 209);\n    border-radius: 4px;\n    border-right-color: rgb(209, 209, 209);\n    border-top-color: rgb(216, 216, 216);\n    color: #00d;\n    cursor: pointer;\n    display: inline-block;\n    font-family: Arial, Helvetica, sans-serif;\n    font-size: 12px;\n    font-style: normal;\n    font-weight: normal;\n    margin: 0;\n    padding: 2px 7px 3px 7px;\n    text-align: center;\n    text-decoration: underline;\n}\n.colorError {\n    color: #d00;\n}\n.uiAnimateShake {\n    animation-duration: 500ms;\n    animation-name: uiAnimateShake;\n}\n.uiAnimateSlide {\n    overflow-y: hidden;\n    transition: max-height ease-in 250ms, min-height ease-in 250ms, padding-bottom ease-in 250ms, padding-top ease-in 250ms;\n}\n.utility2FooterDiv {\n    text-align: center;\n}\n.zeroPixel {\n    border: 0;\n    height: 0;\n    margin: 0;\n    padding: 0;\n    width: 0;\n}\n</style>\n</head>\n<body>\n<script>\n/* jslint-utility2 */\n/*jslint\n    bitwise: true,\n    browser: true,\n    maxerr: 4,\n    maxlen: 100,\n    node: true,\n    nomen: true,\n    regexp: true,\n    stupid: true\n*/\n// init domOnEventWindowOnloadTimeElapsed\n(function () {\n/*\n * this function will measure and print the time-elapsed for window.onload\n */\n    \"use strict\";\n    if (window.domOnEventWindowOnloadTimeElapsed) {\n        return;\n    }\n    window.domOnEventWindowOnloadTimeElapsed = Date.now() + 100;\n    window.addEventListener(\"load\", function () {\n        setTimeout(function () {\n            window.domOnEventWindowOnloadTimeElapsed = Date.now() -\n                window.domOnEventWindowOnloadTimeElapsed;\n            console.error(\"domOnEventWindowOnloadTimeElapsed = \" +\n                window.domOnEventWindowOnloadTimeElapsed);\n        }, 100);\n    });\n}());\n</script>\n<div id=\"ajaxProgressDiv1\" style=\"background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;\"></div>\n<div class=\"uiAnimateSpin\" style=\"animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;\"></div>\n<script>\n/* jslint-utility2 */\n/*jslint\n    bitwise: true,\n    browser: true,\n    maxerr: 4,\n    maxlen: 100,\n    node: true,\n    nomen: true,\n    regexp: true,\n    stupid: true\n*/\n// init timerIntervalAjaxProgressUpdate\n(function () {\n/*\n * this function will increment the ajax-progress-bar until the webpage has loaded\n */\n    \"use strict\";\n    var ajaxProgressDiv1,\n        ajaxProgressState,\n        ajaxProgressUpdate;\n    if (window.timerIntervalAjaxProgressUpdate || !document.querySelector(\"#ajaxProgressDiv1\")) {\n        return;\n    }\n    ajaxProgressDiv1 = document.querySelector(\"#ajaxProgressDiv1\");\n    setTimeout(function () {\n        ajaxProgressDiv1.style.width = \"25%\";\n    });\n    ajaxProgressState = 0;\n    ajaxProgressUpdate = (window.local &&\n        window.local.ajaxProgressUpdate) || function () {\n        ajaxProgressDiv1.style.width = \"100%\";\n        setTimeout(function () {\n            ajaxProgressDiv1.style.background = \"transparent\";\n            setTimeout(function () {\n                ajaxProgressDiv1.style.width = \"0%\";\n            }, 500);\n        }, 1500);\n    };\n    window.timerIntervalAjaxProgressUpdate = setInterval(function () {\n        ajaxProgressState += 1;\n        ajaxProgressDiv1.style.width = Math.max(\n            100 - 75 * Math.exp(-0.125 * ajaxProgressState),\n            ajaxProgressDiv1.style.width.slice(0, -1) | 0\n        ) + \"%\";\n    }, 1000);\n    window.addEventListener(\"load\", function () {\n        clearInterval(window.timerIntervalAjaxProgressUpdate);\n        ajaxProgressUpdate();\n    });\n}());\n// init domOnEventMediaHotkeys\n(function () {\n/*\n * this function will add media-hotkeys to elements with class=\".domOnEventMediaHotkeysInit\"\n */\n    \"use strict\";\n    var input, onEvent;\n    if (window.domOnEventMediaHotkeys) {\n        return;\n    }\n    onEvent = window.domOnEventMediaHotkeys = function (event) {\n        var media;\n        if (event === \"init\") {\n            Array.from(\n                document.querySelectorAll(\".domOnEventMediaHotkeysInit\")\n            ).forEach(function (media) {\n                media.classList.remove(\"domOnEventMediaHotkeysInit\");\n                media.classList.add(\"domOnEventMediaHotkeys\");\n                [\"play\", \"pause\", \"seeking\"].forEach(function (event) {\n                    media.addEventListener(event, onEvent);\n                });\n            });\n            return;\n        }\n        if (event.currentTarget.classList.contains(\"domOnEventMediaHotkeys\")) {\n            window.domOnEventMediaHotkeysMedia1 = event.currentTarget;\n            window.domOnEventMediaHotkeysInput.focus();\n            return;\n        }\n        media = window.domOnEventMediaHotkeysMedia1;\n        try {\n            switch (event.key || event.type) {\n            case \",\":\n            case \".\":\n                media.currentTime += (event.key === \",\" && -0.03125) || 0.03125;\n                break;\n            case \"<\":\n            case \">\":\n                media.playbackRate *= (event.key === \"<\" && 0.5) || 2;\n                break;\n            case \"ArrowDown\":\n            case \"ArrowUp\":\n                media.volume += (event.key === \"ArrowDown\" && -0.05) || 0.05;\n                break;\n            case \"ArrowLeft\":\n            case \"ArrowRight\":\n                media.currentTime += (event.key === \"ArrowLeft\" && -5) || 5;\n                break;\n            case \"j\":\n            case \"l\":\n                media.currentTime += (event.key === \"j\" && -10) || 10;\n                break;\n            case \"k\":\n            case \" \":\n                if (media.paused) {\n                    media.play();\n                } else {\n                    media.pause();\n                }\n                break;\n            case \"m\":\n                media.muted = !media.muted;\n                break;\n            default:\n                if (event.key >= 0) {\n                    media.currentTime = 0.1 * event.key * media.duration;\n                    break;\n                }\n                return;\n            }\n        } catch (ignore) {\n        }\n        event.preventDefault();\n    };\n    input = window.domOnEventMediaHotkeysInput = document.createElement(\"button\");\n    input.style = \"border:0;height:0;margin:0;padding:0;position:fixed;width:0;z-index:-1;\";\n    input.addEventListener(\"click\", onEvent);\n    input.addEventListener(\"keydown\", onEvent);\n    document.body.appendChild(input);\n    onEvent(\"init\");\n}());\n// init domOnEventSelectAllWithinPre\n(function () {\n/*\n * this function will limit select-all within <pre tabIndex=\"0\"> elements\n * https://stackoverflow.com/questions/985272/selecting-text-in-an-element-akin-to-highlighting-with-your-mouse\n */\n    \"use strict\";\n    if (window.domOnEventSelectAllWithinPre) {\n        return;\n    }\n    window.domOnEventSelectAllWithinPre = function (event) {\n        var range, selection;\n        if (event &&\n                event.key === \"a\" &&\n                (event.ctrlKey || event.metaKey) &&\n                event.target.closest(\"pre\")) {\n            range = document.createRange();\n            range.selectNodeContents(event.target.closest(\"pre\"));\n            selection = window.getSelection();\n            selection.removeAllRanges();\n            selection.addRange(range);\n            event.preventDefault();\n        }\n    };\n    document.addEventListener(\"keydown\", window.domOnEventSelectAllWithinPre);\n}());\n</script>\n<h1>\n<!-- utility2-comment\n    <a\n        {{#if env.npm_package_homepage}}\n        href=\"{{env.npm_package_homepage}}\"\n        {{/if env.npm_package_homepage}}\n        target=\"_blank\"\n    >\nutility2-comment -->\n        uglifyjs-lite (0.0.1)\n<!-- utility2-comment\n    </a>\nutility2-comment -->\n</h1>\n<h3>the greatest app in the world!</h3>\n<!-- utility2-comment\n<a class=\"button\" download href=\"assets.app.js\">download standalone app</a><br>\n<button class=\"button onclick onreset\" id=\"testRunButton1\">run internal test</button><br>\n<div class=\"uiAnimateSlide\" id=\"testReportDiv1\" style=\"border-bottom: 0; border-top: 0; margin-bottom: 0; margin-top: 0; max-height: 0; padding-bottom: 0; padding-top: 0;\"></div>\nutility2-comment -->\n\n\n\n<label>edit or paste script below to cover and eval</label>\n<textarea class=\"onkeyup onreset\" id=\"inputTextarea1\">\nvar aa;\naa = \"hello\";\nconsole.log(aa);\nconsole.log(null);\n</textarea>\n<label>uglified-code</label>\n<textarea class=\"resettable\" id=\"outputTextarea1\" readonly></textarea>\n<label>stderr and stdout</label>\n<textarea class=\"resettable\" id=\"outputStdoutTextarea1\" readonly></textarea>\n<!-- utility2-comment\n{{#if isRollup}}\n<script src=\"assets.app.js\"></script>\n{{#unless isRollup}}\nutility2-comment -->\n<script src=\"assets.utility2.rollup.js\"></script>\n<script>window.utility2.onResetBefore.counter += 1;</script>\n<script src=\"jsonp.utility2.stateInit?callback=window.utility2.stateInit\"></script>\n<script src=\"assets.uglifyjs.js\"></script>\n<script src=\"assets.example.js\"></script>\n<script src=\"assets.test.js\"></script>\n<script>window.utility2.onResetBefore();</script>\n<!-- utility2-comment\n{{/if isRollup}}\nutility2-comment -->\n<div class=\"utility2FooterDiv\">\n    [ this app was created with\n    <a href=\"https://github.com/kaizhu256/node-utility2\" target=\"_blank\">utility2</a>\n    ]\n</div>\n</body>\n</html>\n",
-            "/assets.example.js": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n/*\nexample.js\n\nthis script will run a web-demo of uglifyjs-lite\n\ninstruction\n    1. save this script as example.js\n    2. run the shell command:\n        $ npm install uglifyjs-lite && PORT=8081 node example.js\n    3. open a browser to http://127.0.0.1:8081 and play with the web-demo\n    4. edit this script to suit your needs\n*/\n\n\n\n/* istanbul instrument in package uglifyjs */\n/* jslint-utility2 */\n/*jslint\n    bitwise: true,\n    browser: true,\n    maxerr: 4,\n    maxlen: 100,\n    node: true,\n    nomen: true,\n    regexp: true,\n    stupid: true\n*/\n(function () {\n    'use strict';\n    var local;\n\n\n\n    // run shared js-env code - init-before\n    (function () {\n        // init local\n        local = {};\n        // init isBrowser\n        local.isBrowser = typeof window === \"object\" &&\n            typeof window.XMLHttpRequest === \"function\" &&\n            window.document &&\n            typeof window.document.querySelectorAll === \"function\";\n        // init global\n        local.global = local.isBrowser\n            ? window\n            : global;\n        // re-init local\n        local = local.global.utility2_rollup || (local.isBrowser\n            ? local.global.utility2_uglifyjs\n            : global.utility2_moduleExports);\n        // init exports\n        local.global.local = local;\n    }());\n\n\n\n    // run browser js-env code - init-test\n    /* istanbul ignore next */\n    (function () {\n        if (!local.isBrowser) {\n            return;\n        }\n        local.testRunBrowser = function (event) {\n            if (!event || (event &&\n                    event.currentTarget &&\n                    event.currentTarget.className &&\n                    event.currentTarget.className.includes &&\n                    event.currentTarget.className.includes('onreset'))) {\n                // reset output\n                Array.from(\n                    document.querySelectorAll('body > .resettable')\n                ).forEach(function (element) {\n                    switch (element.tagName) {\n                    case 'INPUT':\n                    case 'TEXTAREA':\n                        element.value = '';\n                        break;\n                    default:\n                        element.textContent = '';\n                    }\n                });\n            }\n            switch (event && event.currentTarget && event.currentTarget.id) {\n            case 'testRunButton1':\n                // show tests\n                if (document.querySelector('#testReportDiv1').style.maxHeight === '0px') {\n                    local.uiAnimateSlideDown(document.querySelector('#testReportDiv1'));\n                    document.querySelector('#testRunButton1').textContent = 'hide internal test';\n                    local.modeTest = true;\n                    local.testRunDefault(local);\n                // hide tests\n                } else {\n                    local.uiAnimateSlideUp(document.querySelector('#testReportDiv1'));\n                    document.querySelector('#testRunButton1').textContent = 'run internal test';\n                }\n                break;\n            // custom-case\n            default:\n                // try to uglify and eval input-code\n                try {\n                    /*jslint evil: true*/\n                    document.querySelector('#outputTextarea1').value =\n                        local.uglifyjs.uglify(\n                            document.querySelector('#inputTextarea1').value,\n                            'inputTextarea1.js'\n                        );\n                    eval(document.querySelector('#outputTextarea1').value);\n                } catch (errorCaught) {\n                    console.error(errorCaught.stack);\n                }\n            }\n            if (document.querySelector('#inputTextareaEval1') && (!event || (event &&\n                    event.currentTarget &&\n                    event.currentTarget.className &&\n                    event.currentTarget.className.includes &&\n                    event.currentTarget.className.includes('oneval')))) {\n                // try to eval input-code\n                try {\n                    /*jslint evil: true*/\n                    eval(document.querySelector('#inputTextareaEval1').value);\n                } catch (errorCaught) {\n                    console.error(errorCaught);\n                }\n            }\n        };\n        // log stderr and stdout to #outputStdoutTextarea1\n        ['error', 'log'].forEach(function (key) {\n            console[key + '_original'] = console[key];\n            console[key] = function () {\n                var element;\n                console[key + '_original'].apply(console, arguments);\n                element = document.querySelector('#outputStdoutTextarea1');\n                if (!element) {\n                    return;\n                }\n                // append text to #outputStdoutTextarea1\n                element.value += Array.from(arguments).map(function (arg) {\n                    return typeof arg === 'string'\n                        ? arg\n                        : JSON.stringify(arg, null, 4);\n                }).join(' ') + '\\n';\n                // scroll textarea to bottom\n                element.scrollTop = element.scrollHeight;\n            };\n        });\n        // init event-handling\n        ['change', 'click', 'keyup'].forEach(function (event) {\n            Array.from(document.querySelectorAll('.on' + event)).forEach(function (element) {\n                element.addEventListener(event, local.testRunBrowser);\n            });\n        });\n        // run tests\n        local.testRunBrowser();\n    }());\n\n\n\n    // run node js-env code - init-test\n    /* istanbul ignore next */\n    (function () {\n        if (local.isBrowser) {\n            return;\n        }\n        // init exports\n        module.exports = local;\n        // require builtins\n        // local.assert = require('assert');\n        local.buffer = require('buffer');\n        local.child_process = require('child_process');\n        local.cluster = require('cluster');\n        local.crypto = require('crypto');\n        local.dgram = require('dgram');\n        local.dns = require('dns');\n        local.domain = require('domain');\n        local.events = require('events');\n        local.fs = require('fs');\n        local.http = require('http');\n        local.https = require('https');\n        local.net = require('net');\n        local.os = require('os');\n        local.path = require('path');\n        local.querystring = require('querystring');\n        local.readline = require('readline');\n        local.repl = require('repl');\n        local.stream = require('stream');\n        local.string_decoder = require('string_decoder');\n        local.timers = require('timers');\n        local.tls = require('tls');\n        local.tty = require('tty');\n        local.url = require('url');\n        local.util = require('util');\n        local.v8 = require('v8');\n        local.vm = require('vm');\n        local.zlib = require('zlib');\n        /* validateLineSortedReset */\n        // init assets\n        local.assetsDict = local.assetsDict || {};\n        [\n            'assets.index.template.html',\n            'assets.swgg.swagger.json',\n            'assets.swgg.swagger.server.json'\n        ].forEach(function (file) {\n            file = '/' + file;\n            local.assetsDict[file] = local.assetsDict[file] || '';\n            if (local.fs.existsSync(local.__dirname + file)) {\n                local.assetsDict[file] = local.fs.readFileSync(\n                    local.__dirname + file,\n                    'utf8'\n                );\n            }\n        });\n        /* jslint-ignore-begin */\n        local.assetsDict['/assets.index.template.html'] = '\\\n<!doctype html>\\n\\\n<html lang=\"en\">\\n\\\n<head>\\n\\\n<meta charset=\"UTF-8\">\\n\\\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\\n\\\n<!-- \"assets.utility2.template.html\" -->\\n\\\n<title>{{env.npm_package_name}} ({{env.npm_package_version}})</title>\\n\\\n<style>\\n\\\n/* jslint-utility2 */\\n\\\n/*csslint\\n\\\n*/\\n\\\n/* jslint-ignore-begin */\\n\\\n*,\\n\\\n*:after,\\n\\\n*:before {\\n\\\n    box-sizing: border-box;\\n\\\n}\\n\\\n/* jslint-ignore-end */\\n\\\n@keyframes uiAnimateShake {\\n\\\n    0%, 50% {\\n\\\n        transform: translateX(10px);\\n\\\n    }\\n\\\n    25%, 75% {\\n\\\n        transform: translateX(-10px);\\n\\\n    }\\n\\\n    100% {\\n\\\n        transform: translateX(0);\\n\\\n    }\\n\\\n}\\n\\\n@keyframes uiAnimateSpin {\\n\\\n    0% {\\n\\\n        transform: rotate(0deg);\\n\\\n    }\\n\\\n    100% {\\n\\\n        transform: rotate(360deg);\\n\\\n    }\\n\\\n}\\n\\\na {\\n\\\n    overflow-wrap: break-word;\\n\\\n}\\n\\\nbody {\\n\\\n    background: #eef;\\n\\\n    font-family: Arial, Helvetica, sans-serif;\\n\\\n    margin: 0 40px;\\n\\\n}\\n\\\nbody > div,\\n\\\nbody > form > div,\\n\\\nbody > form > input,\\n\\\nbody > form > pre,\\n\\\nbody > form > textarea,\\n\\\nbody > form > .button,\\n\\\nbody > input,\\n\\\nbody > pre,\\n\\\nbody > textarea,\\n\\\nbody > .button {\\n\\\n    margin-bottom: 20px;\\n\\\n}\\n\\\nbody > form > input,\\n\\\nbody > form > .button,\\n\\\nbody > input,\\n\\\nbody > .button {\\n\\\n    width: 20rem;\\n\\\n}\\n\\\nbody > form > textarea,\\n\\\nbody > textarea {\\n\\\n    height: 10rem;\\n\\\n    width: 100%;\\n\\\n}\\n\\\nbody > textarea[readonly] {\\n\\\n    background: #ddd;\\n\\\n}\\n\\\ncode,\\n\\\npre,\\n\\\ntextarea {\\n\\\n    font-family: Consolas, Menlo, monospace;\\n\\\n    font-size: small;\\n\\\n}\\n\\\npre {\\n\\\n    overflow-wrap: break-word;\\n\\\n    white-space: pre-wrap;\\n\\\n}\\n\\\ntextarea {\\n\\\n    overflow: auto;\\n\\\n    white-space: pre;\\n\\\n}\\n\\\n.button {\\n\\\n    background-color: #fff;\\n\\\n    border: 1px solid;\\n\\\n    border-bottom-color: rgb(186, 186, 186);\\n\\\n    border-left-color: rgb(209, 209, 209);\\n\\\n    border-radius: 4px;\\n\\\n    border-right-color: rgb(209, 209, 209);\\n\\\n    border-top-color: rgb(216, 216, 216);\\n\\\n    color: #00d;\\n\\\n    cursor: pointer;\\n\\\n    display: inline-block;\\n\\\n    font-family: Arial, Helvetica, sans-serif;\\n\\\n    font-size: 12px;\\n\\\n    font-style: normal;\\n\\\n    font-weight: normal;\\n\\\n    margin: 0;\\n\\\n    padding: 2px 7px 3px 7px;\\n\\\n    text-align: center;\\n\\\n    text-decoration: underline;\\n\\\n}\\n\\\n.colorError {\\n\\\n    color: #d00;\\n\\\n}\\n\\\n.uiAnimateShake {\\n\\\n    animation-duration: 500ms;\\n\\\n    animation-name: uiAnimateShake;\\n\\\n}\\n\\\n.uiAnimateSlide {\\n\\\n    overflow-y: hidden;\\n\\\n    transition: max-height ease-in 250ms, min-height ease-in 250ms, padding-bottom ease-in 250ms, padding-top ease-in 250ms;\\n\\\n}\\n\\\n.utility2FooterDiv {\\n\\\n    text-align: center;\\n\\\n}\\n\\\n.zeroPixel {\\n\\\n    border: 0;\\n\\\n    height: 0;\\n\\\n    margin: 0;\\n\\\n    padding: 0;\\n\\\n    width: 0;\\n\\\n}\\n\\\n</style>\\n\\\n</head>\\n\\\n<body>\\n\\\n<script>\\n\\\n/* jslint-utility2 */\\n\\\n/*jslint\\n\\\n    bitwise: true,\\n\\\n    browser: true,\\n\\\n    maxerr: 4,\\n\\\n    maxlen: 100,\\n\\\n    node: true,\\n\\\n    nomen: true,\\n\\\n    regexp: true,\\n\\\n    stupid: true\\n\\\n*/\\n\\\n// init domOnEventWindowOnloadTimeElapsed\\n\\\n(function () {\\n\\\n/*\\n\\\n * this function will measure and print the time-elapsed for window.onload\\n\\\n */\\n\\\n    \"use strict\";\\n\\\n    if (window.domOnEventWindowOnloadTimeElapsed) {\\n\\\n        return;\\n\\\n    }\\n\\\n    window.domOnEventWindowOnloadTimeElapsed = Date.now() + 100;\\n\\\n    window.addEventListener(\"load\", function () {\\n\\\n        setTimeout(function () {\\n\\\n            window.domOnEventWindowOnloadTimeElapsed = Date.now() -\\n\\\n                window.domOnEventWindowOnloadTimeElapsed;\\n\\\n            console.error(\"domOnEventWindowOnloadTimeElapsed = \" +\\n\\\n                window.domOnEventWindowOnloadTimeElapsed);\\n\\\n        }, 100);\\n\\\n    });\\n\\\n}());\\n\\\n</script>\\n\\\n<div id=\"ajaxProgressDiv1\" style=\"background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;\"></div>\\n\\\n<div class=\"uiAnimateSpin\" style=\"animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;\"></div>\\n\\\n<script>\\n\\\n/* jslint-utility2 */\\n\\\n/*jslint\\n\\\n    bitwise: true,\\n\\\n    browser: true,\\n\\\n    maxerr: 4,\\n\\\n    maxlen: 100,\\n\\\n    node: true,\\n\\\n    nomen: true,\\n\\\n    regexp: true,\\n\\\n    stupid: true\\n\\\n*/\\n\\\n// init timerIntervalAjaxProgressUpdate\\n\\\n(function () {\\n\\\n/*\\n\\\n * this function will increment the ajax-progress-bar until the webpage has loaded\\n\\\n */\\n\\\n    \"use strict\";\\n\\\n    var ajaxProgressDiv1,\\n\\\n        ajaxProgressState,\\n\\\n        ajaxProgressUpdate;\\n\\\n    if (window.timerIntervalAjaxProgressUpdate || !document.querySelector(\"#ajaxProgressDiv1\")) {\\n\\\n        return;\\n\\\n    }\\n\\\n    ajaxProgressDiv1 = document.querySelector(\"#ajaxProgressDiv1\");\\n\\\n    setTimeout(function () {\\n\\\n        ajaxProgressDiv1.style.width = \"25%\";\\n\\\n    });\\n\\\n    ajaxProgressState = 0;\\n\\\n    ajaxProgressUpdate = (window.local &&\\n\\\n        window.local.ajaxProgressUpdate) || function () {\\n\\\n        ajaxProgressDiv1.style.width = \"100%\";\\n\\\n        setTimeout(function () {\\n\\\n            ajaxProgressDiv1.style.background = \"transparent\";\\n\\\n            setTimeout(function () {\\n\\\n                ajaxProgressDiv1.style.width = \"0%\";\\n\\\n            }, 500);\\n\\\n        }, 1500);\\n\\\n    };\\n\\\n    window.timerIntervalAjaxProgressUpdate = setInterval(function () {\\n\\\n        ajaxProgressState += 1;\\n\\\n        ajaxProgressDiv1.style.width = Math.max(\\n\\\n            100 - 75 * Math.exp(-0.125 * ajaxProgressState),\\n\\\n            ajaxProgressDiv1.style.width.slice(0, -1) | 0\\n\\\n        ) + \"%\";\\n\\\n    }, 1000);\\n\\\n    window.addEventListener(\"load\", function () {\\n\\\n        clearInterval(window.timerIntervalAjaxProgressUpdate);\\n\\\n        ajaxProgressUpdate();\\n\\\n    });\\n\\\n}());\\n\\\n// init domOnEventMediaHotkeys\\n\\\n(function () {\\n\\\n/*\\n\\\n * this function will add media-hotkeys to elements with class=\".domOnEventMediaHotkeysInit\"\\n\\\n */\\n\\\n    \"use strict\";\\n\\\n    var input, onEvent;\\n\\\n    if (window.domOnEventMediaHotkeys) {\\n\\\n        return;\\n\\\n    }\\n\\\n    onEvent = window.domOnEventMediaHotkeys = function (event) {\\n\\\n        var media;\\n\\\n        if (event === \"init\") {\\n\\\n            Array.from(\\n\\\n                document.querySelectorAll(\".domOnEventMediaHotkeysInit\")\\n\\\n            ).forEach(function (media) {\\n\\\n                media.classList.remove(\"domOnEventMediaHotkeysInit\");\\n\\\n                media.classList.add(\"domOnEventMediaHotkeys\");\\n\\\n                [\"play\", \"pause\", \"seeking\"].forEach(function (event) {\\n\\\n                    media.addEventListener(event, onEvent);\\n\\\n                });\\n\\\n            });\\n\\\n            return;\\n\\\n        }\\n\\\n        if (event.currentTarget.classList.contains(\"domOnEventMediaHotkeys\")) {\\n\\\n            window.domOnEventMediaHotkeysMedia1 = event.currentTarget;\\n\\\n            window.domOnEventMediaHotkeysInput.focus();\\n\\\n            return;\\n\\\n        }\\n\\\n        media = window.domOnEventMediaHotkeysMedia1;\\n\\\n        try {\\n\\\n            switch (event.key || event.type) {\\n\\\n            case \",\":\\n\\\n            case \".\":\\n\\\n                media.currentTime += (event.key === \",\" && -0.03125) || 0.03125;\\n\\\n                break;\\n\\\n            case \"<\":\\n\\\n            case \">\":\\n\\\n                media.playbackRate *= (event.key === \"<\" && 0.5) || 2;\\n\\\n                break;\\n\\\n            case \"ArrowDown\":\\n\\\n            case \"ArrowUp\":\\n\\\n                media.volume += (event.key === \"ArrowDown\" && -0.05) || 0.05;\\n\\\n                break;\\n\\\n            case \"ArrowLeft\":\\n\\\n            case \"ArrowRight\":\\n\\\n                media.currentTime += (event.key === \"ArrowLeft\" && -5) || 5;\\n\\\n                break;\\n\\\n            case \"j\":\\n\\\n            case \"l\":\\n\\\n                media.currentTime += (event.key === \"j\" && -10) || 10;\\n\\\n                break;\\n\\\n            case \"k\":\\n\\\n            case \" \":\\n\\\n                if (media.paused) {\\n\\\n                    media.play();\\n\\\n                } else {\\n\\\n                    media.pause();\\n\\\n                }\\n\\\n                break;\\n\\\n            case \"m\":\\n\\\n                media.muted = !media.muted;\\n\\\n                break;\\n\\\n            default:\\n\\\n                if (event.key >= 0) {\\n\\\n                    media.currentTime = 0.1 * event.key * media.duration;\\n\\\n                    break;\\n\\\n                }\\n\\\n                return;\\n\\\n            }\\n\\\n        } catch (ignore) {\\n\\\n        }\\n\\\n        event.preventDefault();\\n\\\n    };\\n\\\n    input = window.domOnEventMediaHotkeysInput = document.createElement(\"button\");\\n\\\n    input.style = \"border:0;height:0;margin:0;padding:0;position:fixed;width:0;z-index:-1;\";\\n\\\n    input.addEventListener(\"click\", onEvent);\\n\\\n    input.addEventListener(\"keydown\", onEvent);\\n\\\n    document.body.appendChild(input);\\n\\\n    onEvent(\"init\");\\n\\\n}());\\n\\\n// init domOnEventSelectAllWithinPre\\n\\\n(function () {\\n\\\n/*\\n\\\n * this function will limit select-all within <pre tabIndex=\"0\"> elements\\n\\\n * https://stackoverflow.com/questions/985272/selecting-text-in-an-element-akin-to-highlighting-with-your-mouse\\n\\\n */\\n\\\n    \"use strict\";\\n\\\n    if (window.domOnEventSelectAllWithinPre) {\\n\\\n        return;\\n\\\n    }\\n\\\n    window.domOnEventSelectAllWithinPre = function (event) {\\n\\\n        var range, selection;\\n\\\n        if (event &&\\n\\\n                event.key === \"a\" &&\\n\\\n                (event.ctrlKey || event.metaKey) &&\\n\\\n                event.target.closest(\"pre\")) {\\n\\\n            range = document.createRange();\\n\\\n            range.selectNodeContents(event.target.closest(\"pre\"));\\n\\\n            selection = window.getSelection();\\n\\\n            selection.removeAllRanges();\\n\\\n            selection.addRange(range);\\n\\\n            event.preventDefault();\\n\\\n        }\\n\\\n    };\\n\\\n    document.addEventListener(\"keydown\", window.domOnEventSelectAllWithinPre);\\n\\\n}());\\n\\\n</script>\\n\\\n<h1>\\n\\\n<!-- utility2-comment\\n\\\n    <a\\n\\\n        {{#if env.npm_package_homepage}}\\n\\\n        href=\"{{env.npm_package_homepage}}\"\\n\\\n        {{/if env.npm_package_homepage}}\\n\\\n        target=\"_blank\"\\n\\\n    >\\n\\\nutility2-comment -->\\n\\\n        {{env.npm_package_name}} ({{env.npm_package_version}})\\n\\\n<!-- utility2-comment\\n\\\n    </a>\\n\\\nutility2-comment -->\\n\\\n</h1>\\n\\\n<h3>{{env.npm_package_description}}</h3>\\n\\\n<!-- utility2-comment\\n\\\n<a class=\"button\" download href=\"assets.app.js\">download standalone app</a><br>\\n\\\n<button class=\"button onclick onreset\" id=\"testRunButton1\">run internal test</button><br>\\n\\\n<div class=\"uiAnimateSlide\" id=\"testReportDiv1\" style=\"border-bottom: 0; border-top: 0; margin-bottom: 0; margin-top: 0; max-height: 0; padding-bottom: 0; padding-top: 0;\"></div>\\n\\\nutility2-comment -->\\n\\\n\\n\\\n\\n\\\n\\n\\\n<label>edit or paste script below to cover and eval</label>\\n\\\n<textarea class=\"onkeyup onreset\" id=\"inputTextarea1\">\\n\\\nvar aa;\\n\\\naa = \"hello\";\\n\\\nconsole.log(aa);\\n\\\nconsole.log(null);\\n\\\n</textarea>\\n\\\n<label>uglified-code</label>\\n\\\n<textarea class=\"resettable\" id=\"outputTextarea1\" readonly></textarea>\\n\\\n<label>stderr and stdout</label>\\n\\\n<textarea class=\"resettable\" id=\"outputStdoutTextarea1\" readonly></textarea>\\n\\\n<!-- utility2-comment\\n\\\n{{#if isRollup}}\\n\\\n<script src=\"assets.app.js\"></script>\\n\\\n{{#unless isRollup}}\\n\\\nutility2-comment -->\\n\\\n<script src=\"assets.utility2.rollup.js\"></script>\\n\\\n<script>window.utility2.onResetBefore.counter += 1;</script>\\n\\\n<script src=\"jsonp.utility2.stateInit?callback=window.utility2.stateInit\"></script>\\n\\\n<script src=\"assets.uglifyjs.js\"></script>\\n\\\n<script src=\"assets.example.js\"></script>\\n\\\n<script src=\"assets.test.js\"></script>\\n\\\n<script>window.utility2.onResetBefore();</script>\\n\\\n<!-- utility2-comment\\n\\\n{{/if isRollup}}\\n\\\nutility2-comment -->\\n\\\n<div class=\"utility2FooterDiv\">\\n\\\n    [ this app was created with\\n\\\n    <a href=\"https://github.com/kaizhu256/node-utility2\" target=\"_blank\">utility2</a>\\n\\\n    ]\\n\\\n</div>\\n\\\n</body>\\n\\\n</html>\\n\\\n';\n        /* jslint-ignore-end */\n        /* validateLineSortedReset */\n        /* jslint-ignore-begin */\n        // bug-workaround - long $npm_package_buildCustomOrg\n        local.assetsDict['/assets.uglifyjs.js'] =\n            local.assetsDict['/assets.uglifyjs.js'] ||\n            local.fs.readFileSync(local.__dirname + '/lib.uglifyjs.js', 'utf8'\n        ).replace((/^#!\\//), '// ');\n        /* jslint-ignore-end */\n        /* validateLineSortedReset */\n        local.assetsDict['/'] =\n            local.assetsDict['/assets.example.html'] =\n            local.assetsDict['/assets.index.template.html']\n            .replace((/\\{\\{env\\.(\\w+?)\\}\\}/g), function (match0, match1) {\n                switch (match1) {\n                case 'npm_package_description':\n                    return 'the greatest app in the world!';\n                case 'npm_package_name':\n                    return 'uglifyjs-lite';\n                case 'npm_package_nameLib':\n                    return 'uglifyjs';\n                case 'npm_package_version':\n                    return '0.0.1';\n                default:\n                    return match0;\n                }\n            });\n        // init cli\n        if (module !== require.main || local.global.utility2_rollup) {\n            return;\n        }\n        local.assetsDict['/assets.example.js'] =\n            local.assetsDict['/assets.example.js'] ||\n            local.fs.readFileSync(__filename, 'utf8');\n        local.assetsDict['/favicon.ico'] = local.assetsDict['/favicon.ico'] || '';\n        // if $npm_config_timeout_exit exists,\n        // then exit this process after $npm_config_timeout_exit ms\n        if (Number(process.env.npm_config_timeout_exit)) {\n            setTimeout(process.exit, Number(process.env.npm_config_timeout_exit));\n        }\n        // start server\n        if (local.global.utility2_serverHttp1) {\n            return;\n        }\n        process.env.PORT = process.env.PORT || '8081';\n        console.error('server starting on port ' + process.env.PORT);\n        local.http.createServer(function (request, response) {\n            request.urlParsed = local.url.parse(request.url);\n            if (local.assetsDict[request.urlParsed.pathname] !== undefined) {\n                response.end(local.assetsDict[request.urlParsed.pathname]);\n                return;\n            }\n            response.statusCode = 404;\n            response.end();\n        }).listen(process.env.PORT);\n    }());\n}());",
+            "/assets.example.html": "<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<!-- \"assets.utility2.template.html\" -->\n<title>uglifyjs-lite (0.0.1)</title>\n<style>\n/* jslint-utility2 */\n/*csslint\n*/\n/* jslint-ignore-begin */\n*,\n*:after,\n*:before {\n    box-sizing: border-box;\n}\n/* jslint-ignore-end */\n@keyframes uiAnimateShake {\n    0%, 50% {\n        transform: translateX(10px);\n    }\n    25%, 75% {\n        transform: translateX(-10px);\n    }\n    100% {\n        transform: translateX(0);\n    }\n}\n@keyframes uiAnimateSpin {\n    0% {\n        transform: rotate(0deg);\n    }\n    100% {\n        transform: rotate(360deg);\n    }\n}\na {\n    overflow-wrap: break-word;\n}\nbody {\n    background: #eef;\n    font-family: Arial, Helvetica, sans-serif;\n    margin: 0 40px;\n}\nbody > div,\nbody > form > div,\nbody > form > input,\nbody > form > pre,\nbody > form > textarea,\nbody > form > .button,\nbody > input,\nbody > pre,\nbody > textarea,\nbody > .button {\n    margin-bottom: 20px;\n}\nbody > form > input,\nbody > form > .button,\nbody > input,\nbody > .button {\n    width: 20rem;\n}\nbody > form > textarea,\nbody > textarea {\n    height: 10rem;\n    width: 100%;\n}\nbody > textarea[readonly] {\n    background: #ddd;\n}\ncode,\npre,\ntextarea {\n    font-family: Consolas, Menlo, monospace;\n    font-size: small;\n}\npre {\n    overflow-wrap: break-word;\n    white-space: pre-wrap;\n}\ntextarea {\n    overflow: auto;\n    white-space: pre;\n}\n.button {\n    background-color: #fff;\n    border: 1px solid;\n    border-bottom-color: rgb(186, 186, 186);\n    border-left-color: rgb(209, 209, 209);\n    border-radius: 4px;\n    border-right-color: rgb(209, 209, 209);\n    border-top-color: rgb(216, 216, 216);\n    color: #00d;\n    cursor: pointer;\n    display: inline-block;\n    font-family: Arial, Helvetica, sans-serif;\n    font-size: 12px;\n    font-style: normal;\n    font-weight: normal;\n    margin: 0;\n    padding: 2px 7px 3px 7px;\n    text-align: center;\n    text-decoration: underline;\n}\n.colorError {\n    color: #d00;\n}\n.uiAnimateShake {\n    animation-duration: 500ms;\n    animation-name: uiAnimateShake;\n}\n.uiAnimateSlide {\n    overflow-y: hidden;\n    transition: max-height ease-in 250ms, min-height ease-in 250ms, padding-bottom ease-in 250ms, padding-top ease-in 250ms;\n}\n.utility2FooterDiv {\n    text-align: center;\n}\n.zeroPixel {\n    border: 0;\n    height: 0;\n    margin: 0;\n    padding: 0;\n    width: 0;\n}\n</style>\n</head>\n<body>\n<div id=\"ajaxProgressDiv1\" style=\"background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;\"></div>\n<div class=\"uiAnimateSpin\" style=\"animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;\"></div>\n<script>\n/* jslint-utility2 */\n/*jslint\n    bitwise: true,\n    browser: true,\n    maxerr: 4,\n    maxlen: 100,\n    node: true,\n    nomen: true,\n    regexp: true,\n    stupid: true\n*/\n// init domOnEventWindowOnloadTimeElapsed\n(function () {\n/*\n * this function will measure and print the time-elapsed for window.onload\n */\n    \"use strict\";\n    if (window.domOnEventWindowOnloadTimeElapsed) {\n        return;\n    }\n    window.domOnEventWindowOnloadTimeElapsed = Date.now() + 100;\n    window.addEventListener(\"load\", function () {\n        setTimeout(function () {\n            window.domOnEventWindowOnloadTimeElapsed = Date.now() -\n                window.domOnEventWindowOnloadTimeElapsed;\n            console.error(\"domOnEventWindowOnloadTimeElapsed = \" +\n                window.domOnEventWindowOnloadTimeElapsed);\n        }, 100);\n    });\n}());\n// init timerIntervalAjaxProgressUpdate\n(function () {\n/*\n * this function will increment the ajax-progress-bar until the webpage has loaded\n */\n    \"use strict\";\n    var ajaxProgressDiv1,\n        ajaxProgressState,\n        ajaxProgressUpdate;\n    if (window.timerIntervalAjaxProgressUpdate || !document.querySelector(\"#ajaxProgressDiv1\")) {\n        return;\n    }\n    ajaxProgressDiv1 = document.querySelector(\"#ajaxProgressDiv1\");\n    setTimeout(function () {\n        ajaxProgressDiv1.style.width = \"25%\";\n    });\n    ajaxProgressState = 0;\n    ajaxProgressUpdate = (window.local &&\n        window.local.ajaxProgressUpdate) || function () {\n        ajaxProgressDiv1.style.width = \"100%\";\n        setTimeout(function () {\n            ajaxProgressDiv1.style.background = \"transparent\";\n            setTimeout(function () {\n                ajaxProgressDiv1.style.width = \"0%\";\n            }, 500);\n        }, 1500);\n    };\n    window.timerIntervalAjaxProgressUpdate = setInterval(function () {\n        ajaxProgressState += 1;\n        ajaxProgressDiv1.style.width = Math.max(\n            100 - 75 * Math.exp(-0.125 * ajaxProgressState),\n            ajaxProgressDiv1.style.width.slice(0, -1) | 0\n        ) + \"%\";\n    }, 1000);\n    window.addEventListener(\"load\", function () {\n        clearInterval(window.timerIntervalAjaxProgressUpdate);\n        ajaxProgressUpdate();\n    });\n}());\n// init domOnEventMediaHotkeys\n(function () {\n/*\n * this function will add media-hotkeys to elements with class=\".domOnEventMediaHotkeysInit\"\n */\n    \"use strict\";\n    var input, onEvent;\n    if (window.domOnEventMediaHotkeys) {\n        return;\n    }\n    onEvent = window.domOnEventMediaHotkeys = function (event) {\n        var media;\n        if (event === \"init\") {\n            Array.from(document.querySelectorAll(\n                \".domOnEventMediaHotkeysInit\"\n            )).forEach(function (media) {\n                media.classList.remove(\"domOnEventMediaHotkeysInit\");\n                media.classList.add(\"domOnEventMediaHotkeys\");\n                [\"play\", \"pause\", \"seeking\"].forEach(function (event) {\n                    media.addEventListener(event, onEvent);\n                });\n            });\n            return;\n        }\n        if (event.currentTarget.classList.contains(\"domOnEventMediaHotkeys\")) {\n            window.domOnEventMediaHotkeysMedia1 = event.currentTarget;\n            window.domOnEventMediaHotkeysInput.focus();\n            return;\n        }\n        media = window.domOnEventMediaHotkeysMedia1;\n        try {\n            switch (event.key || event.type) {\n            case \",\":\n            case \".\":\n                media.currentTime += (event.key === \",\" && -0.03125) || 0.03125;\n                break;\n            case \"<\":\n            case \">\":\n                media.playbackRate *= (event.key === \"<\" && 0.5) || 2;\n                break;\n            case \"ArrowDown\":\n            case \"ArrowUp\":\n                media.volume += (event.key === \"ArrowDown\" && -0.05) || 0.05;\n                break;\n            case \"ArrowLeft\":\n            case \"ArrowRight\":\n                media.currentTime += (event.key === \"ArrowLeft\" && -5) || 5;\n                break;\n            case \"j\":\n            case \"l\":\n                media.currentTime += (event.key === \"j\" && -10) || 10;\n                break;\n            case \"k\":\n            case \" \":\n                if (media.paused) {\n                    media.play();\n                } else {\n                    media.pause();\n                }\n                break;\n            case \"m\":\n                media.muted = !media.muted;\n                break;\n            default:\n                if (event.key >= 0) {\n                    media.currentTime = 0.1 * event.key * media.duration;\n                    break;\n                }\n                return;\n            }\n        } catch (ignore) {\n        }\n        event.preventDefault();\n    };\n    input = window.domOnEventMediaHotkeysInput = document.createElement(\"button\");\n    input.style = \"border:0;height:0;margin:0;padding:0;position:fixed;width:0;z-index:-1;\";\n    input.addEventListener(\"click\", onEvent);\n    input.addEventListener(\"keydown\", onEvent);\n    document.body.appendChild(input);\n    onEvent(\"init\");\n}());\n// init domOnEventSelectAllWithinPre\n(function () {\n/*\n * this function will limit select-all within <pre tabIndex=\"0\"> elements\n * https://stackoverflow.com/questions/985272/selecting-text-in-an-element-akin-to-highlighting-with-your-mouse\n */\n    \"use strict\";\n    if (window.domOnEventSelectAllWithinPre) {\n        return;\n    }\n    window.domOnEventSelectAllWithinPre = function (event) {\n        var range, selection;\n        if (event &&\n                event.key === \"a\" &&\n                (event.ctrlKey || event.metaKey) &&\n                event.target.closest(\"pre\")) {\n            range = document.createRange();\n            range.selectNodeContents(event.target.closest(\"pre\"));\n            selection = window.getSelection();\n            selection.removeAllRanges();\n            selection.addRange(range);\n            event.preventDefault();\n        }\n    };\n    document.addEventListener(\"keydown\", window.domOnEventSelectAllWithinPre);\n}());\n</script>\n<h1>\n<!-- utility2-comment\n    <a\n        {{#if env.npm_package_homepage}}\n        href=\"{{env.npm_package_homepage}}\"\n        {{/if env.npm_package_homepage}}\n        target=\"_blank\"\n    >\nutility2-comment -->\n        uglifyjs-lite (0.0.1)\n<!-- utility2-comment\n    </a>\nutility2-comment -->\n</h1>\n<h3>the greatest app in the world!</h3>\n<!-- utility2-comment\n<a class=\"button\" download href=\"assets.app.js\">download standalone app</a><br>\n<button class=\"button onclick onreset\" id=\"testRunButton1\">run internal test</button><br>\n<div class=\"uiAnimateSlide\" id=\"testReportDiv1\" style=\"border-bottom: 0; border-top: 0; margin-bottom: 0; margin-top: 0; max-height: 0; padding-bottom: 0; padding-top: 0;\"></div>\nutility2-comment -->\n\n\n\n<label>edit or paste script below to cover and eval</label>\n<textarea class=\"onkeyup onreset\" id=\"inputTextarea1\">\nvar aa;\naa = \"hello\";\nconsole.log(aa);\nconsole.log(null);\n</textarea>\n<label>uglified-code</label>\n<textarea class=\"resettable\" id=\"outputTextarea1\" readonly></textarea>\n<label>stderr and stdout</label>\n<textarea class=\"resettable\" id=\"outputStdoutTextarea1\" readonly></textarea>\n<!-- utility2-comment\n{{#if isRollup}}\n<script src=\"assets.app.js\"></script>\n{{#unless isRollup}}\nutility2-comment -->\n<script src=\"assets.utility2.rollup.js\"></script>\n<script>window.utility2.onResetBefore.counter += 1;</script>\n<script src=\"jsonp.utility2.stateInit?callback=window.utility2.stateInit\"></script>\n<script src=\"assets.uglifyjs.js\"></script>\n<script src=\"assets.example.js\"></script>\n<script src=\"assets.test.js\"></script>\n<script>window.utility2.onResetBefore();</script>\n<!-- utility2-comment\n{{/if isRollup}}\nutility2-comment -->\n<div class=\"utility2FooterDiv\">\n    [ this app was created with\n    <a href=\"https://github.com/kaizhu256/node-utility2\" target=\"_blank\">utility2</a>\n    ]\n</div>\n</body>\n</html>\n",
+            "/assets.example.js": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n/*\nexample.js\n\nthis script will run a web-demo of uglifyjs-lite\n\ninstruction\n    1. save this script as example.js\n    2. run the shell command:\n        $ npm install uglifyjs-lite && PORT=8081 node example.js\n    3. open a browser to http://127.0.0.1:8081 and play with the web-demo\n    4. edit this script to suit your needs\n*/\n\n\n\n/* istanbul instrument in package uglifyjs */\n/* jslint-utility2 */\n/*jslint\n    bitwise: true,\n    browser: true,\n    maxerr: 4,\n    maxlen: 100,\n    node: true,\n    nomen: true,\n    regexp: true,\n    stupid: true\n*/\n(function () {\n    'use strict';\n    var local;\n\n\n\n    // run shared js-env code - init-before\n    (function () {\n        // init local\n        local = {};\n        // init isBrowser\n        local.isBrowser = typeof window === \"object\" &&\n            typeof window.XMLHttpRequest === \"function\" &&\n            window.document &&\n            typeof window.document.querySelectorAll === \"function\";\n        // init global\n        local.global = local.isBrowser\n            ? window\n            : global;\n        // re-init local\n        local = local.global.utility2_rollup || (local.isBrowser\n            ? local.global.utility2_uglifyjs\n            : global.utility2_moduleExports);\n        // init exports\n        local.global.local = local;\n    }());\n\n\n\n    // run browser js-env code - init-test\n    /* istanbul ignore next */\n    (function () {\n        if (!local.isBrowser) {\n            return;\n        }\n        local.testRunBrowser = function (event) {\n            if (!event || (event &&\n                    event.currentTarget &&\n                    event.currentTarget.className &&\n                    event.currentTarget.className.includes &&\n                    event.currentTarget.className.includes('onreset'))) {\n                // reset output\n                Array.from(document.querySelectorAll(\n                    'body > .resettable'\n                )).forEach(function (element) {\n                    switch (element.tagName) {\n                    case 'INPUT':\n                    case 'TEXTAREA':\n                        element.value = '';\n                        break;\n                    default:\n                        element.textContent = '';\n                    }\n                });\n            }\n            switch (event && event.currentTarget && event.currentTarget.id) {\n            case 'testRunButton1':\n                // show tests\n                if (document.querySelector('#testReportDiv1').style.maxHeight === '0px') {\n                    local.uiAnimateSlideDown(document.querySelector('#testReportDiv1'));\n                    document.querySelector('#testRunButton1').textContent = 'hide internal test';\n                    local.modeTest = true;\n                    local.testRunDefault(local);\n                // hide tests\n                } else {\n                    local.uiAnimateSlideUp(document.querySelector('#testReportDiv1'));\n                    document.querySelector('#testRunButton1').textContent = 'run internal test';\n                }\n                break;\n            // custom-case\n            default:\n                // try to uglify and eval input-code\n                try {\n                    /*jslint evil: true*/\n                    document.querySelector('#outputTextarea1').value =\n                        local.uglifyjs.uglify(\n                            document.querySelector('#inputTextarea1').value,\n                            'inputTextarea1.js'\n                        );\n                    eval(document.querySelector('#outputTextarea1').value);\n                } catch (errorCaught) {\n                    console.error(errorCaught.stack);\n                }\n            }\n            if (document.querySelector('#inputTextareaEval1') && (!event || (event &&\n                    event.currentTarget &&\n                    event.currentTarget.className &&\n                    event.currentTarget.className.includes &&\n                    event.currentTarget.className.includes('oneval')))) {\n                // try to eval input-code\n                try {\n                    /*jslint evil: true*/\n                    eval(document.querySelector('#inputTextareaEval1').value);\n                } catch (errorCaught) {\n                    console.error(errorCaught);\n                }\n            }\n        };\n        // log stderr and stdout to #outputStdoutTextarea1\n        ['error', 'log'].forEach(function (key) {\n            console[key + '_original'] = console[key];\n            console[key] = function () {\n                var element;\n                console[key + '_original'].apply(console, arguments);\n                element = document.querySelector('#outputStdoutTextarea1');\n                if (!element) {\n                    return;\n                }\n                // append text to #outputStdoutTextarea1\n                element.value += Array.from(arguments).map(function (arg) {\n                    return typeof arg === 'string'\n                        ? arg\n                        : JSON.stringify(arg, null, 4);\n                }).join(' ') + '\\n';\n                // scroll textarea to bottom\n                element.scrollTop = element.scrollHeight;\n            };\n        });\n        // init event-handling\n        ['change', 'click', 'keyup'].forEach(function (event) {\n            Array.from(document.querySelectorAll('.on' + event)).forEach(function (element) {\n                element.addEventListener(event, local.testRunBrowser);\n            });\n        });\n        // run tests\n        local.testRunBrowser();\n    }());\n\n\n\n    // run node js-env code - init-test\n    /* istanbul ignore next */\n    (function () {\n        if (local.isBrowser) {\n            return;\n        }\n        // init exports\n        module.exports = local;\n        // require builtins\n        // local.assert = require('assert');\n        local.buffer = require('buffer');\n        local.child_process = require('child_process');\n        local.cluster = require('cluster');\n        local.crypto = require('crypto');\n        local.dgram = require('dgram');\n        local.dns = require('dns');\n        local.domain = require('domain');\n        local.events = require('events');\n        local.fs = require('fs');\n        local.http = require('http');\n        local.https = require('https');\n        local.net = require('net');\n        local.os = require('os');\n        local.path = require('path');\n        local.querystring = require('querystring');\n        local.readline = require('readline');\n        local.repl = require('repl');\n        local.stream = require('stream');\n        local.string_decoder = require('string_decoder');\n        local.timers = require('timers');\n        local.tls = require('tls');\n        local.tty = require('tty');\n        local.url = require('url');\n        local.util = require('util');\n        local.v8 = require('v8');\n        local.vm = require('vm');\n        local.zlib = require('zlib');\n        /* validateLineSortedReset */\n        // init assets\n        local.assetsDict = local.assetsDict || {};\n        [\n            'assets.index.template.html',\n            'assets.swgg.swagger.json',\n            'assets.swgg.swagger.server.json'\n        ].forEach(function (file) {\n            file = '/' + file;\n            local.assetsDict[file] = local.assetsDict[file] || '';\n            if (local.fs.existsSync(local.__dirname + file)) {\n                local.assetsDict[file] = local.fs.readFileSync(\n                    local.__dirname + file,\n                    'utf8'\n                );\n            }\n        });\n        /* jslint-ignore-begin */\n        local.assetsDict['/assets.index.template.html'] = '\\\n<!doctype html>\\n\\\n<html lang=\"en\">\\n\\\n<head>\\n\\\n<meta charset=\"utf-8\">\\n\\\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\\n\\\n<!-- \"assets.utility2.template.html\" -->\\n\\\n<title>{{env.npm_package_name}} ({{env.npm_package_version}})</title>\\n\\\n<style>\\n\\\n/* jslint-utility2 */\\n\\\n/*csslint\\n\\\n*/\\n\\\n/* jslint-ignore-begin */\\n\\\n*,\\n\\\n*:after,\\n\\\n*:before {\\n\\\n    box-sizing: border-box;\\n\\\n}\\n\\\n/* jslint-ignore-end */\\n\\\n@keyframes uiAnimateShake {\\n\\\n    0%, 50% {\\n\\\n        transform: translateX(10px);\\n\\\n    }\\n\\\n    25%, 75% {\\n\\\n        transform: translateX(-10px);\\n\\\n    }\\n\\\n    100% {\\n\\\n        transform: translateX(0);\\n\\\n    }\\n\\\n}\\n\\\n@keyframes uiAnimateSpin {\\n\\\n    0% {\\n\\\n        transform: rotate(0deg);\\n\\\n    }\\n\\\n    100% {\\n\\\n        transform: rotate(360deg);\\n\\\n    }\\n\\\n}\\n\\\na {\\n\\\n    overflow-wrap: break-word;\\n\\\n}\\n\\\nbody {\\n\\\n    background: #eef;\\n\\\n    font-family: Arial, Helvetica, sans-serif;\\n\\\n    margin: 0 40px;\\n\\\n}\\n\\\nbody > div,\\n\\\nbody > form > div,\\n\\\nbody > form > input,\\n\\\nbody > form > pre,\\n\\\nbody > form > textarea,\\n\\\nbody > form > .button,\\n\\\nbody > input,\\n\\\nbody > pre,\\n\\\nbody > textarea,\\n\\\nbody > .button {\\n\\\n    margin-bottom: 20px;\\n\\\n}\\n\\\nbody > form > input,\\n\\\nbody > form > .button,\\n\\\nbody > input,\\n\\\nbody > .button {\\n\\\n    width: 20rem;\\n\\\n}\\n\\\nbody > form > textarea,\\n\\\nbody > textarea {\\n\\\n    height: 10rem;\\n\\\n    width: 100%;\\n\\\n}\\n\\\nbody > textarea[readonly] {\\n\\\n    background: #ddd;\\n\\\n}\\n\\\ncode,\\n\\\npre,\\n\\\ntextarea {\\n\\\n    font-family: Consolas, Menlo, monospace;\\n\\\n    font-size: small;\\n\\\n}\\n\\\npre {\\n\\\n    overflow-wrap: break-word;\\n\\\n    white-space: pre-wrap;\\n\\\n}\\n\\\ntextarea {\\n\\\n    overflow: auto;\\n\\\n    white-space: pre;\\n\\\n}\\n\\\n.button {\\n\\\n    background-color: #fff;\\n\\\n    border: 1px solid;\\n\\\n    border-bottom-color: rgb(186, 186, 186);\\n\\\n    border-left-color: rgb(209, 209, 209);\\n\\\n    border-radius: 4px;\\n\\\n    border-right-color: rgb(209, 209, 209);\\n\\\n    border-top-color: rgb(216, 216, 216);\\n\\\n    color: #00d;\\n\\\n    cursor: pointer;\\n\\\n    display: inline-block;\\n\\\n    font-family: Arial, Helvetica, sans-serif;\\n\\\n    font-size: 12px;\\n\\\n    font-style: normal;\\n\\\n    font-weight: normal;\\n\\\n    margin: 0;\\n\\\n    padding: 2px 7px 3px 7px;\\n\\\n    text-align: center;\\n\\\n    text-decoration: underline;\\n\\\n}\\n\\\n.colorError {\\n\\\n    color: #d00;\\n\\\n}\\n\\\n.uiAnimateShake {\\n\\\n    animation-duration: 500ms;\\n\\\n    animation-name: uiAnimateShake;\\n\\\n}\\n\\\n.uiAnimateSlide {\\n\\\n    overflow-y: hidden;\\n\\\n    transition: max-height ease-in 250ms, min-height ease-in 250ms, padding-bottom ease-in 250ms, padding-top ease-in 250ms;\\n\\\n}\\n\\\n.utility2FooterDiv {\\n\\\n    text-align: center;\\n\\\n}\\n\\\n.zeroPixel {\\n\\\n    border: 0;\\n\\\n    height: 0;\\n\\\n    margin: 0;\\n\\\n    padding: 0;\\n\\\n    width: 0;\\n\\\n}\\n\\\n</style>\\n\\\n</head>\\n\\\n<body>\\n\\\n<div id=\"ajaxProgressDiv1\" style=\"background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;\"></div>\\n\\\n<div class=\"uiAnimateSpin\" style=\"animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;\"></div>\\n\\\n<script>\\n\\\n/* jslint-utility2 */\\n\\\n/*jslint\\n\\\n    bitwise: true,\\n\\\n    browser: true,\\n\\\n    maxerr: 4,\\n\\\n    maxlen: 100,\\n\\\n    node: true,\\n\\\n    nomen: true,\\n\\\n    regexp: true,\\n\\\n    stupid: true\\n\\\n*/\\n\\\n// init domOnEventWindowOnloadTimeElapsed\\n\\\n(function () {\\n\\\n/*\\n\\\n * this function will measure and print the time-elapsed for window.onload\\n\\\n */\\n\\\n    \"use strict\";\\n\\\n    if (window.domOnEventWindowOnloadTimeElapsed) {\\n\\\n        return;\\n\\\n    }\\n\\\n    window.domOnEventWindowOnloadTimeElapsed = Date.now() + 100;\\n\\\n    window.addEventListener(\"load\", function () {\\n\\\n        setTimeout(function () {\\n\\\n            window.domOnEventWindowOnloadTimeElapsed = Date.now() -\\n\\\n                window.domOnEventWindowOnloadTimeElapsed;\\n\\\n            console.error(\"domOnEventWindowOnloadTimeElapsed = \" +\\n\\\n                window.domOnEventWindowOnloadTimeElapsed);\\n\\\n        }, 100);\\n\\\n    });\\n\\\n}());\\n\\\n// init timerIntervalAjaxProgressUpdate\\n\\\n(function () {\\n\\\n/*\\n\\\n * this function will increment the ajax-progress-bar until the webpage has loaded\\n\\\n */\\n\\\n    \"use strict\";\\n\\\n    var ajaxProgressDiv1,\\n\\\n        ajaxProgressState,\\n\\\n        ajaxProgressUpdate;\\n\\\n    if (window.timerIntervalAjaxProgressUpdate || !document.querySelector(\"#ajaxProgressDiv1\")) {\\n\\\n        return;\\n\\\n    }\\n\\\n    ajaxProgressDiv1 = document.querySelector(\"#ajaxProgressDiv1\");\\n\\\n    setTimeout(function () {\\n\\\n        ajaxProgressDiv1.style.width = \"25%\";\\n\\\n    });\\n\\\n    ajaxProgressState = 0;\\n\\\n    ajaxProgressUpdate = (window.local &&\\n\\\n        window.local.ajaxProgressUpdate) || function () {\\n\\\n        ajaxProgressDiv1.style.width = \"100%\";\\n\\\n        setTimeout(function () {\\n\\\n            ajaxProgressDiv1.style.background = \"transparent\";\\n\\\n            setTimeout(function () {\\n\\\n                ajaxProgressDiv1.style.width = \"0%\";\\n\\\n            }, 500);\\n\\\n        }, 1500);\\n\\\n    };\\n\\\n    window.timerIntervalAjaxProgressUpdate = setInterval(function () {\\n\\\n        ajaxProgressState += 1;\\n\\\n        ajaxProgressDiv1.style.width = Math.max(\\n\\\n            100 - 75 * Math.exp(-0.125 * ajaxProgressState),\\n\\\n            ajaxProgressDiv1.style.width.slice(0, -1) | 0\\n\\\n        ) + \"%\";\\n\\\n    }, 1000);\\n\\\n    window.addEventListener(\"load\", function () {\\n\\\n        clearInterval(window.timerIntervalAjaxProgressUpdate);\\n\\\n        ajaxProgressUpdate();\\n\\\n    });\\n\\\n}());\\n\\\n// init domOnEventMediaHotkeys\\n\\\n(function () {\\n\\\n/*\\n\\\n * this function will add media-hotkeys to elements with class=\".domOnEventMediaHotkeysInit\"\\n\\\n */\\n\\\n    \"use strict\";\\n\\\n    var input, onEvent;\\n\\\n    if (window.domOnEventMediaHotkeys) {\\n\\\n        return;\\n\\\n    }\\n\\\n    onEvent = window.domOnEventMediaHotkeys = function (event) {\\n\\\n        var media;\\n\\\n        if (event === \"init\") {\\n\\\n            Array.from(document.querySelectorAll(\\n\\\n                \".domOnEventMediaHotkeysInit\"\\n\\\n            )).forEach(function (media) {\\n\\\n                media.classList.remove(\"domOnEventMediaHotkeysInit\");\\n\\\n                media.classList.add(\"domOnEventMediaHotkeys\");\\n\\\n                [\"play\", \"pause\", \"seeking\"].forEach(function (event) {\\n\\\n                    media.addEventListener(event, onEvent);\\n\\\n                });\\n\\\n            });\\n\\\n            return;\\n\\\n        }\\n\\\n        if (event.currentTarget.classList.contains(\"domOnEventMediaHotkeys\")) {\\n\\\n            window.domOnEventMediaHotkeysMedia1 = event.currentTarget;\\n\\\n            window.domOnEventMediaHotkeysInput.focus();\\n\\\n            return;\\n\\\n        }\\n\\\n        media = window.domOnEventMediaHotkeysMedia1;\\n\\\n        try {\\n\\\n            switch (event.key || event.type) {\\n\\\n            case \",\":\\n\\\n            case \".\":\\n\\\n                media.currentTime += (event.key === \",\" && -0.03125) || 0.03125;\\n\\\n                break;\\n\\\n            case \"<\":\\n\\\n            case \">\":\\n\\\n                media.playbackRate *= (event.key === \"<\" && 0.5) || 2;\\n\\\n                break;\\n\\\n            case \"ArrowDown\":\\n\\\n            case \"ArrowUp\":\\n\\\n                media.volume += (event.key === \"ArrowDown\" && -0.05) || 0.05;\\n\\\n                break;\\n\\\n            case \"ArrowLeft\":\\n\\\n            case \"ArrowRight\":\\n\\\n                media.currentTime += (event.key === \"ArrowLeft\" && -5) || 5;\\n\\\n                break;\\n\\\n            case \"j\":\\n\\\n            case \"l\":\\n\\\n                media.currentTime += (event.key === \"j\" && -10) || 10;\\n\\\n                break;\\n\\\n            case \"k\":\\n\\\n            case \" \":\\n\\\n                if (media.paused) {\\n\\\n                    media.play();\\n\\\n                } else {\\n\\\n                    media.pause();\\n\\\n                }\\n\\\n                break;\\n\\\n            case \"m\":\\n\\\n                media.muted = !media.muted;\\n\\\n                break;\\n\\\n            default:\\n\\\n                if (event.key >= 0) {\\n\\\n                    media.currentTime = 0.1 * event.key * media.duration;\\n\\\n                    break;\\n\\\n                }\\n\\\n                return;\\n\\\n            }\\n\\\n        } catch (ignore) {\\n\\\n        }\\n\\\n        event.preventDefault();\\n\\\n    };\\n\\\n    input = window.domOnEventMediaHotkeysInput = document.createElement(\"button\");\\n\\\n    input.style = \"border:0;height:0;margin:0;padding:0;position:fixed;width:0;z-index:-1;\";\\n\\\n    input.addEventListener(\"click\", onEvent);\\n\\\n    input.addEventListener(\"keydown\", onEvent);\\n\\\n    document.body.appendChild(input);\\n\\\n    onEvent(\"init\");\\n\\\n}());\\n\\\n// init domOnEventSelectAllWithinPre\\n\\\n(function () {\\n\\\n/*\\n\\\n * this function will limit select-all within <pre tabIndex=\"0\"> elements\\n\\\n * https://stackoverflow.com/questions/985272/selecting-text-in-an-element-akin-to-highlighting-with-your-mouse\\n\\\n */\\n\\\n    \"use strict\";\\n\\\n    if (window.domOnEventSelectAllWithinPre) {\\n\\\n        return;\\n\\\n    }\\n\\\n    window.domOnEventSelectAllWithinPre = function (event) {\\n\\\n        var range, selection;\\n\\\n        if (event &&\\n\\\n                event.key === \"a\" &&\\n\\\n                (event.ctrlKey || event.metaKey) &&\\n\\\n                event.target.closest(\"pre\")) {\\n\\\n            range = document.createRange();\\n\\\n            range.selectNodeContents(event.target.closest(\"pre\"));\\n\\\n            selection = window.getSelection();\\n\\\n            selection.removeAllRanges();\\n\\\n            selection.addRange(range);\\n\\\n            event.preventDefault();\\n\\\n        }\\n\\\n    };\\n\\\n    document.addEventListener(\"keydown\", window.domOnEventSelectAllWithinPre);\\n\\\n}());\\n\\\n</script>\\n\\\n<h1>\\n\\\n<!-- utility2-comment\\n\\\n    <a\\n\\\n        {{#if env.npm_package_homepage}}\\n\\\n        href=\"{{env.npm_package_homepage}}\"\\n\\\n        {{/if env.npm_package_homepage}}\\n\\\n        target=\"_blank\"\\n\\\n    >\\n\\\nutility2-comment -->\\n\\\n        {{env.npm_package_name}} ({{env.npm_package_version}})\\n\\\n<!-- utility2-comment\\n\\\n    </a>\\n\\\nutility2-comment -->\\n\\\n</h1>\\n\\\n<h3>{{env.npm_package_description}}</h3>\\n\\\n<!-- utility2-comment\\n\\\n<a class=\"button\" download href=\"assets.app.js\">download standalone app</a><br>\\n\\\n<button class=\"button onclick onreset\" id=\"testRunButton1\">run internal test</button><br>\\n\\\n<div class=\"uiAnimateSlide\" id=\"testReportDiv1\" style=\"border-bottom: 0; border-top: 0; margin-bottom: 0; margin-top: 0; max-height: 0; padding-bottom: 0; padding-top: 0;\"></div>\\n\\\nutility2-comment -->\\n\\\n\\n\\\n\\n\\\n\\n\\\n<label>edit or paste script below to cover and eval</label>\\n\\\n<textarea class=\"onkeyup onreset\" id=\"inputTextarea1\">\\n\\\nvar aa;\\n\\\naa = \"hello\";\\n\\\nconsole.log(aa);\\n\\\nconsole.log(null);\\n\\\n</textarea>\\n\\\n<label>uglified-code</label>\\n\\\n<textarea class=\"resettable\" id=\"outputTextarea1\" readonly></textarea>\\n\\\n<label>stderr and stdout</label>\\n\\\n<textarea class=\"resettable\" id=\"outputStdoutTextarea1\" readonly></textarea>\\n\\\n<!-- utility2-comment\\n\\\n{{#if isRollup}}\\n\\\n<script src=\"assets.app.js\"></script>\\n\\\n{{#unless isRollup}}\\n\\\nutility2-comment -->\\n\\\n<script src=\"assets.utility2.rollup.js\"></script>\\n\\\n<script>window.utility2.onResetBefore.counter += 1;</script>\\n\\\n<script src=\"jsonp.utility2.stateInit?callback=window.utility2.stateInit\"></script>\\n\\\n<script src=\"assets.uglifyjs.js\"></script>\\n\\\n<script src=\"assets.example.js\"></script>\\n\\\n<script src=\"assets.test.js\"></script>\\n\\\n<script>window.utility2.onResetBefore();</script>\\n\\\n<!-- utility2-comment\\n\\\n{{/if isRollup}}\\n\\\nutility2-comment -->\\n\\\n<div class=\"utility2FooterDiv\">\\n\\\n    [ this app was created with\\n\\\n    <a href=\"https://github.com/kaizhu256/node-utility2\" target=\"_blank\">utility2</a>\\n\\\n    ]\\n\\\n</div>\\n\\\n</body>\\n\\\n</html>\\n\\\n';\n        /* jslint-ignore-end */\n        /* validateLineSortedReset */\n        /* jslint-ignore-begin */\n        // bug-workaround - long $npm_package_buildCustomOrg\n        local.assetsDict['/assets.uglifyjs.js'] =\n            local.assetsDict['/assets.uglifyjs.js'] ||\n            local.fs.readFileSync(local.__dirname + '/lib.uglifyjs.js', 'utf8'\n        ).replace((/^#!\\//), '// ');\n        /* jslint-ignore-end */\n        /* validateLineSortedReset */\n        local.assetsDict['/'] =\n            local.assetsDict['/assets.example.html'] =\n            local.assetsDict['/assets.index.template.html']\n            .replace((/\\{\\{env\\.(\\w+?)\\}\\}/g), function (match0, match1) {\n                switch (match1) {\n                case 'npm_package_description':\n                    return 'the greatest app in the world!';\n                case 'npm_package_name':\n                    return 'uglifyjs-lite';\n                case 'npm_package_nameLib':\n                    return 'uglifyjs';\n                case 'npm_package_version':\n                    return '0.0.1';\n                default:\n                    return match0;\n                }\n            });\n        // init cli\n        if (module !== require.main || local.global.utility2_rollup) {\n            return;\n        }\n        local.assetsDict['/assets.example.js'] =\n            local.assetsDict['/assets.example.js'] ||\n            local.fs.readFileSync(__filename, 'utf8');\n        local.assetsDict['/favicon.ico'] = local.assetsDict['/favicon.ico'] || '';\n        // if $npm_config_timeout_exit exists,\n        // then exit this process after $npm_config_timeout_exit ms\n        if (Number(process.env.npm_config_timeout_exit)) {\n            setTimeout(process.exit, Number(process.env.npm_config_timeout_exit));\n        }\n        // start server\n        if (local.global.utility2_serverHttp1) {\n            return;\n        }\n        process.env.PORT = process.env.PORT || '8081';\n        console.error('server starting on port ' + process.env.PORT);\n        local.http.createServer(function (request, response) {\n            request.urlParsed = local.url.parse(request.url);\n            if (local.assetsDict[request.urlParsed.pathname] !== undefined) {\n                response.end(local.assetsDict[request.urlParsed.pathname]);\n                return;\n            }\n            response.statusCode = 404;\n            response.end();\n        }).listen(process.env.PORT);\n    }());\n}());",
             "/assets.swgg.swagger.json": "",
             "/assets.test.js": "/* istanbul instrument in package uglifyjs */\n/* jslint-utility2 */\n/*jslint\n    bitwise: true,\n    browser: true,\n    maxerr: 4,\n    maxlen: 100,\n    node: true,\n    nomen: true,\n    regexp: true,\n    stupid: true\n*/\n(function () {\n    'use strict';\n    var local;\n\n\n\n    // run shared js-env code - init-before\n    (function () {\n        // init local\n        local = {};\n        // init isBrowser\n        local.isBrowser = typeof window === \"object\" &&\n            typeof window.XMLHttpRequest === \"function\" &&\n            window.document &&\n            typeof window.document.querySelectorAll === \"function\";\n        // init global\n        local.global = local.isBrowser\n            ? window\n            : global;\n        // re-init local\n        local = local.global.local = (local.global.utility2 ||\n            require('utility2')).requireReadme();\n        // init test\n        local.testRunInit(local);\n    }());\n\n\n\n    // run shared js-env code - function\n    (function () {\n        local.testCase_uglify_default = function (options, onError) {\n        /*\n         * this function will test uglify's default handling-behavior\n         */\n            options = {};\n            // test css handling-behavior\n            options.data = local.uglify('body { margin: 0; }', 'aa.css');\n            // validate data\n            local.assertJsonEqual(options.data, 'body{margin:0;}');\n            // test js handling-behavior\n            options.data = local.uglify('aa = 1', 'aa.js');\n            // validate data\n            local.assertJsonEqual(options.data, 'aa=1');\n            onError();\n        };\n    }());\n}());\n",
-            "/assets.utility2.base.html": "<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<!-- \"assets.utility2.template.html\" -->\n<title>uglifyjs-lite (2018.5.25)</title>\n<style>\n/* jslint-utility2 */\n/*csslint\n*/\n/* jslint-ignore-begin */\n*,\n*:after,\n*:before {\n    box-sizing: border-box;\n}\n/* jslint-ignore-end */\n@keyframes uiAnimateShake {\n    0%, 50% {\n        transform: translateX(10px);\n    }\n    25%, 75% {\n        transform: translateX(-10px);\n    }\n    100% {\n        transform: translateX(0);\n    }\n}\n@keyframes uiAnimateSpin {\n    0% {\n        transform: rotate(0deg);\n    }\n    100% {\n        transform: rotate(360deg);\n    }\n}\na {\n    overflow-wrap: break-word;\n}\nbody {\n    background: #eef;\n    font-family: Arial, Helvetica, sans-serif;\n    margin: 0 40px;\n}\nbody > div,\nbody > form > div,\nbody > form > input,\nbody > form > pre,\nbody > form > textarea,\nbody > form > .button,\nbody > input,\nbody > pre,\nbody > textarea,\nbody > .button {\n    margin-bottom: 20px;\n}\nbody > form > input,\nbody > form > .button,\nbody > input,\nbody > .button {\n    width: 20rem;\n}\nbody > form > textarea,\nbody > textarea {\n    height: 10rem;\n    width: 100%;\n}\nbody > textarea[readonly] {\n    background: #ddd;\n}\ncode,\npre,\ntextarea {\n    font-family: Consolas, Menlo, monospace;\n    font-size: small;\n}\npre {\n    overflow-wrap: break-word;\n    white-space: pre-wrap;\n}\ntextarea {\n    overflow: auto;\n    white-space: pre;\n}\n.button {\n    background-color: #fff;\n    border: 1px solid;\n    border-bottom-color: rgb(186, 186, 186);\n    border-left-color: rgb(209, 209, 209);\n    border-radius: 4px;\n    border-right-color: rgb(209, 209, 209);\n    border-top-color: rgb(216, 216, 216);\n    color: #00d;\n    cursor: pointer;\n    display: inline-block;\n    font-family: Arial, Helvetica, sans-serif;\n    font-size: 12px;\n    font-style: normal;\n    font-weight: normal;\n    margin: 0;\n    padding: 2px 7px 3px 7px;\n    text-align: center;\n    text-decoration: underline;\n}\n.colorError {\n    color: #d00;\n}\n.uiAnimateShake {\n    animation-duration: 500ms;\n    animation-name: uiAnimateShake;\n}\n.uiAnimateSlide {\n    overflow-y: hidden;\n    transition: max-height ease-in 250ms, min-height ease-in 250ms, padding-bottom ease-in 250ms, padding-top ease-in 250ms;\n}\n.utility2FooterDiv {\n    text-align: center;\n}\n.zeroPixel {\n    border: 0;\n    height: 0;\n    margin: 0;\n    padding: 0;\n    width: 0;\n}\n</style>\n</head>\n<body>\n<script>\n/* jslint-utility2 */\n/*jslint\n    bitwise: true,\n    browser: true,\n    maxerr: 4,\n    maxlen: 100,\n    node: true,\n    nomen: true,\n    regexp: true,\n    stupid: true\n*/\n// init domOnEventWindowOnloadTimeElapsed\n(function () {\n/*\n * this function will measure and print the time-elapsed for window.onload\n */\n    \"use strict\";\n    if (window.domOnEventWindowOnloadTimeElapsed) {\n        return;\n    }\n    window.domOnEventWindowOnloadTimeElapsed = Date.now() + 100;\n    window.addEventListener(\"load\", function () {\n        setTimeout(function () {\n            window.domOnEventWindowOnloadTimeElapsed = Date.now() -\n                window.domOnEventWindowOnloadTimeElapsed;\n            console.error(\"domOnEventWindowOnloadTimeElapsed = \" +\n                window.domOnEventWindowOnloadTimeElapsed);\n        }, 100);\n    });\n}());\n</script>\n<div id=\"ajaxProgressDiv1\" style=\"background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;\"></div>\n<div class=\"uiAnimateSpin\" style=\"animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;\"></div>\n<script>\n/* jslint-utility2 */\n/*jslint\n    bitwise: true,\n    browser: true,\n    maxerr: 4,\n    maxlen: 100,\n    node: true,\n    nomen: true,\n    regexp: true,\n    stupid: true\n*/\n// init timerIntervalAjaxProgressUpdate\n(function () {\n/*\n * this function will increment the ajax-progress-bar until the webpage has loaded\n */\n    \"use strict\";\n    var ajaxProgressDiv1,\n        ajaxProgressState,\n        ajaxProgressUpdate;\n    if (window.timerIntervalAjaxProgressUpdate || !document.querySelector(\"#ajaxProgressDiv1\")) {\n        return;\n    }\n    ajaxProgressDiv1 = document.querySelector(\"#ajaxProgressDiv1\");\n    setTimeout(function () {\n        ajaxProgressDiv1.style.width = \"25%\";\n    });\n    ajaxProgressState = 0;\n    ajaxProgressUpdate = (window.local &&\n        window.local.ajaxProgressUpdate) || function () {\n        ajaxProgressDiv1.style.width = \"100%\";\n        setTimeout(function () {\n            ajaxProgressDiv1.style.background = \"transparent\";\n            setTimeout(function () {\n                ajaxProgressDiv1.style.width = \"0%\";\n            }, 500);\n        }, 1500);\n    };\n    window.timerIntervalAjaxProgressUpdate = setInterval(function () {\n        ajaxProgressState += 1;\n        ajaxProgressDiv1.style.width = Math.max(\n            100 - 75 * Math.exp(-0.125 * ajaxProgressState),\n            ajaxProgressDiv1.style.width.slice(0, -1) | 0\n        ) + \"%\";\n    }, 1000);\n    window.addEventListener(\"load\", function () {\n        clearInterval(window.timerIntervalAjaxProgressUpdate);\n        ajaxProgressUpdate();\n    });\n}());\n// init domOnEventMediaHotkeys\n(function () {\n/*\n * this function will add media-hotkeys to elements with class=\".domOnEventMediaHotkeysInit\"\n */\n    \"use strict\";\n    var input, onEvent;\n    if (window.domOnEventMediaHotkeys) {\n        return;\n    }\n    onEvent = window.domOnEventMediaHotkeys = function (event) {\n        var media;\n        if (event === \"init\") {\n            Array.from(\n                document.querySelectorAll(\".domOnEventMediaHotkeysInit\")\n            ).forEach(function (media) {\n                media.classList.remove(\"domOnEventMediaHotkeysInit\");\n                media.classList.add(\"domOnEventMediaHotkeys\");\n                [\"play\", \"pause\", \"seeking\"].forEach(function (event) {\n                    media.addEventListener(event, onEvent);\n                });\n            });\n            return;\n        }\n        if (event.currentTarget.classList.contains(\"domOnEventMediaHotkeys\")) {\n            window.domOnEventMediaHotkeysMedia1 = event.currentTarget;\n            window.domOnEventMediaHotkeysInput.focus();\n            return;\n        }\n        media = window.domOnEventMediaHotkeysMedia1;\n        try {\n            switch (event.key || event.type) {\n            case \",\":\n            case \".\":\n                media.currentTime += (event.key === \",\" && -0.03125) || 0.03125;\n                break;\n            case \"<\":\n            case \">\":\n                media.playbackRate *= (event.key === \"<\" && 0.5) || 2;\n                break;\n            case \"ArrowDown\":\n            case \"ArrowUp\":\n                media.volume += (event.key === \"ArrowDown\" && -0.05) || 0.05;\n                break;\n            case \"ArrowLeft\":\n            case \"ArrowRight\":\n                media.currentTime += (event.key === \"ArrowLeft\" && -5) || 5;\n                break;\n            case \"j\":\n            case \"l\":\n                media.currentTime += (event.key === \"j\" && -10) || 10;\n                break;\n            case \"k\":\n            case \" \":\n                if (media.paused) {\n                    media.play();\n                } else {\n                    media.pause();\n                }\n                break;\n            case \"m\":\n                media.muted = !media.muted;\n                break;\n            default:\n                if (event.key >= 0) {\n                    media.currentTime = 0.1 * event.key * media.duration;\n                    break;\n                }\n                return;\n            }\n        } catch (ignore) {\n        }\n        event.preventDefault();\n    };\n    input = window.domOnEventMediaHotkeysInput = document.createElement(\"button\");\n    input.style = \"border:0;height:0;margin:0;padding:0;position:fixed;width:0;z-index:-1;\";\n    input.addEventListener(\"click\", onEvent);\n    input.addEventListener(\"keydown\", onEvent);\n    document.body.appendChild(input);\n    onEvent(\"init\");\n}());\n// init domOnEventSelectAllWithinPre\n(function () {\n/*\n * this function will limit select-all within <pre tabIndex=\"0\"> elements\n * https://stackoverflow.com/questions/985272/selecting-text-in-an-element-akin-to-highlighting-with-your-mouse\n */\n    \"use strict\";\n    if (window.domOnEventSelectAllWithinPre) {\n        return;\n    }\n    window.domOnEventSelectAllWithinPre = function (event) {\n        var range, selection;\n        if (event &&\n                event.key === \"a\" &&\n                (event.ctrlKey || event.metaKey) &&\n                event.target.closest(\"pre\")) {\n            range = document.createRange();\n            range.selectNodeContents(event.target.closest(\"pre\"));\n            selection = window.getSelection();\n            selection.removeAllRanges();\n            selection.addRange(range);\n            event.preventDefault();\n        }\n    };\n    document.addEventListener(\"keydown\", window.domOnEventSelectAllWithinPre);\n}());\n</script>\n<h1>\n\n    <a\n        \n        href=\"https://github.com/kaizhu256/node-uglifyjs-lite\"\n        \n        target=\"_blank\"\n    >\n\n        uglifyjs-lite (2018.5.25)\n\n    </a>\n\n</h1>\n<h3>this zero-dependency package will provide a browser-compatible version of the uglifyjs (v1.3.5) javascript-minifier, with a working web-demo</h3>\n\n<a class=\"button\" download href=\"assets.app.js\">download standalone app</a><br>\n<button class=\"button onclick onreset\" id=\"testRunButton1\">run internal test</button><br>\n<div class=\"uiAnimateSlide\" id=\"testReportDiv1\" style=\"border-bottom: 0; border-top: 0; margin-bottom: 0; margin-top: 0; max-height: 0; padding-bottom: 0; padding-top: 0;\"></div>\n\n\n\n\n<label>stderr and stdout</label>\n<textarea class=\"resettable\" id=\"outputStdoutTextarea1\" readonly></textarea>\n\n\n<script src=\"assets.app.js\"></script>\n\n\n<div class=\"utility2FooterDiv\">\n    [ this app was created with\n    <a href=\"https://github.com/kaizhu256/node-utility2\" target=\"_blank\">utility2</a>\n    ]\n</div>\n</body>\n</html>\n",
-            "/index.html": "<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<!-- \"assets.utility2.template.html\" -->\n<title>uglifyjs-lite (2018.5.25)</title>\n<style>\n/* jslint-utility2 */\n/*csslint\n*/\n/* jslint-ignore-begin */\n*,\n*:after,\n*:before {\n    box-sizing: border-box;\n}\n/* jslint-ignore-end */\n@keyframes uiAnimateShake {\n    0%, 50% {\n        transform: translateX(10px);\n    }\n    25%, 75% {\n        transform: translateX(-10px);\n    }\n    100% {\n        transform: translateX(0);\n    }\n}\n@keyframes uiAnimateSpin {\n    0% {\n        transform: rotate(0deg);\n    }\n    100% {\n        transform: rotate(360deg);\n    }\n}\na {\n    overflow-wrap: break-word;\n}\nbody {\n    background: #eef;\n    font-family: Arial, Helvetica, sans-serif;\n    margin: 0 40px;\n}\nbody > div,\nbody > form > div,\nbody > form > input,\nbody > form > pre,\nbody > form > textarea,\nbody > form > .button,\nbody > input,\nbody > pre,\nbody > textarea,\nbody > .button {\n    margin-bottom: 20px;\n}\nbody > form > input,\nbody > form > .button,\nbody > input,\nbody > .button {\n    width: 20rem;\n}\nbody > form > textarea,\nbody > textarea {\n    height: 10rem;\n    width: 100%;\n}\nbody > textarea[readonly] {\n    background: #ddd;\n}\ncode,\npre,\ntextarea {\n    font-family: Consolas, Menlo, monospace;\n    font-size: small;\n}\npre {\n    overflow-wrap: break-word;\n    white-space: pre-wrap;\n}\ntextarea {\n    overflow: auto;\n    white-space: pre;\n}\n.button {\n    background-color: #fff;\n    border: 1px solid;\n    border-bottom-color: rgb(186, 186, 186);\n    border-left-color: rgb(209, 209, 209);\n    border-radius: 4px;\n    border-right-color: rgb(209, 209, 209);\n    border-top-color: rgb(216, 216, 216);\n    color: #00d;\n    cursor: pointer;\n    display: inline-block;\n    font-family: Arial, Helvetica, sans-serif;\n    font-size: 12px;\n    font-style: normal;\n    font-weight: normal;\n    margin: 0;\n    padding: 2px 7px 3px 7px;\n    text-align: center;\n    text-decoration: underline;\n}\n.colorError {\n    color: #d00;\n}\n.uiAnimateShake {\n    animation-duration: 500ms;\n    animation-name: uiAnimateShake;\n}\n.uiAnimateSlide {\n    overflow-y: hidden;\n    transition: max-height ease-in 250ms, min-height ease-in 250ms, padding-bottom ease-in 250ms, padding-top ease-in 250ms;\n}\n.utility2FooterDiv {\n    text-align: center;\n}\n.zeroPixel {\n    border: 0;\n    height: 0;\n    margin: 0;\n    padding: 0;\n    width: 0;\n}\n</style>\n</head>\n<body>\n<script>\n/* jslint-utility2 */\n/*jslint\n    bitwise: true,\n    browser: true,\n    maxerr: 4,\n    maxlen: 100,\n    node: true,\n    nomen: true,\n    regexp: true,\n    stupid: true\n*/\n// init domOnEventWindowOnloadTimeElapsed\n(function () {\n/*\n * this function will measure and print the time-elapsed for window.onload\n */\n    \"use strict\";\n    if (window.domOnEventWindowOnloadTimeElapsed) {\n        return;\n    }\n    window.domOnEventWindowOnloadTimeElapsed = Date.now() + 100;\n    window.addEventListener(\"load\", function () {\n        setTimeout(function () {\n            window.domOnEventWindowOnloadTimeElapsed = Date.now() -\n                window.domOnEventWindowOnloadTimeElapsed;\n            console.error(\"domOnEventWindowOnloadTimeElapsed = \" +\n                window.domOnEventWindowOnloadTimeElapsed);\n        }, 100);\n    });\n}());\n</script>\n<div id=\"ajaxProgressDiv1\" style=\"background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;\"></div>\n<div class=\"uiAnimateSpin\" style=\"animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;\"></div>\n<script>\n/* jslint-utility2 */\n/*jslint\n    bitwise: true,\n    browser: true,\n    maxerr: 4,\n    maxlen: 100,\n    node: true,\n    nomen: true,\n    regexp: true,\n    stupid: true\n*/\n// init timerIntervalAjaxProgressUpdate\n(function () {\n/*\n * this function will increment the ajax-progress-bar until the webpage has loaded\n */\n    \"use strict\";\n    var ajaxProgressDiv1,\n        ajaxProgressState,\n        ajaxProgressUpdate;\n    if (window.timerIntervalAjaxProgressUpdate || !document.querySelector(\"#ajaxProgressDiv1\")) {\n        return;\n    }\n    ajaxProgressDiv1 = document.querySelector(\"#ajaxProgressDiv1\");\n    setTimeout(function () {\n        ajaxProgressDiv1.style.width = \"25%\";\n    });\n    ajaxProgressState = 0;\n    ajaxProgressUpdate = (window.local &&\n        window.local.ajaxProgressUpdate) || function () {\n        ajaxProgressDiv1.style.width = \"100%\";\n        setTimeout(function () {\n            ajaxProgressDiv1.style.background = \"transparent\";\n            setTimeout(function () {\n                ajaxProgressDiv1.style.width = \"0%\";\n            }, 500);\n        }, 1500);\n    };\n    window.timerIntervalAjaxProgressUpdate = setInterval(function () {\n        ajaxProgressState += 1;\n        ajaxProgressDiv1.style.width = Math.max(\n            100 - 75 * Math.exp(-0.125 * ajaxProgressState),\n            ajaxProgressDiv1.style.width.slice(0, -1) | 0\n        ) + \"%\";\n    }, 1000);\n    window.addEventListener(\"load\", function () {\n        clearInterval(window.timerIntervalAjaxProgressUpdate);\n        ajaxProgressUpdate();\n    });\n}());\n// init domOnEventMediaHotkeys\n(function () {\n/*\n * this function will add media-hotkeys to elements with class=\".domOnEventMediaHotkeysInit\"\n */\n    \"use strict\";\n    var input, onEvent;\n    if (window.domOnEventMediaHotkeys) {\n        return;\n    }\n    onEvent = window.domOnEventMediaHotkeys = function (event) {\n        var media;\n        if (event === \"init\") {\n            Array.from(\n                document.querySelectorAll(\".domOnEventMediaHotkeysInit\")\n            ).forEach(function (media) {\n                media.classList.remove(\"domOnEventMediaHotkeysInit\");\n                media.classList.add(\"domOnEventMediaHotkeys\");\n                [\"play\", \"pause\", \"seeking\"].forEach(function (event) {\n                    media.addEventListener(event, onEvent);\n                });\n            });\n            return;\n        }\n        if (event.currentTarget.classList.contains(\"domOnEventMediaHotkeys\")) {\n            window.domOnEventMediaHotkeysMedia1 = event.currentTarget;\n            window.domOnEventMediaHotkeysInput.focus();\n            return;\n        }\n        media = window.domOnEventMediaHotkeysMedia1;\n        try {\n            switch (event.key || event.type) {\n            case \",\":\n            case \".\":\n                media.currentTime += (event.key === \",\" && -0.03125) || 0.03125;\n                break;\n            case \"<\":\n            case \">\":\n                media.playbackRate *= (event.key === \"<\" && 0.5) || 2;\n                break;\n            case \"ArrowDown\":\n            case \"ArrowUp\":\n                media.volume += (event.key === \"ArrowDown\" && -0.05) || 0.05;\n                break;\n            case \"ArrowLeft\":\n            case \"ArrowRight\":\n                media.currentTime += (event.key === \"ArrowLeft\" && -5) || 5;\n                break;\n            case \"j\":\n            case \"l\":\n                media.currentTime += (event.key === \"j\" && -10) || 10;\n                break;\n            case \"k\":\n            case \" \":\n                if (media.paused) {\n                    media.play();\n                } else {\n                    media.pause();\n                }\n                break;\n            case \"m\":\n                media.muted = !media.muted;\n                break;\n            default:\n                if (event.key >= 0) {\n                    media.currentTime = 0.1 * event.key * media.duration;\n                    break;\n                }\n                return;\n            }\n        } catch (ignore) {\n        }\n        event.preventDefault();\n    };\n    input = window.domOnEventMediaHotkeysInput = document.createElement(\"button\");\n    input.style = \"border:0;height:0;margin:0;padding:0;position:fixed;width:0;z-index:-1;\";\n    input.addEventListener(\"click\", onEvent);\n    input.addEventListener(\"keydown\", onEvent);\n    document.body.appendChild(input);\n    onEvent(\"init\");\n}());\n// init domOnEventSelectAllWithinPre\n(function () {\n/*\n * this function will limit select-all within <pre tabIndex=\"0\"> elements\n * https://stackoverflow.com/questions/985272/selecting-text-in-an-element-akin-to-highlighting-with-your-mouse\n */\n    \"use strict\";\n    if (window.domOnEventSelectAllWithinPre) {\n        return;\n    }\n    window.domOnEventSelectAllWithinPre = function (event) {\n        var range, selection;\n        if (event &&\n                event.key === \"a\" &&\n                (event.ctrlKey || event.metaKey) &&\n                event.target.closest(\"pre\")) {\n            range = document.createRange();\n            range.selectNodeContents(event.target.closest(\"pre\"));\n            selection = window.getSelection();\n            selection.removeAllRanges();\n            selection.addRange(range);\n            event.preventDefault();\n        }\n    };\n    document.addEventListener(\"keydown\", window.domOnEventSelectAllWithinPre);\n}());\n</script>\n<h1>\n\n    <a\n        \n        href=\"https://github.com/kaizhu256/node-uglifyjs-lite\"\n        \n        target=\"_blank\"\n    >\n\n        uglifyjs-lite (2018.5.25)\n\n    </a>\n\n</h1>\n<h3>this zero-dependency package will provide a browser-compatible version of the uglifyjs (v1.3.5) javascript-minifier, with a working web-demo</h3>\n\n<a class=\"button\" download href=\"assets.app.js\">download standalone app</a><br>\n<button class=\"button onclick onreset\" id=\"testRunButton1\">run internal test</button><br>\n<div class=\"uiAnimateSlide\" id=\"testReportDiv1\" style=\"border-bottom: 0; border-top: 0; margin-bottom: 0; margin-top: 0; max-height: 0; padding-bottom: 0; padding-top: 0;\"></div>\n\n\n\n\n<label>edit or paste script below to cover and eval</label>\n<textarea class=\"onkeyup onreset\" id=\"inputTextarea1\">\nvar aa;\naa = \"hello\";\nconsole.log(aa);\nconsole.log(null);\n</textarea>\n<label>uglified-code</label>\n<textarea class=\"resettable\" id=\"outputTextarea1\" readonly></textarea>\n<label>stderr and stdout</label>\n<textarea class=\"resettable\" id=\"outputStdoutTextarea1\" readonly></textarea>\n\n\n<script src=\"assets.app.js\"></script>\n\n\n<div class=\"utility2FooterDiv\">\n    [ this app was created with\n    <a href=\"https://github.com/kaizhu256/node-utility2\" target=\"_blank\">utility2</a>\n    ]\n</div>\n</body>\n</html>\n"
+            "/assets.utility2.base.html": "<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<!-- \"assets.utility2.template.html\" -->\n<title>uglifyjs-lite (2018.8.15)</title>\n<style>\n/* jslint-utility2 */\n/*csslint\n*/\n/* jslint-ignore-begin */\n*,\n*:after,\n*:before {\n    box-sizing: border-box;\n}\n/* jslint-ignore-end */\n@keyframes uiAnimateShake {\n    0%, 50% {\n        transform: translateX(10px);\n    }\n    25%, 75% {\n        transform: translateX(-10px);\n    }\n    100% {\n        transform: translateX(0);\n    }\n}\n@keyframes uiAnimateSpin {\n    0% {\n        transform: rotate(0deg);\n    }\n    100% {\n        transform: rotate(360deg);\n    }\n}\na {\n    overflow-wrap: break-word;\n}\nbody {\n    background: #eef;\n    font-family: Arial, Helvetica, sans-serif;\n    margin: 0 40px;\n}\nbody > div,\nbody > form > div,\nbody > form > input,\nbody > form > pre,\nbody > form > textarea,\nbody > form > .button,\nbody > input,\nbody > pre,\nbody > textarea,\nbody > .button {\n    margin-bottom: 20px;\n}\nbody > form > input,\nbody > form > .button,\nbody > input,\nbody > .button {\n    width: 20rem;\n}\nbody > form > textarea,\nbody > textarea {\n    height: 10rem;\n    width: 100%;\n}\nbody > textarea[readonly] {\n    background: #ddd;\n}\ncode,\npre,\ntextarea {\n    font-family: Consolas, Menlo, monospace;\n    font-size: small;\n}\npre {\n    overflow-wrap: break-word;\n    white-space: pre-wrap;\n}\ntextarea {\n    overflow: auto;\n    white-space: pre;\n}\n.button {\n    background-color: #fff;\n    border: 1px solid;\n    border-bottom-color: rgb(186, 186, 186);\n    border-left-color: rgb(209, 209, 209);\n    border-radius: 4px;\n    border-right-color: rgb(209, 209, 209);\n    border-top-color: rgb(216, 216, 216);\n    color: #00d;\n    cursor: pointer;\n    display: inline-block;\n    font-family: Arial, Helvetica, sans-serif;\n    font-size: 12px;\n    font-style: normal;\n    font-weight: normal;\n    margin: 0;\n    padding: 2px 7px 3px 7px;\n    text-align: center;\n    text-decoration: underline;\n}\n.colorError {\n    color: #d00;\n}\n.uiAnimateShake {\n    animation-duration: 500ms;\n    animation-name: uiAnimateShake;\n}\n.uiAnimateSlide {\n    overflow-y: hidden;\n    transition: max-height ease-in 250ms, min-height ease-in 250ms, padding-bottom ease-in 250ms, padding-top ease-in 250ms;\n}\n.utility2FooterDiv {\n    text-align: center;\n}\n.zeroPixel {\n    border: 0;\n    height: 0;\n    margin: 0;\n    padding: 0;\n    width: 0;\n}\n</style>\n</head>\n<body>\n<div id=\"ajaxProgressDiv1\" style=\"background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;\"></div>\n<div class=\"uiAnimateSpin\" style=\"animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;\"></div>\n<script>\n/* jslint-utility2 */\n/*jslint\n    bitwise: true,\n    browser: true,\n    maxerr: 4,\n    maxlen: 100,\n    node: true,\n    nomen: true,\n    regexp: true,\n    stupid: true\n*/\n// init domOnEventWindowOnloadTimeElapsed\n(function () {\n/*\n * this function will measure and print the time-elapsed for window.onload\n */\n    \"use strict\";\n    if (window.domOnEventWindowOnloadTimeElapsed) {\n        return;\n    }\n    window.domOnEventWindowOnloadTimeElapsed = Date.now() + 100;\n    window.addEventListener(\"load\", function () {\n        setTimeout(function () {\n            window.domOnEventWindowOnloadTimeElapsed = Date.now() -\n                window.domOnEventWindowOnloadTimeElapsed;\n            console.error(\"domOnEventWindowOnloadTimeElapsed = \" +\n                window.domOnEventWindowOnloadTimeElapsed);\n        }, 100);\n    });\n}());\n// init timerIntervalAjaxProgressUpdate\n(function () {\n/*\n * this function will increment the ajax-progress-bar until the webpage has loaded\n */\n    \"use strict\";\n    var ajaxProgressDiv1,\n        ajaxProgressState,\n        ajaxProgressUpdate;\n    if (window.timerIntervalAjaxProgressUpdate || !document.querySelector(\"#ajaxProgressDiv1\")) {\n        return;\n    }\n    ajaxProgressDiv1 = document.querySelector(\"#ajaxProgressDiv1\");\n    setTimeout(function () {\n        ajaxProgressDiv1.style.width = \"25%\";\n    });\n    ajaxProgressState = 0;\n    ajaxProgressUpdate = (window.local &&\n        window.local.ajaxProgressUpdate) || function () {\n        ajaxProgressDiv1.style.width = \"100%\";\n        setTimeout(function () {\n            ajaxProgressDiv1.style.background = \"transparent\";\n            setTimeout(function () {\n                ajaxProgressDiv1.style.width = \"0%\";\n            }, 500);\n        }, 1500);\n    };\n    window.timerIntervalAjaxProgressUpdate = setInterval(function () {\n        ajaxProgressState += 1;\n        ajaxProgressDiv1.style.width = Math.max(\n            100 - 75 * Math.exp(-0.125 * ajaxProgressState),\n            ajaxProgressDiv1.style.width.slice(0, -1) | 0\n        ) + \"%\";\n    }, 1000);\n    window.addEventListener(\"load\", function () {\n        clearInterval(window.timerIntervalAjaxProgressUpdate);\n        ajaxProgressUpdate();\n    });\n}());\n// init domOnEventMediaHotkeys\n(function () {\n/*\n * this function will add media-hotkeys to elements with class=\".domOnEventMediaHotkeysInit\"\n */\n    \"use strict\";\n    var input, onEvent;\n    if (window.domOnEventMediaHotkeys) {\n        return;\n    }\n    onEvent = window.domOnEventMediaHotkeys = function (event) {\n        var media;\n        if (event === \"init\") {\n            Array.from(document.querySelectorAll(\n                \".domOnEventMediaHotkeysInit\"\n            )).forEach(function (media) {\n                media.classList.remove(\"domOnEventMediaHotkeysInit\");\n                media.classList.add(\"domOnEventMediaHotkeys\");\n                [\"play\", \"pause\", \"seeking\"].forEach(function (event) {\n                    media.addEventListener(event, onEvent);\n                });\n            });\n            return;\n        }\n        if (event.currentTarget.classList.contains(\"domOnEventMediaHotkeys\")) {\n            window.domOnEventMediaHotkeysMedia1 = event.currentTarget;\n            window.domOnEventMediaHotkeysInput.focus();\n            return;\n        }\n        media = window.domOnEventMediaHotkeysMedia1;\n        try {\n            switch (event.key || event.type) {\n            case \",\":\n            case \".\":\n                media.currentTime += (event.key === \",\" && -0.03125) || 0.03125;\n                break;\n            case \"<\":\n            case \">\":\n                media.playbackRate *= (event.key === \"<\" && 0.5) || 2;\n                break;\n            case \"ArrowDown\":\n            case \"ArrowUp\":\n                media.volume += (event.key === \"ArrowDown\" && -0.05) || 0.05;\n                break;\n            case \"ArrowLeft\":\n            case \"ArrowRight\":\n                media.currentTime += (event.key === \"ArrowLeft\" && -5) || 5;\n                break;\n            case \"j\":\n            case \"l\":\n                media.currentTime += (event.key === \"j\" && -10) || 10;\n                break;\n            case \"k\":\n            case \" \":\n                if (media.paused) {\n                    media.play();\n                } else {\n                    media.pause();\n                }\n                break;\n            case \"m\":\n                media.muted = !media.muted;\n                break;\n            default:\n                if (event.key >= 0) {\n                    media.currentTime = 0.1 * event.key * media.duration;\n                    break;\n                }\n                return;\n            }\n        } catch (ignore) {\n        }\n        event.preventDefault();\n    };\n    input = window.domOnEventMediaHotkeysInput = document.createElement(\"button\");\n    input.style = \"border:0;height:0;margin:0;padding:0;position:fixed;width:0;z-index:-1;\";\n    input.addEventListener(\"click\", onEvent);\n    input.addEventListener(\"keydown\", onEvent);\n    document.body.appendChild(input);\n    onEvent(\"init\");\n}());\n// init domOnEventSelectAllWithinPre\n(function () {\n/*\n * this function will limit select-all within <pre tabIndex=\"0\"> elements\n * https://stackoverflow.com/questions/985272/selecting-text-in-an-element-akin-to-highlighting-with-your-mouse\n */\n    \"use strict\";\n    if (window.domOnEventSelectAllWithinPre) {\n        return;\n    }\n    window.domOnEventSelectAllWithinPre = function (event) {\n        var range, selection;\n        if (event &&\n                event.key === \"a\" &&\n                (event.ctrlKey || event.metaKey) &&\n                event.target.closest(\"pre\")) {\n            range = document.createRange();\n            range.selectNodeContents(event.target.closest(\"pre\"));\n            selection = window.getSelection();\n            selection.removeAllRanges();\n            selection.addRange(range);\n            event.preventDefault();\n        }\n    };\n    document.addEventListener(\"keydown\", window.domOnEventSelectAllWithinPre);\n}());\n</script>\n<h1>\n\n    <a\n        \n        href=\"https://github.com/kaizhu256/node-uglifyjs-lite\"\n        \n        target=\"_blank\"\n    >\n\n        uglifyjs-lite (2018.8.15)\n\n    </a>\n\n</h1>\n<h3>this zero-dependency package will provide a browser-compatible version of the uglifyjs (v1.3.5) javascript-minifier, with a working web-demo</h3>\n\n<a class=\"button\" download href=\"assets.app.js\">download standalone app</a><br>\n<button class=\"button onclick onreset\" id=\"testRunButton1\">run internal test</button><br>\n<div class=\"uiAnimateSlide\" id=\"testReportDiv1\" style=\"border-bottom: 0; border-top: 0; margin-bottom: 0; margin-top: 0; max-height: 0; padding-bottom: 0; padding-top: 0;\"></div>\n\n\n\n\n<label>stderr and stdout</label>\n<textarea class=\"resettable\" id=\"outputStdoutTextarea1\" readonly></textarea>\n\n\n<script src=\"assets.app.js\"></script>\n\n\n<div class=\"utility2FooterDiv\">\n    [ this app was created with\n    <a href=\"https://github.com/kaizhu256/node-utility2\" target=\"_blank\">utility2</a>\n    ]\n</div>\n</body>\n</html>\n",
+            "/index.html": "<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<!-- \"assets.utility2.template.html\" -->\n<title>uglifyjs-lite (2018.8.15)</title>\n<style>\n/* jslint-utility2 */\n/*csslint\n*/\n/* jslint-ignore-begin */\n*,\n*:after,\n*:before {\n    box-sizing: border-box;\n}\n/* jslint-ignore-end */\n@keyframes uiAnimateShake {\n    0%, 50% {\n        transform: translateX(10px);\n    }\n    25%, 75% {\n        transform: translateX(-10px);\n    }\n    100% {\n        transform: translateX(0);\n    }\n}\n@keyframes uiAnimateSpin {\n    0% {\n        transform: rotate(0deg);\n    }\n    100% {\n        transform: rotate(360deg);\n    }\n}\na {\n    overflow-wrap: break-word;\n}\nbody {\n    background: #eef;\n    font-family: Arial, Helvetica, sans-serif;\n    margin: 0 40px;\n}\nbody > div,\nbody > form > div,\nbody > form > input,\nbody > form > pre,\nbody > form > textarea,\nbody > form > .button,\nbody > input,\nbody > pre,\nbody > textarea,\nbody > .button {\n    margin-bottom: 20px;\n}\nbody > form > input,\nbody > form > .button,\nbody > input,\nbody > .button {\n    width: 20rem;\n}\nbody > form > textarea,\nbody > textarea {\n    height: 10rem;\n    width: 100%;\n}\nbody > textarea[readonly] {\n    background: #ddd;\n}\ncode,\npre,\ntextarea {\n    font-family: Consolas, Menlo, monospace;\n    font-size: small;\n}\npre {\n    overflow-wrap: break-word;\n    white-space: pre-wrap;\n}\ntextarea {\n    overflow: auto;\n    white-space: pre;\n}\n.button {\n    background-color: #fff;\n    border: 1px solid;\n    border-bottom-color: rgb(186, 186, 186);\n    border-left-color: rgb(209, 209, 209);\n    border-radius: 4px;\n    border-right-color: rgb(209, 209, 209);\n    border-top-color: rgb(216, 216, 216);\n    color: #00d;\n    cursor: pointer;\n    display: inline-block;\n    font-family: Arial, Helvetica, sans-serif;\n    font-size: 12px;\n    font-style: normal;\n    font-weight: normal;\n    margin: 0;\n    padding: 2px 7px 3px 7px;\n    text-align: center;\n    text-decoration: underline;\n}\n.colorError {\n    color: #d00;\n}\n.uiAnimateShake {\n    animation-duration: 500ms;\n    animation-name: uiAnimateShake;\n}\n.uiAnimateSlide {\n    overflow-y: hidden;\n    transition: max-height ease-in 250ms, min-height ease-in 250ms, padding-bottom ease-in 250ms, padding-top ease-in 250ms;\n}\n.utility2FooterDiv {\n    text-align: center;\n}\n.zeroPixel {\n    border: 0;\n    height: 0;\n    margin: 0;\n    padding: 0;\n    width: 0;\n}\n</style>\n</head>\n<body>\n<div id=\"ajaxProgressDiv1\" style=\"background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;\"></div>\n<div class=\"uiAnimateSpin\" style=\"animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;\"></div>\n<script>\n/* jslint-utility2 */\n/*jslint\n    bitwise: true,\n    browser: true,\n    maxerr: 4,\n    maxlen: 100,\n    node: true,\n    nomen: true,\n    regexp: true,\n    stupid: true\n*/\n// init domOnEventWindowOnloadTimeElapsed\n(function () {\n/*\n * this function will measure and print the time-elapsed for window.onload\n */\n    \"use strict\";\n    if (window.domOnEventWindowOnloadTimeElapsed) {\n        return;\n    }\n    window.domOnEventWindowOnloadTimeElapsed = Date.now() + 100;\n    window.addEventListener(\"load\", function () {\n        setTimeout(function () {\n            window.domOnEventWindowOnloadTimeElapsed = Date.now() -\n                window.domOnEventWindowOnloadTimeElapsed;\n            console.error(\"domOnEventWindowOnloadTimeElapsed = \" +\n                window.domOnEventWindowOnloadTimeElapsed);\n        }, 100);\n    });\n}());\n// init timerIntervalAjaxProgressUpdate\n(function () {\n/*\n * this function will increment the ajax-progress-bar until the webpage has loaded\n */\n    \"use strict\";\n    var ajaxProgressDiv1,\n        ajaxProgressState,\n        ajaxProgressUpdate;\n    if (window.timerIntervalAjaxProgressUpdate || !document.querySelector(\"#ajaxProgressDiv1\")) {\n        return;\n    }\n    ajaxProgressDiv1 = document.querySelector(\"#ajaxProgressDiv1\");\n    setTimeout(function () {\n        ajaxProgressDiv1.style.width = \"25%\";\n    });\n    ajaxProgressState = 0;\n    ajaxProgressUpdate = (window.local &&\n        window.local.ajaxProgressUpdate) || function () {\n        ajaxProgressDiv1.style.width = \"100%\";\n        setTimeout(function () {\n            ajaxProgressDiv1.style.background = \"transparent\";\n            setTimeout(function () {\n                ajaxProgressDiv1.style.width = \"0%\";\n            }, 500);\n        }, 1500);\n    };\n    window.timerIntervalAjaxProgressUpdate = setInterval(function () {\n        ajaxProgressState += 1;\n        ajaxProgressDiv1.style.width = Math.max(\n            100 - 75 * Math.exp(-0.125 * ajaxProgressState),\n            ajaxProgressDiv1.style.width.slice(0, -1) | 0\n        ) + \"%\";\n    }, 1000);\n    window.addEventListener(\"load\", function () {\n        clearInterval(window.timerIntervalAjaxProgressUpdate);\n        ajaxProgressUpdate();\n    });\n}());\n// init domOnEventMediaHotkeys\n(function () {\n/*\n * this function will add media-hotkeys to elements with class=\".domOnEventMediaHotkeysInit\"\n */\n    \"use strict\";\n    var input, onEvent;\n    if (window.domOnEventMediaHotkeys) {\n        return;\n    }\n    onEvent = window.domOnEventMediaHotkeys = function (event) {\n        var media;\n        if (event === \"init\") {\n            Array.from(document.querySelectorAll(\n                \".domOnEventMediaHotkeysInit\"\n            )).forEach(function (media) {\n                media.classList.remove(\"domOnEventMediaHotkeysInit\");\n                media.classList.add(\"domOnEventMediaHotkeys\");\n                [\"play\", \"pause\", \"seeking\"].forEach(function (event) {\n                    media.addEventListener(event, onEvent);\n                });\n            });\n            return;\n        }\n        if (event.currentTarget.classList.contains(\"domOnEventMediaHotkeys\")) {\n            window.domOnEventMediaHotkeysMedia1 = event.currentTarget;\n            window.domOnEventMediaHotkeysInput.focus();\n            return;\n        }\n        media = window.domOnEventMediaHotkeysMedia1;\n        try {\n            switch (event.key || event.type) {\n            case \",\":\n            case \".\":\n                media.currentTime += (event.key === \",\" && -0.03125) || 0.03125;\n                break;\n            case \"<\":\n            case \">\":\n                media.playbackRate *= (event.key === \"<\" && 0.5) || 2;\n                break;\n            case \"ArrowDown\":\n            case \"ArrowUp\":\n                media.volume += (event.key === \"ArrowDown\" && -0.05) || 0.05;\n                break;\n            case \"ArrowLeft\":\n            case \"ArrowRight\":\n                media.currentTime += (event.key === \"ArrowLeft\" && -5) || 5;\n                break;\n            case \"j\":\n            case \"l\":\n                media.currentTime += (event.key === \"j\" && -10) || 10;\n                break;\n            case \"k\":\n            case \" \":\n                if (media.paused) {\n                    media.play();\n                } else {\n                    media.pause();\n                }\n                break;\n            case \"m\":\n                media.muted = !media.muted;\n                break;\n            default:\n                if (event.key >= 0) {\n                    media.currentTime = 0.1 * event.key * media.duration;\n                    break;\n                }\n                return;\n            }\n        } catch (ignore) {\n        }\n        event.preventDefault();\n    };\n    input = window.domOnEventMediaHotkeysInput = document.createElement(\"button\");\n    input.style = \"border:0;height:0;margin:0;padding:0;position:fixed;width:0;z-index:-1;\";\n    input.addEventListener(\"click\", onEvent);\n    input.addEventListener(\"keydown\", onEvent);\n    document.body.appendChild(input);\n    onEvent(\"init\");\n}());\n// init domOnEventSelectAllWithinPre\n(function () {\n/*\n * this function will limit select-all within <pre tabIndex=\"0\"> elements\n * https://stackoverflow.com/questions/985272/selecting-text-in-an-element-akin-to-highlighting-with-your-mouse\n */\n    \"use strict\";\n    if (window.domOnEventSelectAllWithinPre) {\n        return;\n    }\n    window.domOnEventSelectAllWithinPre = function (event) {\n        var range, selection;\n        if (event &&\n                event.key === \"a\" &&\n                (event.ctrlKey || event.metaKey) &&\n                event.target.closest(\"pre\")) {\n            range = document.createRange();\n            range.selectNodeContents(event.target.closest(\"pre\"));\n            selection = window.getSelection();\n            selection.removeAllRanges();\n            selection.addRange(range);\n            event.preventDefault();\n        }\n    };\n    document.addEventListener(\"keydown\", window.domOnEventSelectAllWithinPre);\n}());\n</script>\n<h1>\n\n    <a\n        \n        href=\"https://github.com/kaizhu256/node-uglifyjs-lite\"\n        \n        target=\"_blank\"\n    >\n\n        uglifyjs-lite (2018.8.15)\n\n    </a>\n\n</h1>\n<h3>this zero-dependency package will provide a browser-compatible version of the uglifyjs (v1.3.5) javascript-minifier, with a working web-demo</h3>\n\n<a class=\"button\" download href=\"assets.app.js\">download standalone app</a><br>\n<button class=\"button onclick onreset\" id=\"testRunButton1\">run internal test</button><br>\n<div class=\"uiAnimateSlide\" id=\"testReportDiv1\" style=\"border-bottom: 0; border-top: 0; margin-bottom: 0; margin-top: 0; max-height: 0; padding-bottom: 0; padding-top: 0;\"></div>\n\n\n\n\n<label>edit or paste script below to cover and eval</label>\n<textarea class=\"onkeyup onreset\" id=\"inputTextarea1\">\nvar aa;\naa = \"hello\";\nconsole.log(aa);\nconsole.log(null);\n</textarea>\n<label>uglified-code</label>\n<textarea class=\"resettable\" id=\"outputTextarea1\" readonly></textarea>\n<label>stderr and stdout</label>\n<textarea class=\"resettable\" id=\"outputStdoutTextarea1\" readonly></textarea>\n\n\n<script src=\"assets.app.js\"></script>\n\n\n<div class=\"utility2FooterDiv\">\n    [ this app was created with\n    <a href=\"https://github.com/kaizhu256/node-utility2\" target=\"_blank\">utility2</a>\n    ]\n</div>\n</body>\n</html>\n",
+            "/": "<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<!-- \"assets.utility2.template.html\" -->\n<title>uglifyjs-lite (2018.8.15)</title>\n<style>\n/* jslint-utility2 */\n/*csslint\n*/\n/* jslint-ignore-begin */\n*,\n*:after,\n*:before {\n    box-sizing: border-box;\n}\n/* jslint-ignore-end */\n@keyframes uiAnimateShake {\n    0%, 50% {\n        transform: translateX(10px);\n    }\n    25%, 75% {\n        transform: translateX(-10px);\n    }\n    100% {\n        transform: translateX(0);\n    }\n}\n@keyframes uiAnimateSpin {\n    0% {\n        transform: rotate(0deg);\n    }\n    100% {\n        transform: rotate(360deg);\n    }\n}\na {\n    overflow-wrap: break-word;\n}\nbody {\n    background: #eef;\n    font-family: Arial, Helvetica, sans-serif;\n    margin: 0 40px;\n}\nbody > div,\nbody > form > div,\nbody > form > input,\nbody > form > pre,\nbody > form > textarea,\nbody > form > .button,\nbody > input,\nbody > pre,\nbody > textarea,\nbody > .button {\n    margin-bottom: 20px;\n}\nbody > form > input,\nbody > form > .button,\nbody > input,\nbody > .button {\n    width: 20rem;\n}\nbody > form > textarea,\nbody > textarea {\n    height: 10rem;\n    width: 100%;\n}\nbody > textarea[readonly] {\n    background: #ddd;\n}\ncode,\npre,\ntextarea {\n    font-family: Consolas, Menlo, monospace;\n    font-size: small;\n}\npre {\n    overflow-wrap: break-word;\n    white-space: pre-wrap;\n}\ntextarea {\n    overflow: auto;\n    white-space: pre;\n}\n.button {\n    background-color: #fff;\n    border: 1px solid;\n    border-bottom-color: rgb(186, 186, 186);\n    border-left-color: rgb(209, 209, 209);\n    border-radius: 4px;\n    border-right-color: rgb(209, 209, 209);\n    border-top-color: rgb(216, 216, 216);\n    color: #00d;\n    cursor: pointer;\n    display: inline-block;\n    font-family: Arial, Helvetica, sans-serif;\n    font-size: 12px;\n    font-style: normal;\n    font-weight: normal;\n    margin: 0;\n    padding: 2px 7px 3px 7px;\n    text-align: center;\n    text-decoration: underline;\n}\n.colorError {\n    color: #d00;\n}\n.uiAnimateShake {\n    animation-duration: 500ms;\n    animation-name: uiAnimateShake;\n}\n.uiAnimateSlide {\n    overflow-y: hidden;\n    transition: max-height ease-in 250ms, min-height ease-in 250ms, padding-bottom ease-in 250ms, padding-top ease-in 250ms;\n}\n.utility2FooterDiv {\n    text-align: center;\n}\n.zeroPixel {\n    border: 0;\n    height: 0;\n    margin: 0;\n    padding: 0;\n    width: 0;\n}\n</style>\n</head>\n<body>\n<div id=\"ajaxProgressDiv1\" style=\"background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;\"></div>\n<div class=\"uiAnimateSpin\" style=\"animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;\"></div>\n<script>\n/* jslint-utility2 */\n/*jslint\n    bitwise: true,\n    browser: true,\n    maxerr: 4,\n    maxlen: 100,\n    node: true,\n    nomen: true,\n    regexp: true,\n    stupid: true\n*/\n// init domOnEventWindowOnloadTimeElapsed\n(function () {\n/*\n * this function will measure and print the time-elapsed for window.onload\n */\n    \"use strict\";\n    if (window.domOnEventWindowOnloadTimeElapsed) {\n        return;\n    }\n    window.domOnEventWindowOnloadTimeElapsed = Date.now() + 100;\n    window.addEventListener(\"load\", function () {\n        setTimeout(function () {\n            window.domOnEventWindowOnloadTimeElapsed = Date.now() -\n                window.domOnEventWindowOnloadTimeElapsed;\n            console.error(\"domOnEventWindowOnloadTimeElapsed = \" +\n                window.domOnEventWindowOnloadTimeElapsed);\n        }, 100);\n    });\n}());\n// init timerIntervalAjaxProgressUpdate\n(function () {\n/*\n * this function will increment the ajax-progress-bar until the webpage has loaded\n */\n    \"use strict\";\n    var ajaxProgressDiv1,\n        ajaxProgressState,\n        ajaxProgressUpdate;\n    if (window.timerIntervalAjaxProgressUpdate || !document.querySelector(\"#ajaxProgressDiv1\")) {\n        return;\n    }\n    ajaxProgressDiv1 = document.querySelector(\"#ajaxProgressDiv1\");\n    setTimeout(function () {\n        ajaxProgressDiv1.style.width = \"25%\";\n    });\n    ajaxProgressState = 0;\n    ajaxProgressUpdate = (window.local &&\n        window.local.ajaxProgressUpdate) || function () {\n        ajaxProgressDiv1.style.width = \"100%\";\n        setTimeout(function () {\n            ajaxProgressDiv1.style.background = \"transparent\";\n            setTimeout(function () {\n                ajaxProgressDiv1.style.width = \"0%\";\n            }, 500);\n        }, 1500);\n    };\n    window.timerIntervalAjaxProgressUpdate = setInterval(function () {\n        ajaxProgressState += 1;\n        ajaxProgressDiv1.style.width = Math.max(\n            100 - 75 * Math.exp(-0.125 * ajaxProgressState),\n            ajaxProgressDiv1.style.width.slice(0, -1) | 0\n        ) + \"%\";\n    }, 1000);\n    window.addEventListener(\"load\", function () {\n        clearInterval(window.timerIntervalAjaxProgressUpdate);\n        ajaxProgressUpdate();\n    });\n}());\n// init domOnEventMediaHotkeys\n(function () {\n/*\n * this function will add media-hotkeys to elements with class=\".domOnEventMediaHotkeysInit\"\n */\n    \"use strict\";\n    var input, onEvent;\n    if (window.domOnEventMediaHotkeys) {\n        return;\n    }\n    onEvent = window.domOnEventMediaHotkeys = function (event) {\n        var media;\n        if (event === \"init\") {\n            Array.from(document.querySelectorAll(\n                \".domOnEventMediaHotkeysInit\"\n            )).forEach(function (media) {\n                media.classList.remove(\"domOnEventMediaHotkeysInit\");\n                media.classList.add(\"domOnEventMediaHotkeys\");\n                [\"play\", \"pause\", \"seeking\"].forEach(function (event) {\n                    media.addEventListener(event, onEvent);\n                });\n            });\n            return;\n        }\n        if (event.currentTarget.classList.contains(\"domOnEventMediaHotkeys\")) {\n            window.domOnEventMediaHotkeysMedia1 = event.currentTarget;\n            window.domOnEventMediaHotkeysInput.focus();\n            return;\n        }\n        media = window.domOnEventMediaHotkeysMedia1;\n        try {\n            switch (event.key || event.type) {\n            case \",\":\n            case \".\":\n                media.currentTime += (event.key === \",\" && -0.03125) || 0.03125;\n                break;\n            case \"<\":\n            case \">\":\n                media.playbackRate *= (event.key === \"<\" && 0.5) || 2;\n                break;\n            case \"ArrowDown\":\n            case \"ArrowUp\":\n                media.volume += (event.key === \"ArrowDown\" && -0.05) || 0.05;\n                break;\n            case \"ArrowLeft\":\n            case \"ArrowRight\":\n                media.currentTime += (event.key === \"ArrowLeft\" && -5) || 5;\n                break;\n            case \"j\":\n            case \"l\":\n                media.currentTime += (event.key === \"j\" && -10) || 10;\n                break;\n            case \"k\":\n            case \" \":\n                if (media.paused) {\n                    media.play();\n                } else {\n                    media.pause();\n                }\n                break;\n            case \"m\":\n                media.muted = !media.muted;\n                break;\n            default:\n                if (event.key >= 0) {\n                    media.currentTime = 0.1 * event.key * media.duration;\n                    break;\n                }\n                return;\n            }\n        } catch (ignore) {\n        }\n        event.preventDefault();\n    };\n    input = window.domOnEventMediaHotkeysInput = document.createElement(\"button\");\n    input.style = \"border:0;height:0;margin:0;padding:0;position:fixed;width:0;z-index:-1;\";\n    input.addEventListener(\"click\", onEvent);\n    input.addEventListener(\"keydown\", onEvent);\n    document.body.appendChild(input);\n    onEvent(\"init\");\n}());\n// init domOnEventSelectAllWithinPre\n(function () {\n/*\n * this function will limit select-all within <pre tabIndex=\"0\"> elements\n * https://stackoverflow.com/questions/985272/selecting-text-in-an-element-akin-to-highlighting-with-your-mouse\n */\n    \"use strict\";\n    if (window.domOnEventSelectAllWithinPre) {\n        return;\n    }\n    window.domOnEventSelectAllWithinPre = function (event) {\n        var range, selection;\n        if (event &&\n                event.key === \"a\" &&\n                (event.ctrlKey || event.metaKey) &&\n                event.target.closest(\"pre\")) {\n            range = document.createRange();\n            range.selectNodeContents(event.target.closest(\"pre\"));\n            selection = window.getSelection();\n            selection.removeAllRanges();\n            selection.addRange(range);\n            event.preventDefault();\n        }\n    };\n    document.addEventListener(\"keydown\", window.domOnEventSelectAllWithinPre);\n}());\n</script>\n<h1>\n\n    <a\n        \n        href=\"https://github.com/kaizhu256/node-uglifyjs-lite\"\n        \n        target=\"_blank\"\n    >\n\n        uglifyjs-lite (2018.8.15)\n\n    </a>\n\n</h1>\n<h3>this zero-dependency package will provide a browser-compatible version of the uglifyjs (v1.3.5) javascript-minifier, with a working web-demo</h3>\n\n<a class=\"button\" download href=\"assets.app.js\">download standalone app</a><br>\n<button class=\"button onclick onreset\" id=\"testRunButton1\">run internal test</button><br>\n<div class=\"uiAnimateSlide\" id=\"testReportDiv1\" style=\"border-bottom: 0; border-top: 0; margin-bottom: 0; margin-top: 0; max-height: 0; padding-bottom: 0; padding-top: 0;\"></div>\n\n\n\n\n<label>edit or paste script below to cover and eval</label>\n<textarea class=\"onkeyup onreset\" id=\"inputTextarea1\">\nvar aa;\naa = \"hello\";\nconsole.log(aa);\nconsole.log(null);\n</textarea>\n<label>uglified-code</label>\n<textarea class=\"resettable\" id=\"outputTextarea1\" readonly></textarea>\n<label>stderr and stdout</label>\n<textarea class=\"resettable\" id=\"outputStdoutTextarea1\" readonly></textarea>\n\n\n\n<script src=\"assets.utility2.rollup.js\"></script>\n<script>window.utility2.onResetBefore.counter += 1;</script>\n<script src=\"jsonp.utility2.stateInit?callback=window.utility2.stateInit\"></script>\n<script src=\"assets.uglifyjs.js\"></script>\n<script src=\"assets.example.js\"></script>\n<script src=\"assets.test.js\"></script>\n<script>window.utility2.onResetBefore();</script>\n\n\n\n<div class=\"utility2FooterDiv\">\n    [ this app was created with\n    <a href=\"https://github.com/kaizhu256/node-utility2\" target=\"_blank\">utility2</a>\n    ]\n</div>\n</body>\n</html>\n"
         },
         "env": {
             "NODE_ENV": "test",
@@ -33509,7 +33543,7 @@ local.stateInit({
             "npm_package_homepage": "https://github.com/kaizhu256/node-uglifyjs-lite",
             "npm_package_name": "uglifyjs-lite",
             "npm_package_nameLib": "uglifyjs",
-            "npm_package_version": "2018.5.25"
+            "npm_package_version": "2018.8.15"
         }
     }
 });
@@ -35402,9 +35436,9 @@ instruction
                     event.currentTarget.className.includes &&
                     event.currentTarget.className.includes('onreset'))) {
                 // reset output
-                Array.from(
-                    document.querySelectorAll('body > .resettable')
-                ).forEach(function (element) {
+                Array.from(document.querySelectorAll(
+                    'body > .resettable'
+                )).forEach(function (element) {
                     switch (element.tagName) {
                     case 'INPUT':
                     case 'TEXTAREA':
@@ -35549,7 +35583,7 @@ instruction
 <!doctype html>\n\
 <html lang="en">\n\
 <head>\n\
-<meta charset="UTF-8">\n\
+<meta charset="utf-8">\n\
 <meta name="viewport" content="width=device-width, initial-scale=1">\n\
 <!-- "assets.utility2.template.html" -->\n\
 <title>{{env.npm_package_name}} ({{env.npm_package_version}})</title>\n\
@@ -35675,6 +35709,8 @@ textarea {\n\
 </style>\n\
 </head>\n\
 <body>\n\
+<div id="ajaxProgressDiv1" style="background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;"></div>\n\
+<div class="uiAnimateSpin" style="animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;"></div>\n\
 <script>\n\
 /* jslint-utility2 */\n\
 /*jslint\n\
@@ -35706,21 +35742,6 @@ textarea {\n\
         }, 100);\n\
     });\n\
 }());\n\
-</script>\n\
-<div id="ajaxProgressDiv1" style="background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;"></div>\n\
-<div class="uiAnimateSpin" style="animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;"></div>\n\
-<script>\n\
-/* jslint-utility2 */\n\
-/*jslint\n\
-    bitwise: true,\n\
-    browser: true,\n\
-    maxerr: 4,\n\
-    maxlen: 100,\n\
-    node: true,\n\
-    nomen: true,\n\
-    regexp: true,\n\
-    stupid: true\n\
-*/\n\
 // init timerIntervalAjaxProgressUpdate\n\
 (function () {\n\
 /*\n\
@@ -35773,9 +35794,9 @@ textarea {\n\
     onEvent = window.domOnEventMediaHotkeys = function (event) {\n\
         var media;\n\
         if (event === "init") {\n\
-            Array.from(\n\
-                document.querySelectorAll(".domOnEventMediaHotkeysInit")\n\
-            ).forEach(function (media) {\n\
+            Array.from(document.querySelectorAll(\n\
+                ".domOnEventMediaHotkeysInit"\n\
+            )).forEach(function (media) {\n\
                 media.classList.remove("domOnEventMediaHotkeysInit");\n\
                 media.classList.add("domOnEventMediaHotkeys");\n\
                 ["play", "pause", "seeking"].forEach(function (event) {\n\

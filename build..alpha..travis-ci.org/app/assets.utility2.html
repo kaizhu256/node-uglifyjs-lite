@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- "assets.utility2.template.html" -->
 <title>utility2 (0.0.1)</title>
@@ -127,6 +127,8 @@ textarea {
 </style>
 </head>
 <body>
+<div id="ajaxProgressDiv1" style="background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;"></div>
+<div class="uiAnimateSpin" style="animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;"></div>
 <script>
 /* jslint-utility2 */
 /*jslint
@@ -158,21 +160,6 @@ textarea {
         }, 100);
     });
 }());
-</script>
-<div id="ajaxProgressDiv1" style="background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;"></div>
-<div class="uiAnimateSpin" style="animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;"></div>
-<script>
-/* jslint-utility2 */
-/*jslint
-    bitwise: true,
-    browser: true,
-    maxerr: 4,
-    maxlen: 100,
-    node: true,
-    nomen: true,
-    regexp: true,
-    stupid: true
-*/
 // init timerIntervalAjaxProgressUpdate
 (function () {
 /*
@@ -225,9 +212,9 @@ textarea {
     onEvent = window.domOnEventMediaHotkeys = function (event) {
         var media;
         if (event === "init") {
-            Array.from(
-                document.querySelectorAll(".domOnEventMediaHotkeysInit")
-            ).forEach(function (media) {
+            Array.from(document.querySelectorAll(
+                ".domOnEventMediaHotkeysInit"
+            )).forEach(function (media) {
                 media.classList.remove("domOnEventMediaHotkeysInit");
                 media.classList.add("domOnEventMediaHotkeys");
                 ["play", "pause", "seeking"].forEach(function (event) {

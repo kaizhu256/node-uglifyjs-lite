@@ -249,7 +249,7 @@
     window.domOnEventSelectAllWithinPre = function (event) {
         var range, selection;
         if (event &&
-                event.code === "KeyA" &&
+                event.key === "a" &&
                 (event.ctrlKey || event.metaKey) &&
                 event.target.closest("pre")) {
             range = document.createRange();
@@ -265,7 +265,7 @@
 </script>
 <div class="header high">
     <h1 style="font-weight: bold;">
-        <a href="https://github.com/kaizhu256/node-uglifyjs-lite">uglifyjs-lite (2018.5.25)</a>
+        <a href="https://github.com/kaizhu256/node-uglifyjs-lite">uglifyjs-lite (2018.8.15)</a>
     </h1>
     <h1>Code coverage report for <span class="entity">node-uglifyjs-lite/example.js</span></h1>
     <table class="tableHeader">
@@ -1031,18 +1031,9 @@
 739
 740
 741
-742
-743
-744
-745
-746
-747
-748
-749
-750
-751
-752
-753</td><td class="line-coverage"><span class="cline-any cline-neutral">&nbsp;</span>
+742</td><td class="line-coverage"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1358,19 +1349,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1897,6 +1875,8 @@
 &nbsp;
 &nbsp;
 &nbsp;
+&nbsp;
+&nbsp;
 /*
 example.js
 &nbsp;
@@ -1966,9 +1946,9 @@ instruction
                     event.currentTarget.className.includes &amp;&amp;
                     event.currentTarget.className.includes('onreset'))) {
                 // reset output
-                Array.from(
-                    document.querySelectorAll('body &gt; .resettable')
-                ).forEach(function (element) {
+                Array.from(document.querySelectorAll(
+                    'body &gt; .resettable'
+                )).forEach(function (element) {
                     switch (element.tagName) {
 <span class="branch-0 cbranch-skip" title="branch not covered" >                    case 'INPUT':</span>
                     case 'TEXTAREA':
@@ -2113,7 +2093,7 @@ instruction
 &lt;!doctype html&gt;\n\
 &lt;html lang="en"&gt;\n\
 &lt;head&gt;\n\
-&lt;meta charset="UTF-8"&gt;\n\
+&lt;meta charset="utf-8"&gt;\n\
 &lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;\n\
 &lt;!-- "assets.utility2.template.html" --&gt;\n\
 &lt;title&gt;{{env.npm_package_name}} ({{env.npm_package_version}})&lt;/title&gt;\n\
@@ -2239,6 +2219,8 @@ textarea {\n\
 &lt;/style&gt;\n\
 &lt;/head&gt;\n\
 &lt;body&gt;\n\
+&lt;div id="ajaxProgressDiv1" style="background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;"&gt;&lt;/div&gt;\n\
+&lt;div class="uiAnimateSpin" style="animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;"&gt;&lt;/div&gt;\n\
 &lt;script&gt;\n\
 /* jslint-utility2 */\n\
 /*jslint\n\
@@ -2270,21 +2252,6 @@ textarea {\n\
         }, 100);\n\
     });\n\
 }());\n\
-&lt;/script&gt;\n\
-&lt;div id="ajaxProgressDiv1" style="background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;"&gt;&lt;/div&gt;\n\
-&lt;div class="uiAnimateSpin" style="animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;"&gt;&lt;/div&gt;\n\
-&lt;script&gt;\n\
-/* jslint-utility2 */\n\
-/*jslint\n\
-    bitwise: true,\n\
-    browser: true,\n\
-    maxerr: 4,\n\
-    maxlen: 100,\n\
-    node: true,\n\
-    nomen: true,\n\
-    regexp: true,\n\
-    stupid: true\n\
-*/\n\
 // init timerIntervalAjaxProgressUpdate\n\
 (function () {\n\
 /*\n\
@@ -2337,9 +2304,9 @@ textarea {\n\
     onEvent = window.domOnEventMediaHotkeys = function (event) {\n\
         var media;\n\
         if (event === "init") {\n\
-            Array.from(\n\
-                document.querySelectorAll(".domOnEventMediaHotkeysInit")\n\
-            ).forEach(function (media) {\n\
+            Array.from(document.querySelectorAll(\n\
+                ".domOnEventMediaHotkeysInit"\n\
+            )).forEach(function (media) {\n\
                 media.classList.remove("domOnEventMediaHotkeysInit");\n\
                 media.classList.add("domOnEventMediaHotkeys");\n\
                 ["play", "pause", "seeking"].forEach(function (event) {\n\
@@ -2550,7 +2517,7 @@ utility2-comment --&gt;\n\
 </table></pre>
 </div>
 <div class="footer">
-    <div class="meta">Generated by <a href="https://github.com/kaizhu256/node-utility2" target="_blank">utility2</a> at Sat Aug 11 2018 16:02:08 GMT+0000 (Coordinated Universal Time)</div>
+    <div class="meta">Generated by <a href="https://github.com/kaizhu256/node-utility2" target="_blank">utility2</a> at Wed Aug 15 2018 04:10:37 GMT+0000 (Coordinated Universal Time)</div>
 </div>
 </body>
 </html>

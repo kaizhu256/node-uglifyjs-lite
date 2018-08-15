@@ -112,8 +112,6 @@
             local.buffer = require('buffer');
             local.child_process = require('child_process');
             local.cluster = require('cluster');
-            local.console = require('console');
-            local.constants = require('constants');
             local.crypto = require('crypto');
             local.dgram = require('dgram');
             local.dns = require('dns');
@@ -122,12 +120,9 @@
             local.fs = require('fs');
             local.http = require('http');
             local.https = require('https');
-            local.module = require('module');
             local.net = require('net');
             local.os = require('os');
             local.path = require('path');
-            local.process = require('process');
-            local.punycode = require('punycode');
             local.querystring = require('querystring');
             local.readline = require('readline');
             local.repl = require('repl');
@@ -768,7 +763,7 @@ local.templateApidocHtml = '\
             // init options
             options.dir = local.moduleDirname(
                 options.dir,
-                options.modulePathList || local.module.paths
+                options.modulePathList || require('module').paths
             );
             local.objectSetDefault(options, {
                 env: { npm_package_description: '' },
@@ -1234,8 +1229,6 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
             local.buffer = require('buffer');
             local.child_process = require('child_process');
             local.cluster = require('cluster');
-            local.console = require('console');
-            local.constants = require('constants');
             local.crypto = require('crypto');
             local.dgram = require('dgram');
             local.dns = require('dns');
@@ -1244,12 +1237,9 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
             local.fs = require('fs');
             local.http = require('http');
             local.https = require('https');
-            local.module = require('module');
             local.net = require('net');
             local.os = require('os');
             local.path = require('path');
-            local.process = require('process');
-            local.punycode = require('punycode');
             local.querystring = require('querystring');
             local.readline = require('readline');
             local.repl = require('repl');
@@ -1543,6 +1533,7 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
             if (error && !local.global.__coverage__) {
                 console.error(error);
             }
+            return error;
         };
 
         local.onErrorWithStack = function (onError) {
@@ -1641,47 +1632,53 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
             self.evalDefault = self.eval;
             // hook custom repl eval function
             self.eval = function (script, context, file, onError) {
-                var match, onError2;
-                match = (/^(\S+)(.*?)\n/).exec(script) || {};
+                var  onError2;
                 onError2 = function (error, data) {
                     // debug error
                     global.utility2_debugReplError = error || global.utility2_debugReplError;
                     onError(error, data);
                 };
-                switch (match[1]) {
-                // syntax sugar to run async shell command
-                case '$':
-                    switch (match[2]) {
-                    // syntax sugar to run git diff
-                    case ' git diff':
-                        match[2] = ' git diff --color | cat';
+                script.replace((/^(\S+)(.*?)\n/), function (match0, match1, match2) {
+                    match0 = match1;
+                    switch (match0) {
+                    // syntax sugar to run async shell command
+                    case '$':
+                        switch (match2) {
+                        // syntax sugar to run git diff
+                        case ' git diff':
+                            match2 = ' git diff --color | cat';
+                            break;
+                        // syntax sugar to run git log
+                        case ' git log':
+                            match2 = ' git log -n 4 | cat';
+                            break;
+                        }
+                        // source lib.utility2.sh
+                        if (process.env.npm_config_dir_utility2 && (match2 !== ' :')) {
+                            match2 = '. ' + process.env.npm_config_dir_utility2 +
+                                '/lib.utility2.sh;' + match2;
+                        }
+                        // run async shell command
+                        require('child_process').spawn(match2, {
+                            shell: true,
+                            stdio: ['ignore', 1, 2]
+                        })
+                            // on shell exit, print return prompt
+                            .on('exit', function (exitCode) {
+                                console.error('exit-code ' + exitCode);
+                                self.evalDefault(
+                                    '\n',
+                                    context,
+                                    file,
+                                    onError2
+                                );
+                            });
+                        script = '\n';
                         break;
-                    // syntax sugar to run git log
-                    case ' git log':
-                        match[2] = ' git log -n 4 | cat';
-                        break;
-                    }
-                    // run async shell command
-                    require('child_process').spawn(match[2], {
-                        shell: true,
-                        stdio: ['ignore', 1, 2]
-                    })
-                        // on shell exit, print return prompt
-                        .on('exit', function (exitCode) {
-                            console.error('exit-code ' + exitCode);
-                            self.evalDefault(
-                                '\n',
-                                context,
-                                file,
-                                onError2
-                            );
-                        });
-                    script = '\n';
-                    break;
-                // syntax sugar to grep current dir
-                case 'grep':
-                    // run async shell command
-                    require('child_process').spawn('find . -type f | grep -v -E ' +
+                    // syntax sugar to grep current dir
+                    case 'grep':
+                        // run async shell command
+                        require('child_process').spawn('find . -type f | grep -v -E ' +
 /* jslint-ignore-begin */
 '"\
 /\\.|(\\b|_)(\\.\\d|\
@@ -1702,32 +1699,33 @@ tmp|\
 vendor)s{0,1}(\\b|_)\
 " ' +
 /* jslint-ignore-end */
-                            '| tr "\\n" "\\000" | xargs -0 grep -HIin -E "' +
-                            match[2].trim() + '"', { shell: true, stdio: ['ignore', 1, 2] })
-                        // on shell exit, print return prompt
-                        .on('exit', function (exitCode) {
-                            console.error('exit-code ' + exitCode);
-                            self.evalDefault(
-                                '\n',
-                                context,
-                                file,
-                                onError2
-                            );
-                        });
-                    script = '\n';
-                    break;
-                // syntax sugar to list object's keys, sorted by item-type
-                case 'keys':
-                    script = 'console.error(Object.keys(' + match[2] +
-                        ').map(function (key) {' +
-                        'return typeof ' + match[2] + '[key] + " " + key + "\\n";' +
-                        '}).sort().join("") + Object.keys(' + match[2] + ').length)\n';
-                    break;
-                // syntax sugar to print stringified arg
-                case 'print':
-                    script = 'console.error(String(' + match[2] + '))\n';
-                    break;
-                }
+                                '| tr "\\n" "\\000" | xargs -0 grep -HIin -E "' +
+                                match2.trim() + '"', { shell: true, stdio: ['ignore', 1, 2] })
+                            // on shell exit, print return prompt
+                            .on('exit', function (exitCode) {
+                                console.error('exit-code ' + exitCode);
+                                self.evalDefault(
+                                    '\n',
+                                    context,
+                                    file,
+                                    onError2
+                                );
+                            });
+                        script = '\n';
+                        break;
+                    // syntax sugar to list object's keys, sorted by item-type
+                    case 'keys':
+                        script = 'console.error(Object.keys(' + match2 +
+                            ').map(function (key) {' +
+                            'return typeof ' + match2 + '[key] + " " + key + "\\n";' +
+                            '}).sort().join("") + Object.keys(' + match2 + ').length)\n';
+                        break;
+                    // syntax sugar to print stringified arg
+                    case 'print':
+                        script = 'console.error(String(' + match2 + '))\n';
+                        break;
+                    }
+                });
                 // eval the script
                 self.evalDefault(script, context, file, onError2);
             };
@@ -3279,8 +3277,6 @@ vendor)s{0,1}(\\b|_)\
             local.buffer = require('buffer');
             local.child_process = require('child_process');
             local.cluster = require('cluster');
-            local.console = require('console');
-            local.constants = require('constants');
             local.crypto = require('crypto');
             local.dgram = require('dgram');
             local.dns = require('dns');
@@ -3289,12 +3285,9 @@ vendor)s{0,1}(\\b|_)\
             local.fs = require('fs');
             local.http = require('http');
             local.https = require('https');
-            local.module = require('module');
             local.net = require('net');
             local.os = require('os');
             local.path = require('path');
-            local.process = require('process');
-            local.punycode = require('punycode');
             local.querystring = require('querystring');
             local.readline = require('readline');
             local.repl = require('repl');
@@ -6828,7 +6821,7 @@ local['head.txt'] = '\
     window.domOnEventSelectAllWithinPre = function (event) {\n\
         var range, selection;\n\
         if (event &&\n\
-                event.code === "KeyA" &&\n\
+                event.key === "a" &&\n\
                 (event.ctrlKey || event.metaKey) &&\n\
                 event.target.closest("pre")) {\n\
             range = document.createRange();\n\
@@ -7306,8 +7299,6 @@ local.templateCoverageBadgeSvg =
             local.buffer = require('buffer');
             local.child_process = require('child_process');
             local.cluster = require('cluster');
-            local.console = require('console');
-            local.constants = require('constants');
             local.crypto = require('crypto');
             local.dgram = require('dgram');
             local.dns = require('dns');
@@ -7316,12 +7307,9 @@ local.templateCoverageBadgeSvg =
             local.fs = require('fs');
             local.http = require('http');
             local.https = require('https');
-            local.module = require('module');
             local.net = require('net');
             local.os = require('os');
             local.path = require('path');
-            local.process = require('process');
-            local.punycode = require('punycode');
             local.querystring = require('querystring');
             local.readline = require('readline');
             local.repl = require('repl');
@@ -9512,7 +9500,7 @@ var JSLINT = (function () {
         tox = /^\W*to\s*do(?:\W|$)/i,
 // token
         // tx = /^\s*([(){}\[\]\?.,:;'"~#@`]|={1,3}|\/(\*(jslint|properties|property|members?|globals?)?|=|\/)?|\*[\/=]?|\+(?:=|\++)?|-(?:=|-+)?|[\^%]=?|&[&=]?|\|[|=]?|>{1,3}=?|<(?:[\/=!]|\!(\[|--)?|<=?)?|\!(\!|==?)?|[a-zA-Z_$][a-zA-Z0-9_$]*|[0-9]+(?:[xX][0-9a-fA-F]+|\.[0-9]*)?(?:[eE][+\-]?[0-9]+)?)/;
-        tx = /^\s*([(){}\[\]\?.,:;'"~#@`]|={1,3}|\/(\*(jslint|properties|property|members?|globals?)?|=|\/)?|\*[\/=]?|\+(?:=|\++)?|-(?:=|-+)?|[\^%]=?|&[&=]?|\|[|=]?|>{1,3}=?|<(?:[\/=!]|\!(\[|--)?|<=?)?|\!(\!|==?)?|[a-zA-Z_$][a-zA-Z0-9_$]*|[0-9]+(?:[xX][0-9a-fA-F]+|\.[0-9]*)?(?:[eE][+\-]?[0-9]+)?n?)/;
+        tx = /^\s*([(){}\[\]\?.,:;'"~#@`]|={1,3}|\/(\*(jslint|properties|property|members?|globals?)?|=|\/)?|\*[\/=]?|\+(?:=|\++)?|-(?:=|-+)?|[\^%]=?|&[&=]?|\|[|=]?|>{1,3}=?|<(?:[\/=!]|\!(\[|--)?|<=?)?|\!(\!|==?)?|[a-zA-Z_$][a-zA-Z0-9_$]*|[0-9]+(?:[xX][0-9a-fA-F]+|\.[0-9]*)?(?:[eE][+\-]?[0-9]+)?n?)/; // BigInt
 
 
     if (typeof String.prototype.entityify !== 'function') {
@@ -14005,16 +13993,16 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT, local.jslintEs6 = jslint; }());
             script.replace((/^.*?$/gm), function (line) {
                 current = line.trim();
                 ii += 1;
-                // validate tag.classList sorted
+                // validate domElement.classList sorted
                 tmp = (/class=\\?"([^"]+?)\\?"/g).exec(current);
-                tmp = JSON.stringify(
-                    (tmp && tmp[1].match(/\w\S*?\{\{[^}]*?\}\}|\w\S*|\{\{[^}]*?\}\}/g)) || []
-                );
+                tmp = JSON.stringify((tmp && tmp[1].replace((/^ /), 'zSpace').match(
+                    / {2}| $|\w\S*?\{\{[^}]*?\}\}|\w\S*|\{\{[^}]*?\}\}/g
+                )) || []);
                 if (JSON.stringify(JSON.parse(tmp).sort()) !== tmp) {
                     local.errorList.push({
                         col: 0,
                         line: ii,
-                        message: 'tag.classList not sorted - ' + tmp,
+                        message: 'domElement.classList not sorted - ' + tmp,
                         value: line
                     });
                 }
@@ -14895,8 +14883,6 @@ f,0,f.length*32-u*8)}}}
             local.buffer = require('buffer');
             local.child_process = require('child_process');
             local.cluster = require('cluster');
-            local.console = require('console');
-            local.constants = require('constants');
             local.crypto = require('crypto');
             local.dgram = require('dgram');
             local.dns = require('dns');
@@ -14905,12 +14891,9 @@ f,0,f.length*32-u*8)}}}
             local.fs = require('fs');
             local.http = require('http');
             local.https = require('https');
-            local.module = require('module');
             local.net = require('net');
             local.os = require('os');
             local.path = require('path');
-            local.process = require('process');
-            local.punycode = require('punycode');
             local.querystring = require('querystring');
             local.readline = require('readline');
             local.repl = require('repl');
@@ -15849,7 +15832,7 @@ local.assetsDict['/assets.utility2.template.html'] = '\
 <!doctype html>\n\
 <html lang="en">\n\
 <head>\n\
-<meta charset="UTF-8">\n\
+<meta charset="utf-8">\n\
 <meta name="viewport" content="width=device-width, initial-scale=1">\n\
 <!-- "assets.utility2.template.html" -->\n\
 <title>{{env.npm_package_name}} ({{env.npm_package_version}})</title>\n\
@@ -15975,6 +15958,8 @@ textarea {\n\
 </style>\n\
 </head>\n\
 <body>\n\
+<div id="ajaxProgressDiv1" style="background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;"></div>\n\
+<div class="uiAnimateSpin" style="animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;"></div>\n\
 <script>\n\
 /* jslint-utility2 */\n\
 /*jslint\n\
@@ -16006,21 +15991,6 @@ textarea {\n\
         }, 100);\n\
     });\n\
 }());\n\
-</script>\n\
-<div id="ajaxProgressDiv1" style="background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;"></div>\n\
-<div class="uiAnimateSpin" style="animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;"></div>\n\
-<script>\n\
-/* jslint-utility2 */\n\
-/*jslint\n\
-    bitwise: true,\n\
-    browser: true,\n\
-    maxerr: 4,\n\
-    maxlen: 100,\n\
-    node: true,\n\
-    nomen: true,\n\
-    regexp: true,\n\
-    stupid: true\n\
-*/\n\
 // init timerIntervalAjaxProgressUpdate\n\
 (function () {\n\
 /*\n\
@@ -16073,9 +16043,9 @@ textarea {\n\
     onEvent = window.domOnEventMediaHotkeys = function (event) {\n\
         var media;\n\
         if (event === "init") {\n\
-            Array.from(\n\
-                document.querySelectorAll(".domOnEventMediaHotkeysInit")\n\
-            ).forEach(function (media) {\n\
+            Array.from(document.querySelectorAll(\n\
+                ".domOnEventMediaHotkeysInit"\n\
+            )).forEach(function (media) {\n\
                 media.classList.remove("domOnEventMediaHotkeysInit");\n\
                 media.classList.add("domOnEventMediaHotkeys");\n\
                 ["play", "pause", "seeking"].forEach(function (event) {\n\
@@ -16300,9 +16270,9 @@ instruction\n\
                     event.currentTarget.className.includes &&\n\
                     event.currentTarget.className.includes(\'onreset\'))) {\n\
                 // reset output\n\
-                Array.from(\n\
-                    document.querySelectorAll(\'body > .resettable\')\n\
-                ).forEach(function (element) {\n\
+                Array.from(document.querySelectorAll(\n\
+                    \'body > .resettable\'\n\
+                )).forEach(function (element) {\n\
                     switch (element.tagName) {\n\
                     case \'INPUT\':\n\
                     case \'TEXTAREA\':\n\
@@ -18260,6 +18230,7 @@ local.assetsDict['/favicon.ico'] = '';
                         postProcess: local.echo,
                         rgxCrawl: (/<a\b[\S\s]*?href="(.*?)"/g),
                         rgxParent0: (/z^/),
+                        urlParsed0: {},
                         urlList: []
                     });
                     options.urlList.forEach(function (url) {
@@ -19133,7 +19104,7 @@ local.assetsDict['/favicon.ico'] = '';
             options = local.objectSetDefault(options, { assetsList: [] });
             // build assets
             local.fsRmrSync(local.env.npm_config_dir_build + '/app');
-            local.onParallelList({ list: options.assetsList.concat([{
+            local.onParallelList({ list: [{
                 file: '/LICENSE',
                 url: '/LICENSE'
             }, {
@@ -19181,7 +19152,7 @@ local.assetsDict['/favicon.ico'] = '';
             }, {
                 file: '/jsonp.utility2.stateInit',
                 url: '/jsonp.utility2.stateInit?callback=window.utility2.stateInit'
-            }]) }, function (options2, onParallel) {
+            }].concat(options.assetsList) }, function (options2, onParallel) {
                 options2 = options2.element;
                 onParallel.counter += 1;
                 local.ajax(options2, function (error, xhr) {
@@ -19330,7 +19301,7 @@ local.assetsDict['/favicon.ico'] = '';
                     '            local.global.utility2_rollup_old || '
                 );
             }
-            options.customize();
+            options.customize(options);
             // save lib.xxx.js
             local.fs.writeFileSync(
                 'lib.' + local.env.npm_package_nameLib + '.js',
@@ -19506,7 +19477,17 @@ local.assetsDict['/favicon.ico'] = '';
                     '\n' + match0 + '\n'
                 );
             });
-            options.customize();
+            options.customize(options);
+            // customize assets.index.template.html
+            if (local.assetsDict['/assets.index.template.html']
+                    .indexOf('"assets.utility2.template.html"') < 0) {
+                options.dataTo = options.dataTo.replace(
+                    new RegExp('\\n {8}\\/\\* jslint-ignore-begin \\*\\/\\n' +
+                        ' {8}local.assetsDict\\[\'\\/assets.index.template.html\'\\] = \'\\\\\\n' +
+                        '[\\S\\s]*?\\n {8}\\/\\* jslint-ignore-end \\*\\/\\n'),
+                    '\n'
+                );
+            }
             // customize shDeployCustom
             if (options.dataFrom.indexOf('    shDeployCustom\n') >= 0) {
                 [
@@ -19566,16 +19547,6 @@ local.assetsDict['/favicon.ico'] = '';
                 // customize screenshot
                 options.dataTo = options.dataTo.replace(element[1], '');
             });
-            // customize assets.index.template.html
-            if (local.assetsDict['/assets.index.template.html']
-                    .indexOf('"assets.utility2.template.html"') < 0) {
-                options.dataTo = options.dataTo.replace(
-                    new RegExp('\\n {8}\\/\\* jslint-ignore-begin \\*\\/\\n' +
-                        ' {8}local.assetsDict\\[\'\\/assets.index.template.html\'\\] = \'\\\\\\n' +
-                        '[\\S\\s]*?\\n {8}\\/\\* jslint-ignore-end \\*\\/\\n'),
-                    '\n'
-                );
-            }
             // render dataTo - customizeAfter
             options.customizeAfter = true;
             options.dataTo = local.templateRenderJslintLite(options.dataTo, options);
@@ -19610,7 +19581,8 @@ local.assetsDict['/favicon.ico'] = '';
                     'x-swgg-homepage': options.packageJson.homepage
                 } }, 2);
                 options.dataTo.replace((/\bhttps:\/\/.*?\/assets\.app\.js/), function (match0) {
-                    options.swaggerJson['x-swgg-downloadStandaloneApp'] = match0;
+                    options.swaggerJson['x-swgg-downloadStandaloneApp'] =
+                        !local.env.npm_package_isPrivate && match0;
                 });
                 // save assets.swgg.swagger.json
                 local.fs.writeFileSync('assets.swgg.swagger.json', local.jsonStringifyOrdered(
@@ -19657,7 +19629,7 @@ local.assetsDict['/favicon.ico'] = '';
                     );
                 }
             });
-            options.customize();
+            options.customize(options);
             // save test.js
             local.fs.writeFileSync('test.js', options.dataTo);
             onError();
@@ -19703,7 +19675,7 @@ local.assetsDict['/favicon.ico'] = '';
         /*
          * this function will run child_process.spawn, with lib.utility2.sh sourced
          */
-            local.child_process.spawn(
+            require('child_process').spawn(
                 '. ' + (process.env.npm_config_dir_utility2 || __dirname) + '/lib.utility2.sh; ' +
                     script,
                 { shell: true, stdio: ['ignore', 1, 2] }
@@ -20838,7 +20810,7 @@ local.assetsDict['/favicon.ico'] = '';
             // set main-page content-type to text/html
             if (request.urlParsed.pathname === '/') {
                 local.serverRespondHeadSet(request, response, null, {
-                    'Content-Type': 'text/html; charset=UTF-8'
+                    'Content-Type': 'text/html; charset=utf-8'
                 });
             }
             // init response.end and response.write to accept Uint8Array instance
@@ -20879,6 +20851,7 @@ local.assetsDict['/favicon.ico'] = '';
                 env: {
                     NODE_ENV: local.env.NODE_ENV,
                     npm_config_mode_backend: local.env.npm_config_mode_backend,
+                    npm_package_assetsList: local.env.npm_package_assetsList,
                     npm_package_description: local.env.npm_package_description,
                     npm_package_homepage: local.env.npm_package_homepage,
                     npm_package_name: local.env.npm_package_name,
@@ -20886,6 +20859,11 @@ local.assetsDict['/favicon.ico'] = '';
                     npm_package_version: local.env.npm_package_version
                 }
             } };
+            (local.env.npm_package_assetsList || '').split(' ').forEach(function (file) {
+                state.utility2.assetsDict['/' + file] = local.assetsDict['/' + file] =
+                    local.assetsDict['/' + file] ||
+                    local.fsReadFileOrEmptyStringSync(file, 'utf8');
+            });
             if (request.stateInit) {
                 return state;
             }
@@ -22077,8 +22055,8 @@ instruction\n\
          * https://stackoverflow.com/questions/7381974/which-characters-need-to-be-escaped-on-html
          */
             return text
-                .replace((/"/g), '&quot;')
                 .replace((/&/g), '&amp;')
+                .replace((/"/g), '&quot;')
                 .replace((/'/g), '&apos;')
                 .replace((/</g), '&lt;')
                 .replace((/>/g), '&gt;')
@@ -23296,23 +23274,23 @@ instruction\n\
         local.cacheDict = {};
         local.contentTypeDict = {
             // application
-            '.js': 'application/javascript; charset=UTF-8',
-            '.json': 'application/json; charset=UTF-8',
+            '.js': 'application/javascript; charset=utf-8',
+            '.json': 'application/json; charset=utf-8',
             '.pdf': 'application/pdf',
-            '.xml': 'application/xml; charset=UTF-8',
+            '.xml': 'application/xml; charset=utf-8',
             // image
             '.bmp': 'image/bmp',
             '.gif': 'image/gif',
             '.jpeg': 'image/jpeg',
             '.jpg': 'image/jpeg',
             '.png': 'image/png',
-            '.svg': 'image/svg+xml; charset=UTF-8',
+            '.svg': 'image/svg+xml; charset=utf-8',
             // text
-            '.css': 'text/css; charset=UTF-8',
-            '.htm': 'text/html; charset=UTF-8',
-            '.html': 'text/html; charset=UTF-8',
-            '.md': 'text/markdown; charset=UTF-8',
-            '.txt': 'text/plain; charset=UTF-8'
+            '.css': 'text/css; charset=utf-8',
+            '.htm': 'text/html; charset=utf-8',
+            '.html': 'text/html; charset=utf-8',
+            '.md': 'text/markdown; charset=utf-8',
+            '.txt': 'text/plain; charset=utf-8'
         };
         // init env
         local.env = local.isBrowser
@@ -23447,6 +23425,13 @@ instruction\n\
         }
         // init cli
         local.cliDict = {};
+        local.cliDict['utility2.ajaxCrawl'] = function () {
+        /*
+         * <urlList>
+         * # web-crawl comma-separated <urlList> in parallel
+         */
+            local.ajaxCrawl({ urlList: process.argv[3].split(',') }, local.onErrorThrow);
+        };
         local.cliDict['utility2.browserTest'] = function () {
         /*
          * <url> <mode>
@@ -23519,7 +23504,7 @@ instruction\n\
                             data: '{"hook":{"active":true}}',
                             headers: {
                                 Authorization: 'token ' + process.env.TRAVIS_ACCESS_TOKEN,
-                                'Content-Type': 'application/json; charset=UTF-8'
+                                'Content-Type': 'application/json; charset=utf-8'
                             },
                             method: 'PUT',
                             url: 'https://api.' + process.env.TRAVIS_DOMAIN + '/hooks/' +
@@ -23536,7 +23521,7 @@ instruction\n\
                             data: '{"setting.value":true}',
                             headers: {
                                 Authorization: 'token ' + process.env.TRAVIS_ACCESS_TOKEN,
-                                'Content-Type': 'application/json; charset=UTF-8',
+                                'Content-Type': 'application/json; charset=utf-8',
                                 'Travis-API-Version': 3
                             },
                             method: 'PATCH',
@@ -23548,7 +23533,7 @@ instruction\n\
                             data: '{"setting.value":true}',
                             headers: {
                                 Authorization: 'token ' + process.env.TRAVIS_ACCESS_TOKEN,
-                                'Content-Type': 'application/json; charset=UTF-8',
+                                'Content-Type': 'application/json; charset=utf-8',
                                 'Travis-API-Version': 3
                             },
                             method: 'PATCH',
@@ -24027,8 +24012,6 @@ instruction\n\
             local.buffer = require('buffer');
             local.child_process = require('child_process');
             local.cluster = require('cluster');
-            local.console = require('console');
-            local.constants = require('constants');
             local.crypto = require('crypto');
             local.dgram = require('dgram');
             local.dns = require('dns');
@@ -24037,12 +24020,9 @@ instruction\n\
             local.fs = require('fs');
             local.http = require('http');
             local.https = require('https');
-            local.module = require('module');
             local.net = require('net');
             local.os = require('os');
             local.path = require('path');
-            local.process = require('process');
-            local.punycode = require('punycode');
             local.querystring = require('querystring');
             local.readline = require('readline');
             local.repl = require('repl');
@@ -24183,7 +24163,7 @@ local.swaggerErrorTypeDict = {
     // security-definitions.js:33: `${path} must have required string 'type' param`,
     semanticSecurityDefinitions1: '${path} must have required string "type" param',
     // security-definitions.js:44: "apiKey authorization must have required 'in' param, valid values are 'query' or 'header'.",
-    semanticSecurityDefinitions2: `apiKey authorization must have required "in" param, valid values are "query" or "header".`,
+    semanticSecurityDefinitions2: 'apiKey authorization must have required "in" param, valid values are "query" or "header".',
     // security-definitions.js:52: "apiKey authorization must have required 'name' string param. The name of the header or query parameter to be used.",
     semanticSecurityDefinitions3: "apiKey authorization must have required 'name' string param. The name of the header or query parameter to be used.",
     // security-definitions.js:66: "oauth2 authorization must have required 'flow' string param. Valid values are 'implicit', 'password', 'application' or 'accessCode'",
@@ -24909,7 +24889,7 @@ local.templateUiMain = '\
     id="swggUiReloadErrorDiv1"\n\
     style="background: none; border: 0;"\n\
 ></div>\n\
-<div class="info reset">\n\
+<div class="eventDelegateChange eventDelegateClick info reset">\n\
     {{#if info}}\n\
     {{#if info.x-swgg-homepage}}\n\
     <h2 class="hx">\n\
@@ -24929,6 +24909,18 @@ local.templateUiMain = '\
         download standalone app\n\
     </a><br>\n\
     {{/if x-swgg-downloadStandaloneApp}}\n\
+    {{#if x-swgg-buttonDatabase}}\n\
+    <button class="button onEventDbReset" id="swggDbResetButton1">\n\
+        reset database\n\
+    </button><br>\n\
+    <button class="button onEventDbReset" id="swggDbExportButton1">\n\
+        export database -&gt; file\n\
+    </button><a download="db.persistence.json" href="" id="swggDbExportA1"></a><br>\n\
+    <button class="button onEventDbReset" id="swggDbImportButton1">\n\
+        import database &lt;- file\n\
+    </button><br>\n\
+    <input class="onEventDbReset zeroPixel" type="file" id="swggDbImportInput1">\n\
+    {{/if x-swgg-buttonDatabase}}\n\
     <ul>\n\
         {{#if externalDocs.url}}\n\
         <li>\n\
@@ -25145,9 +25137,7 @@ function (error, data) {\n\
 // https://github.com/swagger-api/swagger-ui/blob/v2.1.3/src/main/template/resource.handlebars
 local.templateUiResource = '\
 <li\n\
-    class="\n\
-        eventDelegateChange eventDelegateClick eventDelegateKeyup eventDelegateSubmit resource\n\
-    "\n\
+    class="eventDelegateChange eventDelegateClick eventDelegateKeyup eventDelegateSubmit resource"\n\
     data-name="{{name}}"\n\
     id="{{id}}"\n\
 >\n\
@@ -25291,6 +25281,13 @@ local.assetsDict['/assets.swgg.html'] = local.assetsDict['/assets.utility2.templ
 .swggUiContainer .td textarea {\n\
     width: 100%;\n\
 }\n\
+.swggUiContainer .zeroPixel {\n\
+    border: 0;\n\
+    height: 0;\n\
+    margin: 0;\n\
+    padding: 0;\n\
+    width: 0;\n\
+}\n\
 /* validateLineSortedReset */\n\
 /* background */\n\
 .swggUiContainer code,\n\
@@ -25333,6 +25330,9 @@ local.assetsDict['/assets.swgg.html'] = local.assetsDict['/assets.utility2.templ
 .swggUiContainer .resource > .thead,\n\
 .swggUiContainer > .thead {\n\
     background: #7b7;\n\
+}\n\
+.swggUiContainer > .info > .button {\n\
+    width: 20rem;\n\
 }\n\
 .swggUiContainer > .thead > .td1 {\n\
     background: transparent url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAqRJREFUeNrEVz1s00AUfnGXii5maMXoEUEHVwIpEkPNgkBdMnQoU5ytiKHJwpp2Q2JIO8DCUDOxIJFIVOoWZyJSh3pp1Q2PVVlcCVBH3ufeVZZ9Zye1Ay86nXV+ue/9fO/lheg/Se02X1rvksmbnTiKvuxQMBNgBnN4a/LCbmnUAP6JV58NCUsBC8CuAJxGPF47OgNqBaA93tolUhnx6jC4NxGwyOEwlccyAs+3kwdzKq0HDn2vEBTi8J2XpyMaywNDE157BhXUE3zJhlq8GKq+Zd2zaWHepPA8oN9XkfLmRdOiJV4XUUg/IyWncLjCYY/SHndV2u7zHr3bPKZtdxgboJOnthvrfGj/oMf3G0r7JVmNlLfKklmrt2MvvcNO7LFOhoFHfuAJI5o6ta10jpt5CQLgwXhXG2YIwvu+34qf78ybOjWTnWwkgR36d7JqJOrW0hHmNrKg9xhiS4+1jFmrxymh03B0w+6kURIAu3yHtOD5oaUNojMnGgbcctNvwdAnyxvxRR+/vaJnjzbpzcZX+nN1SdGv85i9eH8w3qPO+mdm/y4dnQ1iI8Fq6Nf4cxL6GWSjiFDSs0VRnxC5g0xSB2cgHpaseTxfqOv5uoHkNQ6Ha/N1Yz9mNMppEkEkYKj79q6uCq4bCHcSX3fJ0Vk/k9siASjCm1N6gZH6Ec9IXt2WkFES2K/ixoIyktJPAu/ptOA1SgO5zqtr6KASJPF0nMV8dgMsRhRPOcMwqQAOoi0VAIMLAEWJ6YYC1c8ibj1GP51RqwzYwZVMHQuvOzMCBUtb2tGHx5NAdLKqp5AX7Ng4d+Zi8AGDI9z1ijx9yaCH04y3GCP2S+QcvaGl+pcxyUBvinFlawoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=) no-repeat left center;\n\
@@ -25569,7 +25569,7 @@ local.assetsDict['/assets.swgg.html'] = local.assetsDict['/assets.utility2.templ
 "use strict";\n\
 document.querySelector(".swggUiContainer > .thead > .td2").value =\n\
     ((/\\bmodeSwaggerJsonUrl=([^&]+)/g).exec(location.search) || {})[1] ||\n\
-        "assets.swgg.swagger.json";\n\
+    "assets.swgg.swagger.json";\n\
 </script>\n\
 <script src="assets.utility2.rollup.js"></script>\n\
 <script>\n\
@@ -25577,6 +25577,8 @@ document.querySelector(".swggUiContainer > .thead > .td2").value =\n\
 window.local = window.local || window.swgg;\n\
 window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
 </script>\n\
+<!-- swgg-script-extra-begin -->\n\
+<!-- swgg-script-extra-end -->\n\
 </body>\n\
 </html>\n\
 ');
@@ -28459,6 +28461,7 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
             event.targetOperation = event.target2.closest('.operation');
             Object.keys(local.uiEventListenerDict).sort().some(function (key) {
                 switch (key) {
+                case '.onEventDbReset':
                 case '.onEventOperationDisplayShow':
                     event.target2 = event.target2.closest(key) || event.target2;
                     break;
@@ -28487,6 +28490,47 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
         };
 
         local.uiEventListenerDict = {};
+
+        local.uiEventListenerDict['.onEventDbReset'] = function (event) {
+        /*
+         * this function will show/hide the textarea's multiline placeholder
+         */
+            var reader, tmp;
+            switch (event.target2.id) {
+            case 'swggDbExportButton1':
+                tmp = local.global.URL.createObjectURL(
+                    new local.global.Blob([local.db.dbExport()])
+                );
+                document.querySelector('#swggDbExportA1').href = tmp;
+                document.querySelector('#swggDbExportA1').click();
+                setTimeout(function () {
+                    local.global.URL.revokeObjectURL(tmp);
+                }, 30000);
+                break;
+            case 'swggDbImportButton1':
+                document.querySelector('#swggDbImportInput1').click();
+                break;
+            case 'swggDbImportInput1':
+                if (event.type !== 'change') {
+                    return;
+                }
+                local.ajaxProgressUpdate();
+                reader = new local.global.FileReader();
+                tmp = document.querySelector('#swggDbImportInput1').files[0];
+                if (!tmp) {
+                    return;
+                }
+                reader.addEventListener('load', function () {
+                    local.db.dbImport(reader.result);
+                    local.ajaxProgressUpdate();
+                });
+                reader.readAsText(tmp);
+                break;
+            case 'swggDbResetButton1':
+                local.utility2.testRunBefore();
+                break;
+            }
+        };
 
         local.uiEventListenerDict['.onEventInputTextareaChange'] = function (event) {
         /*
@@ -28694,7 +28738,7 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
                             data.contentType +
                             ';base64,' + local.base64FromBuffer(data.response) + '"></' +
                             data.mediaType + '>';
-                        window.domOnEventMediaHotkeys('init');
+                        local.global.domOnEventMediaHotkeys('init');
                         break;
                     default:
                         options.targetOperation.querySelector('.responseBody').textContent =
@@ -28959,15 +29003,16 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
                     operation = local.jsonCopy(operation);
                     resource = swaggerJson.resourceDict[tag];
                     local.objectSetDefault(operation, {
+                        description: 'no description',
                         responseList: Object.keys(operation.responses).sort().map(function (key) {
                             return {
                                 key: key,
                                 value: operation.responses[key]
                             };
-                        }),
-                        summary: operation.description
-                            .replace((/\bhttps?:\/\/[^\s<]+[^<.,:;"')\]\s]/g), '')
+                        })
                     });
+                    operation.summary = operation.summary ||
+                        operation.description.replace((/\bhttps?:\/\/[^\s<]+[^<.,:;"')\]\s]/g), '');
                     operation.parameters.forEach(local.uiRenderSchemaP);
                     // templateRender operation
                     swaggerJson.uiFragment.querySelector('#' + resource.id + ' .operationList')
@@ -29001,7 +29046,7 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
                 }
             });
             // init event-handling
-            ['Click', 'Keyup', 'Submit'].forEach(function (eventType) {
+            ['Change', 'Click', 'Keyup', 'Submit'].forEach(function (eventType) {
                 Array.from(document.querySelectorAll(
                     '.swggUiContainer .eventDelegate' + eventType
                 )).forEach(function (element) {
@@ -29233,7 +29278,7 @@ this script will demo automated browser-tests with coverage (via electron and is
 instruction\n\
     1. save this script as example.js\n\
     2. run the shell command:\n\
-        $ npm install kaizhu256/node-utility2#alpha electron-lite && \\\n\
+        $ npm install utility2 electron-lite && \\\n\
             PATH=\"$(pwd)/node_modules/.bin:$PATH\" \\\n\
             PORT=8081 \\\n\
             npm_config_mode_coverage=utility2 \\\n\
@@ -29365,9 +29410,9 @@ instruction\n\
                     event.currentTarget.className.includes &&\n\
                     event.currentTarget.className.includes('onreset'))) {\n\
                 // reset output\n\
-                Array.from(\n\
-                    document.querySelectorAll('body > .resettable')\n\
-                ).forEach(function (element) {\n\
+                Array.from(document.querySelectorAll(\n\
+                    'body > .resettable'\n\
+                )).forEach(function (element) {\n\
                     switch (element.tagName) {\n\
                     case 'INPUT':\n\
                     case 'TEXTAREA':\n\
@@ -29554,7 +29599,7 @@ instruction\n\
 <!doctype html>\\n\
 <html lang=\"en\">\\n\
 <head>\\n\
-<meta charset=\"UTF-8\">\\n\
+<meta charset=\"utf-8\">\\n\
 <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\\n\
 <!-- \"assets.utility2.template.html\" -->\\n\
 <title>{{env.npm_package_name}} ({{env.npm_package_version}})</title>\\n\
@@ -29680,6 +29725,8 @@ textarea {\\n\
 </style>\\n\
 </head>\\n\
 <body>\\n\
+<div id=\"ajaxProgressDiv1\" style=\"background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;\"></div>\\n\
+<div class=\"uiAnimateSpin\" style=\"animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;\"></div>\\n\
 <script>\\n\
 /* jslint-utility2 */\\n\
 /*jslint\\n\
@@ -29711,21 +29758,6 @@ textarea {\\n\
         }, 100);\\n\
     });\\n\
 }());\\n\
-</script>\\n\
-<div id=\"ajaxProgressDiv1\" style=\"background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;\"></div>\\n\
-<div class=\"uiAnimateSpin\" style=\"animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;\"></div>\\n\
-<script>\\n\
-/* jslint-utility2 */\\n\
-/*jslint\\n\
-    bitwise: true,\\n\
-    browser: true,\\n\
-    maxerr: 4,\\n\
-    maxlen: 100,\\n\
-    node: true,\\n\
-    nomen: true,\\n\
-    regexp: true,\\n\
-    stupid: true\\n\
-*/\\n\
 // init timerIntervalAjaxProgressUpdate\\n\
 (function () {\\n\
 /*\\n\
@@ -29778,9 +29810,9 @@ textarea {\\n\
     onEvent = window.domOnEventMediaHotkeys = function (event) {\\n\
         var media;\\n\
         if (event === \"init\") {\\n\
-            Array.from(\\n\
-                document.querySelectorAll(\".domOnEventMediaHotkeysInit\")\\n\
-            ).forEach(function (media) {\\n\
+            Array.from(document.querySelectorAll(\\n\
+                \".domOnEventMediaHotkeysInit\"\\n\
+            )).forEach(function (media) {\\n\
                 media.classList.remove(\"domOnEventMediaHotkeysInit\");\\n\
                 media.classList.add(\"domOnEventMediaHotkeys\");\\n\
                 [\"play\", \"pause\", \"seeking\"].forEach(function (event) {\\n\
@@ -30057,7 +30089,7 @@ utility2-comment -->\\n\
 local.assetsDict["/assets.utility2.html"] = "<!doctype html>\n\
 <html lang=\"en\">\n\
 <head>\n\
-<meta charset=\"UTF-8\">\n\
+<meta charset=\"utf-8\">\n\
 <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n\
 <!-- \"assets.utility2.template.html\" -->\n\
 <title>utility2 (0.0.1)</title>\n\
@@ -30183,6 +30215,8 @@ textarea {\n\
 </style>\n\
 </head>\n\
 <body>\n\
+<div id=\"ajaxProgressDiv1\" style=\"background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;\"></div>\n\
+<div class=\"uiAnimateSpin\" style=\"animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;\"></div>\n\
 <script>\n\
 /* jslint-utility2 */\n\
 /*jslint\n\
@@ -30214,21 +30248,6 @@ textarea {\n\
         }, 100);\n\
     });\n\
 }());\n\
-</script>\n\
-<div id=\"ajaxProgressDiv1\" style=\"background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;\"></div>\n\
-<div class=\"uiAnimateSpin\" style=\"animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;\"></div>\n\
-<script>\n\
-/* jslint-utility2 */\n\
-/*jslint\n\
-    bitwise: true,\n\
-    browser: true,\n\
-    maxerr: 4,\n\
-    maxlen: 100,\n\
-    node: true,\n\
-    nomen: true,\n\
-    regexp: true,\n\
-    stupid: true\n\
-*/\n\
 // init timerIntervalAjaxProgressUpdate\n\
 (function () {\n\
 /*\n\
@@ -30281,9 +30300,9 @@ textarea {\n\
     onEvent = window.domOnEventMediaHotkeys = function (event) {\n\
         var media;\n\
         if (event === \"init\") {\n\
-            Array.from(\n\
-                document.querySelectorAll(\".domOnEventMediaHotkeysInit\")\n\
-            ).forEach(function (media) {\n\
+            Array.from(document.querySelectorAll(\n\
+                \".domOnEventMediaHotkeysInit\"\n\
+            )).forEach(function (media) {\n\
                 media.classList.remove(\"domOnEventMediaHotkeysInit\");\n\
                 media.classList.add(\"domOnEventMediaHotkeys\");\n\
                 [\"play\", \"pause\", \"seeking\"].forEach(function (event) {\n\
@@ -31232,7 +31251,7 @@ x-request-header-test: aa\\r\\n\
             local.testCase_buildReadme_default(options, local.onErrorThrow);\n\
             local.testCase_buildLib_default(options, local.onErrorThrow);\n\
             local.testCase_buildTest_default(options, local.onErrorThrow);\n\
-            options = { assetsList: [{\n\
+            local.buildApp({ assetsList: [{\n\
                 file: '/assets.hello',\n\
                 url: '/assets.hello'\n\
             }, {\n\
@@ -31259,8 +31278,7 @@ x-request-header-test: aa\\r\\n\
             }, {\n\
                 file: '/assets.utility2.rollup.js',\n\
                 url: '/assets.utility2.rollup.js'\n\
-            }] };\n\
-            local.buildApp(options, onError);\n\
+            }] }, onError);\n\
         };\n\
 \n\
         local.testCase_buildCustomOrg_default = function (options, onError) {\n\
@@ -31587,6 +31605,13 @@ x-request-header-test: aa\\r\\n\
          */\n\
             options = {};\n\
             local.onNext(options, function (error, data) {\n\
+                // bug-workaround - crypto.subtle sometimes freezes in browser\n\
+                /* istanbul ignore next */\n\
+                setTimeout(function () {\n\
+                    if (local.isBrowser && options.modeNext <= 6) {\n\
+                        options.onNext();\n\
+                    }\n\
+                }, 1000);\n\
                 switch (options.modeNext) {\n\
                 case 1:\n\
                     // encrypt data\n\
@@ -31627,13 +31652,6 @@ x-request-header-test: aa\\r\\n\
                     onError(!local.isBrowser && error, options);\n\
                     onError = local.nop;\n\
                 }\n\
-                // bug-workaround - fix crypto.subtle freezing in browser\n\
-                /* istanbul ignore next */\n\
-                setTimeout(function () {\n\
-                    if (local.isBrowser && options.modeNext <= 6) {\n\
-                        options.onNext();\n\
-                    }\n\
-                }, 2000);\n\
             });\n\
             options.modeNext = 0;\n\
             options.onNext();\n\
@@ -32018,6 +32036,21 @@ console.log(\"aa\");',\n\
                 onParallel(null, options);\n\
             });\n\
             onParallel(null, options);\n\
+        };\n\
+\n\
+        local.testCase_middlewareJsonpStateInit_assetsList = function (options, onError) {\n\
+        /*\n\
+         * this function will middlewareJsonpStateInit's assetsList handling-behavior\n\
+         */\n\
+            local.testMock([\n\
+                [local.env, { npm_package_assetsList: 'undefined' }],\n\
+                [local, { assetsDict: {} }]\n\
+            ], function (onError) {\n\
+                local.middlewareJsonpStateInit({ stateInit: true });\n\
+                // validate data\n\
+                local.assertJsonEqual(local.assetsDict['/undefined'], '');\n\
+                onError(null, options);\n\
+            }, onError);\n\
         };\n\
 \n\
         local.testCase_moduleDirname_default = function (options, onError) {\n\

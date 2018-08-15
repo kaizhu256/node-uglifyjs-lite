@@ -101,6 +101,8 @@
 
 
 
+
+
 /*
 example.js
 
@@ -170,9 +172,9 @@ instruction
                     event.currentTarget.className.includes &&
                     event.currentTarget.className.includes('onreset'))) {
                 // reset output
-                Array.from(
-                    document.querySelectorAll('body > .resettable')
-                ).forEach(function (element) {
+                Array.from(document.querySelectorAll(
+                    'body > .resettable'
+                )).forEach(function (element) {
                     switch (element.tagName) {
                     case 'INPUT':
                     case 'TEXTAREA':
@@ -317,7 +319,7 @@ instruction
 <!doctype html>\n\
 <html lang="en">\n\
 <head>\n\
-<meta charset="UTF-8">\n\
+<meta charset="utf-8">\n\
 <meta name="viewport" content="width=device-width, initial-scale=1">\n\
 <!-- "assets.utility2.template.html" -->\n\
 <title>{{env.npm_package_name}} ({{env.npm_package_version}})</title>\n\
@@ -443,6 +445,8 @@ textarea {\n\
 </style>\n\
 </head>\n\
 <body>\n\
+<div id="ajaxProgressDiv1" style="background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;"></div>\n\
+<div class="uiAnimateSpin" style="animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;"></div>\n\
 <script>\n\
 /* jslint-utility2 */\n\
 /*jslint\n\
@@ -474,21 +478,6 @@ textarea {\n\
         }, 100);\n\
     });\n\
 }());\n\
-</script>\n\
-<div id="ajaxProgressDiv1" style="background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;"></div>\n\
-<div class="uiAnimateSpin" style="animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;"></div>\n\
-<script>\n\
-/* jslint-utility2 */\n\
-/*jslint\n\
-    bitwise: true,\n\
-    browser: true,\n\
-    maxerr: 4,\n\
-    maxlen: 100,\n\
-    node: true,\n\
-    nomen: true,\n\
-    regexp: true,\n\
-    stupid: true\n\
-*/\n\
 // init timerIntervalAjaxProgressUpdate\n\
 (function () {\n\
 /*\n\
@@ -541,9 +530,9 @@ textarea {\n\
     onEvent = window.domOnEventMediaHotkeys = function (event) {\n\
         var media;\n\
         if (event === "init") {\n\
-            Array.from(\n\
-                document.querySelectorAll(".domOnEventMediaHotkeysInit")\n\
-            ).forEach(function (media) {\n\
+            Array.from(document.querySelectorAll(\n\
+                ".domOnEventMediaHotkeysInit"\n\
+            )).forEach(function (media) {\n\
                 media.classList.remove("domOnEventMediaHotkeysInit");\n\
                 media.classList.add("domOnEventMediaHotkeys");\n\
                 ["play", "pause", "seeking"].forEach(function (event) {\n\

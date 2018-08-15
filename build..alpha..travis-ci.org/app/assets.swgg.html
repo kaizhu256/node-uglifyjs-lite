@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- "" -->
 <title>swgg</title>
@@ -224,6 +224,13 @@ textarea {
 .swggUiContainer .td textarea {
     width: 100%;
 }
+.swggUiContainer .zeroPixel {
+    border: 0;
+    height: 0;
+    margin: 0;
+    padding: 0;
+    width: 0;
+}
 /* validateLineSortedReset */
 /* background */
 .swggUiContainer code,
@@ -266,6 +273,9 @@ textarea {
 .swggUiContainer .resource > .thead,
 .swggUiContainer > .thead {
     background: #7b7;
+}
+.swggUiContainer > .info > .button {
+    width: 20rem;
 }
 .swggUiContainer > .thead > .td1 {
     background: transparent url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAqRJREFUeNrEVz1s00AUfnGXii5maMXoEUEHVwIpEkPNgkBdMnQoU5ytiKHJwpp2Q2JIO8DCUDOxIJFIVOoWZyJSh3pp1Q2PVVlcCVBH3ufeVZZ9Zye1Ay86nXV+ue/9fO/lheg/Se02X1rvksmbnTiKvuxQMBNgBnN4a/LCbmnUAP6JV58NCUsBC8CuAJxGPF47OgNqBaA93tolUhnx6jC4NxGwyOEwlccyAs+3kwdzKq0HDn2vEBTi8J2XpyMaywNDE157BhXUE3zJhlq8GKq+Zd2zaWHepPA8oN9XkfLmRdOiJV4XUUg/IyWncLjCYY/SHndV2u7zHr3bPKZtdxgboJOnthvrfGj/oMf3G0r7JVmNlLfKklmrt2MvvcNO7LFOhoFHfuAJI5o6ta10jpt5CQLgwXhXG2YIwvu+34qf78ybOjWTnWwkgR36d7JqJOrW0hHmNrKg9xhiS4+1jFmrxymh03B0w+6kURIAu3yHtOD5oaUNojMnGgbcctNvwdAnyxvxRR+/vaJnjzbpzcZX+nN1SdGv85i9eH8w3qPO+mdm/y4dnQ1iI8Fq6Nf4cxL6GWSjiFDSs0VRnxC5g0xSB2cgHpaseTxfqOv5uoHkNQ6Ha/N1Yz9mNMppEkEkYKj79q6uCq4bCHcSX3fJ0Vk/k9siASjCm1N6gZH6Ec9IXt2WkFES2K/ixoIyktJPAu/ptOA1SgO5zqtr6KASJPF0nMV8dgMsRhRPOcMwqQAOoi0VAIMLAEWJ6YYC1c8ibj1GP51RqwzYwZVMHQuvOzMCBUtb2tGHx5NAdLKqp5AX7Ng4d+Zi8AGDI9z1ijx9yaCH04y3GCP2S+QcvaGl+pcxyUBvinFlawoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=) no-repeat left center;
@@ -479,6 +489,8 @@ textarea {
 </style>
 </head>
 <body>
+<div id="ajaxProgressDiv1" style="background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;"></div>
+<div class="uiAnimateSpin" style="animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;"></div>
 <script>
 /* jslint-utility2 */
 /*jslint
@@ -509,6 +521,152 @@ textarea {
                 window.domOnEventWindowOnloadTimeElapsed);
         }, 100);
     });
+}());
+// init timerIntervalAjaxProgressUpdate
+(function () {
+/*
+ * this function will increment the ajax-progress-bar until the webpage has loaded
+ */
+    "use strict";
+    var ajaxProgressDiv1,
+        ajaxProgressState,
+        ajaxProgressUpdate;
+    if (window.timerIntervalAjaxProgressUpdate || !document.querySelector("#ajaxProgressDiv1")) {
+        return;
+    }
+    ajaxProgressDiv1 = document.querySelector("#ajaxProgressDiv1");
+    setTimeout(function () {
+        ajaxProgressDiv1.style.width = "25%";
+    });
+    ajaxProgressState = 0;
+    ajaxProgressUpdate = (window.local &&
+        window.local.ajaxProgressUpdate) || function () {
+        ajaxProgressDiv1.style.width = "100%";
+        setTimeout(function () {
+            ajaxProgressDiv1.style.background = "transparent";
+            setTimeout(function () {
+                ajaxProgressDiv1.style.width = "0%";
+            }, 500);
+        }, 1500);
+    };
+    window.timerIntervalAjaxProgressUpdate = setInterval(function () {
+        ajaxProgressState += 1;
+        ajaxProgressDiv1.style.width = Math.max(
+            100 - 75 * Math.exp(-0.125 * ajaxProgressState),
+            ajaxProgressDiv1.style.width.slice(0, -1) | 0
+        ) + "%";
+    }, 1000);
+    window.addEventListener("load", function () {
+        clearInterval(window.timerIntervalAjaxProgressUpdate);
+        ajaxProgressUpdate();
+    });
+}());
+// init domOnEventMediaHotkeys
+(function () {
+/*
+ * this function will add media-hotkeys to elements with class=".domOnEventMediaHotkeysInit"
+ */
+    "use strict";
+    var input, onEvent;
+    if (window.domOnEventMediaHotkeys) {
+        return;
+    }
+    onEvent = window.domOnEventMediaHotkeys = function (event) {
+        var media;
+        if (event === "init") {
+            Array.from(document.querySelectorAll(
+                ".domOnEventMediaHotkeysInit"
+            )).forEach(function (media) {
+                media.classList.remove("domOnEventMediaHotkeysInit");
+                media.classList.add("domOnEventMediaHotkeys");
+                ["play", "pause", "seeking"].forEach(function (event) {
+                    media.addEventListener(event, onEvent);
+                });
+            });
+            return;
+        }
+        if (event.currentTarget.classList.contains("domOnEventMediaHotkeys")) {
+            window.domOnEventMediaHotkeysMedia1 = event.currentTarget;
+            window.domOnEventMediaHotkeysInput.focus();
+            return;
+        }
+        media = window.domOnEventMediaHotkeysMedia1;
+        try {
+            switch (event.key || event.type) {
+            case ",":
+            case ".":
+                media.currentTime += (event.key === "," && -0.03125) || 0.03125;
+                break;
+            case "<":
+            case ">":
+                media.playbackRate *= (event.key === "<" && 0.5) || 2;
+                break;
+            case "ArrowDown":
+            case "ArrowUp":
+                media.volume += (event.key === "ArrowDown" && -0.05) || 0.05;
+                break;
+            case "ArrowLeft":
+            case "ArrowRight":
+                media.currentTime += (event.key === "ArrowLeft" && -5) || 5;
+                break;
+            case "j":
+            case "l":
+                media.currentTime += (event.key === "j" && -10) || 10;
+                break;
+            case "k":
+            case " ":
+                if (media.paused) {
+                    media.play();
+                } else {
+                    media.pause();
+                }
+                break;
+            case "m":
+                media.muted = !media.muted;
+                break;
+            default:
+                if (event.key >= 0) {
+                    media.currentTime = 0.1 * event.key * media.duration;
+                    break;
+                }
+                return;
+            }
+        } catch (ignore) {
+        }
+        event.preventDefault();
+    };
+    input = window.domOnEventMediaHotkeysInput = document.createElement("button");
+    input.style = "border:0;height:0;margin:0;padding:0;position:fixed;width:0;z-index:-1;";
+    input.addEventListener("click", onEvent);
+    input.addEventListener("keydown", onEvent);
+    document.body.appendChild(input);
+    onEvent("init");
+}());
+// init domOnEventSelectAllWithinPre
+(function () {
+/*
+ * this function will limit select-all within <pre tabIndex="0"> elements
+ * https://stackoverflow.com/questions/985272/selecting-text-in-an-element-akin-to-highlighting-with-your-mouse
+ */
+    "use strict";
+    if (window.domOnEventSelectAllWithinPre) {
+        return;
+    }
+    window.domOnEventSelectAllWithinPre = function (event) {
+        var range, selection;
+        if (event &&
+                event.key === "a" &&
+                (event.ctrlKey || event.metaKey) &&
+                event.target.closest("pre")) {
+            range = document.createRange();
+            range.selectNodeContents(event.target.closest("pre"));
+            selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            event.preventDefault();
+        }
+    };
+    document.addEventListener("keydown", window.domOnEventSelectAllWithinPre);
 }());
 </script>
 <div class="swggUiContainer" style="margin: 0 auto; max-width: 1200px;">
@@ -541,7 +699,7 @@ textarea {
     id="swggUiReloadErrorDiv1"
     style="background: none; border: 0;"
 ></div>
-<div class="info reset">
+<div class="eventDelegateChange eventDelegateClick info reset">
     
 </div>
 
@@ -571,7 +729,7 @@ textarea {
 "use strict";
 document.querySelector(".swggUiContainer > .thead > .td2").value =
     ((/\bmodeSwaggerJsonUrl=([^&]+)/g).exec(location.search) || {})[1] ||
-        "assets.swgg.swagger.json";
+    "assets.swgg.swagger.json";
 </script>
 <script src="assets.utility2.rollup.js"></script>
 <script>
@@ -579,5 +737,7 @@ document.querySelector(".swggUiContainer > .thead > .td2").value =
 window.local = window.local || window.swgg;
 window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });
 </script>
+<!-- swgg-script-extra-begin -->
+<!-- swgg-script-extra-end -->
 </body>
 </html>

@@ -1,136 +1,140 @@
-<svg height="1086" width="720" xmlns="http://www.w3.org/2000/svg">
-<rect height="1086" fill="#555" width="720"></rect>
+<svg height="1118" width="720" xmlns="http://www.w3.org/2000/svg">
+<rect height="1118" fill="#555" width="720"></rect>
 <text fill="#7f7" font-family="Courier New" font-size="12" xml:space="preserve">
-<tspan x="10" y="26">2018-08-11 22:59:20 +0700u000a- do not require following nodejs builtins by default: console, co\</tspan>
-<tspan x="10" y="42">nstants, module, process, punycode</tspan>
+<tspan x="10" y="26">2018-08-15 11:07:41 +0700u000a- npm publish 2018.8.15</tspan>
 
-<tspan x="10" y="58"></tspan>
+<tspan x="10" y="42"></tspan>
 
-<tspan x="10" y="74">2018-08-11 21:08:18 +0700u000aupdate.build</tspan>
+<tspan x="10" y="58">2018-08-11 22:59:20 +0700u000a- do not require following nodejs builtins by default: console, co\</tspan>
+<tspan x="10" y="74">nstants, module, process, punycode</tspan>
 
 <tspan x="10" y="90"></tspan>
 
-<tspan x="10" y="106">2018-06-23 09:49:48 -0500u000a- migrate from modeJs -&gt; isBrowser</tspan>
+<tspan x="10" y="106">2018-08-11 21:08:18 +0700u000aupdate.build</tspan>
 
 <tspan x="10" y="122"></tspan>
 
-<tspan x="10" y="138">2018-05-25 21:22:11 +0800u000a[npm publish] - npm publish 2018.5.25</tspan>
+<tspan x="10" y="138">2018-06-23 09:49:48 -0500u000a- migrate from modeJs -&gt; isBrowser</tspan>
 
-<tspan x="10" y="154">- update build</tspan>
+<tspan x="10" y="154"></tspan>
 
-<tspan x="10" y="170"></tspan>
+<tspan x="10" y="170">2018-05-25 21:22:11 +0800u000a[npm publish] - npm publish 2018.5.25</tspan>
 
-<tspan x="10" y="186">2018-04-09 08:43:17 +0800u000a[npm publish] - npm publish v2018.4.8</tspan>
+<tspan x="10" y="186">- update build</tspan>
 
-<tspan x="10" y="202">- fix build-ci for nodejs v9.x</tspan>
+<tspan x="10" y="202"></tspan>
 
-<tspan x="10" y="218">- escape \r and \t</tspan>
+<tspan x="10" y="218">2018-04-09 08:43:17 +0800u000a[npm publish] - npm publish v2018.4.8</tspan>
 
-<tspan x="10" y="234"></tspan>
+<tspan x="10" y="234">- fix build-ci for nodejs v9.x</tspan>
 
-<tspan x="10" y="250">2018-01-16 10:11:48 +0700u000a[npm publish] - npm publish 2018.1.15</tspan>
+<tspan x="10" y="250">- escape \r and \t</tspan>
 
-<tspan x="10" y="266">- update build</tspan>
+<tspan x="10" y="266"></tspan>
 
-<tspan x="10" y="282"></tspan>
+<tspan x="10" y="282">2018-01-16 10:11:48 +0700u000a[npm publish] - npm publish 2018.1.15</tspan>
 
-<tspan x="10" y="298">2017-10-29 23:58:48 +0800u000a[npm publish] - npm publish 2017.10.28</tspan>
+<tspan x="10" y="298">- update build</tspan>
 
-<tspan x="10" y="314">- update build</tspan>
+<tspan x="10" y="314"></tspan>
 
-<tspan x="10" y="330"></tspan>
+<tspan x="10" y="330">2017-10-29 23:58:48 +0800u000a[npm publish] - npm publish 2017.10.28</tspan>
 
-<tspan x="10" y="346">2017-09-16 17:00:13 +0700u000a[npm publish] - npm publish 2017.9.15</tspan>
+<tspan x="10" y="346">- update build</tspan>
 
-<tspan x="10" y="362">- add cli-help doc to README.md</tspan>
+<tspan x="10" y="362"></tspan>
 
-<tspan x="10" y="378"></tspan>
+<tspan x="10" y="378">2017-09-16 17:00:13 +0700u000a[npm publish] - npm publish 2017.9.15</tspan>
 
-<tspan x="10" y="394">2017-07-16 03:29:16 +0800u000a[npm publish] - npm publish 2017.7.15</tspan>
+<tspan x="10" y="394">- add cli-help doc to README.md</tspan>
 
-<tspan x="10" y="410">- deduplicate file assets.uglifyjs.rollup.js</tspan>
+<tspan x="10" y="410"></tspan>
 
-<tspan x="10" y="426">- add README section 'extra screenshots'</tspan>
+<tspan x="10" y="426">2017-07-16 03:29:16 +0800u000a[npm publish] - npm publish 2017.7.15</tspan>
 
-<tspan x="10" y="442">- add README section 'quickstart standalone app'</tspan>
+<tspan x="10" y="442">- deduplicate file assets.uglifyjs.rollup.js</tspan>
 
-<tspan x="10" y="458">- rename README section 'quickstart web example' -&gt; 'quickstart example.js'</tspan>
+<tspan x="10" y="458">- add README section 'extra screenshots'</tspan>
 
-<tspan x="10" y="474"></tspan>
+<tspan x="10" y="474">- add README section 'quickstart standalone app'</tspan>
 
-<tspan x="10" y="490">2017-05-22 03:37:41 +0800u000a[npm publish] - npm publish 2017.5.20</tspan>
+<tspan x="10" y="490">- rename README section 'quickstart web example' -&gt; 'quickstart example.js'</tspan>
 
-<tspan x="10" y="506">- deduplicate file assets.uglifyjs.rollup.js</tspan>
+<tspan x="10" y="506"></tspan>
 
-<tspan x="10" y="522">- add README section 'internal screen-capture'</tspan>
+<tspan x="10" y="522">2017-05-22 03:37:41 +0800u000a[npm publish] - npm publish 2017.5.20</tspan>
 
-<tspan x="10" y="538">- add README section 'quickstart standalone app'</tspan>
+<tspan x="10" y="538">- deduplicate file assets.uglifyjs.rollup.js</tspan>
 
-<tspan x="10" y="554">- rename README section 'quickstart web example' -&gt; 'quickstart example.js'</tspan>
+<tspan x="10" y="554">- add README section 'internal screen-capture'</tspan>
 
-<tspan x="10" y="570"></tspan>
+<tspan x="10" y="570">- add README section 'quickstart standalone app'</tspan>
 
-<tspan x="10" y="586">2017-03-29 00:12:14 +0800u000a[npm publish] - npm publish 2017.3.28</tspan>
+<tspan x="10" y="586">- rename README section 'quickstart web example' -&gt; 'quickstart example.js'</tspan>
 
-<tspan x="10" y="602">- update .travis.yml</tspan>
+<tspan x="10" y="602"></tspan>
 
-<tspan x="10" y="618"></tspan>
+<tspan x="10" y="618">2017-03-29 00:12:14 +0800u000a[npm publish] - npm publish 2017.3.28</tspan>
 
-<tspan x="10" y="634">2017-03-28 23:19:09 +0800u000a- npm publish 2017.3.27</tspan>
+<tspan x="10" y="634">- update .travis.yml</tspan>
 
-<tspan x="10" y="650">- use remote-credentials for travis-ci build</tspan>
+<tspan x="10" y="650"></tspan>
 
-<tspan x="10" y="666"></tspan>
+<tspan x="10" y="666">2017-03-28 23:19:09 +0800u000a- npm publish 2017.3.27</tspan>
 
-<tspan x="10" y="682">2017-02-21 02:06:18 +0800u000a- npm publish 2017.2.19</tspan>
+<tspan x="10" y="682">- use remote-credentials for travis-ci build</tspan>
 
-<tspan x="10" y="698">- create published-alias uglify-lite</tspan>
+<tspan x="10" y="698"></tspan>
 
-<tspan x="10" y="714">- replace env var npm_package_name with npm_package_nameAlias in istanbul code-coverage</tspan>
+<tspan x="10" y="714">2017-02-21 02:06:18 +0800u000a- npm publish 2017.2.19</tspan>
 
-<tspan x="10" y="730"></tspan>
+<tspan x="10" y="730">- create published-alias uglify-lite</tspan>
 
-<tspan x="10" y="746">2017-02-19 01:35:39 +0800u000a- npm publish 2017.2.18</tspan>
+<tspan x="10" y="746">- replace env var npm_package_name with npm_package_nameAlias in istanbul code-coverage</tspan>
 
-<tspan x="10" y="762">- add file assets.uglifyjs.rollup.js</tspan>
+<tspan x="10" y="762"></tspan>
 
-<tspan x="10" y="778">- add heroku-postbuild npm-script</tspan>
+<tspan x="10" y="778">2017-02-19 01:35:39 +0800u000a- npm publish 2017.2.18</tspan>
 
-<tspan x="10" y="794">- do not auto-uglify js-assets in production</tspan>
+<tspan x="10" y="794">- add file assets.uglifyjs.rollup.js</tspan>
 
-<tspan x="10" y="810">- revamp README.md</tspan>
+<tspan x="10" y="810">- add heroku-postbuild npm-script</tspan>
 
-<tspan x="10" y="826"></tspan>
+<tspan x="10" y="826">- do not auto-uglify js-assets in production</tspan>
 
-<tspan x="10" y="842">2016-12-13 21:34:47 +0800u000a- npm publish 2016.12.1</tspan>
+<tspan x="10" y="842">- revamp README.md</tspan>
 
-<tspan x="10" y="858">- add ability to uglify css</tspan>
+<tspan x="10" y="858"></tspan>
 
-<tspan x="10" y="874"></tspan>
+<tspan x="10" y="874">2016-12-13 21:34:47 +0800u000a- npm publish 2016.12.1</tspan>
 
-<tspan x="10" y="890">2016-11-29 15:54:05 +0800u000a- npm publish 2016.11.1</tspan>
+<tspan x="10" y="890">- add ability to uglify css</tspan>
 
-<tspan x="10" y="906">- change preferred column-size from 256 to 80</tspan>
+<tspan x="10" y="906"></tspan>
 
-<tspan x="10" y="922">- README.md - add cdn-download links</tspan>
+<tspan x="10" y="922">2016-11-29 15:54:05 +0800u000a- npm publish 2016.11.1</tspan>
 
-<tspan x="10" y="938">- README.md - replace alpha api-doc with beta api-doc</tspan>
+<tspan x="10" y="938">- change preferred column-size from 256 to 80</tspan>
 
-<tspan x="10" y="954"></tspan>
+<tspan x="10" y="954">- README.md - add cdn-download links</tspan>
 
-<tspan x="10" y="970">2016-10-17 21:28:04 +0800u000a- npm publish 2016.8.2</tspan>
+<tspan x="10" y="970">- README.md - replace alpha api-doc with beta api-doc</tspan>
 
-<tspan x="10" y="986">- add 'hide internal test' button to demo</tspan>
+<tspan x="10" y="986"></tspan>
 
-<tspan x="10" y="1002"></tspan>
+<tspan x="10" y="1002">2016-10-17 21:28:04 +0800u000a- npm publish 2016.8.2</tspan>
 
-<tspan x="10" y="1018">2016-09-29 03:12:49 +0800u000a- npm publish 2015.8.1</tspan>
+<tspan x="10" y="1018">- add 'hide internal test' button to demo</tspan>
 
-<tspan x="10" y="1034">- initial working version</tspan>
+<tspan x="10" y="1034"></tspan>
 
-<tspan x="10" y="1050"></tspan>
+<tspan x="10" y="1050">2016-09-29 03:12:49 +0800u000a- npm publish 2015.8.1</tspan>
 
-<tspan x="10" y="1066">2014-03-26 02:31:50 +0700u000aadd blank README.md</tspan>
+<tspan x="10" y="1066">- initial working version</tspan>
+
+<tspan x="10" y="1082"></tspan>
+
+<tspan x="10" y="1098">2014-03-26 02:31:50 +0700u000aadd blank README.md</tspan>
 
 </text>
 </svg>
