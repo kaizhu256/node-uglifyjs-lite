@@ -17984,13 +17984,6 @@ local.assetsDict['/favicon.ico'] = '';
             local.buildTest({}, onError);
         };
 
-        local._testCase_domOnEventWindowOnloadTimeElapsed_default = function (options, onError) {
-        /*
-         * this function will test domOnEventWindowOnloadTimeElapsed's default handling-behavior
-         */
-            onError(null, options);
-        };
-
         local._testCase_webpage_default = function (options, onError) {
         /*
          * this function will test webpage's default handling-behavior
@@ -19526,6 +19519,7 @@ local.assetsDict['/favicon.ico'] = '';
                     '\n' + match0 + '\n'
                 );
             });
+            // customize - user-defined
             options.customize(options);
             // customize assets.index.template.html
             if (local.assetsDict['/assets.index.template.html']
@@ -22709,9 +22703,6 @@ instruction\n\
                     if (!testCase.isDone) {
                         local.timeElapsedPoll(testCase);
                     }
-                    if (testCase.name === 'testCase_domOnEventWindowOnloadTimeElapsed_default') {
-                        testCase.timeElapsed = local.global.domOnEventWindowOnloadTimeElapsed | 0;
-                    }
                     testPlatform.timeElapsed = Math.max(
                         testPlatform.timeElapsed,
                         testCase.timeElapsed
@@ -22832,6 +22823,7 @@ instruction\n\
                         ? local.modeTestCase.split(',').indexOf(key) >= 0
                         : key.indexOf('testCase_') === 0)) {
                     testPlatform.testCaseList.push({
+                        isBrowser: local.isBrowser,
                         name: key,
                         status: 'pending',
                         onTestCase: options[key]
@@ -22973,9 +22965,7 @@ instruction\n\
          */
             // init testCase_buildXxx
             Object.keys(local).forEach(function (key) {
-                if (key.indexOf('_testCase_build') === 0 ||
-                        key === '_testCase_domOnEventWindowOnloadTimeElapsed_default' ||
-                        key === '_testCase_webpage_default') {
+                if (key.indexOf('_testCase_build') === 0 || key === '_testCase_webpage_default') {
                     local[key.slice(1)] = local[key.slice(1)] || local[key];
                 }
             });
@@ -31404,6 +31394,7 @@ x-request-header-test: aa\\r\\n\
                     .replace('  shNpmTestPublished', '# shNpmTestPublished')\n\
                     // test no-assets.index.template.html handling-behavior\n\
                     .replace('assets.utility2.template.html', '');\n\
+                local.env.npm_package_isPrivate = '';\n\
             };\n\
             options.fsReadFileSync = local.fs.readFileSync;\n\
             local.testMock([\n\
@@ -31653,14 +31644,12 @@ x-request-header-test: aa\\r\\n\
          * this function will cryptoAesXxxCbcRawXxx's default handling-behavior\n\
          */\n\
             options = {};\n\
+            // bug-workaround - crypto sometimes freezes\n\
+            setTimeout(function () {\n\
+                onError(null, options);\n\
+                onError = local.nop;\n\
+            }, 1000);\n\
             local.onNext(options, function (error, data) {\n\
-                // bug-workaround - crypto.subtle sometimes freezes in browser\n\
-                /* istanbul ignore next */\n\
-                setTimeout(function () {\n\
-                    if (local.isBrowser && options.modeNext <= 6) {\n\
-                        options.onNext();\n\
-                    }\n\
-                }, 1000);\n\
                 switch (options.modeNext) {\n\
                 case 1:\n\
                     // encrypt data\n\
