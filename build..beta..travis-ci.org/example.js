@@ -35,34 +35,31 @@ instruction
     (function () {
         // init local
         local = {};
-        // init modeJs
-        (function () {
-            try {
-                local.modeJs = typeof process.versions.node === 'string' &&
-                    typeof require('http').createServer === 'function' &&
-                    'node';
-            } catch (ignore) {
-            }
-            local.modeJs = local.modeJs || 'browser';
-        }());
+        // init isBrowser
+        local.isBrowser = typeof window === "object" &&
+            typeof window.XMLHttpRequest === "function" &&
+            window.document &&
+            typeof window.document.querySelectorAll === "function";
         // init global
-        local.global = local.modeJs === 'browser'
+        local.global = local.isBrowser
             ? window
             : global;
         // re-init local
-        local = local.global.utility2_rollup || (local.modeJs === 'browser'
+        local = local.global.utility2_rollup || (local.isBrowser
             ? local.global.utility2_uglifyjs
             : require('uglifyjs-lite'));
         // init exports
         local.global.local = local;
     }());
-    switch (local.modeJs) {
 
 
 
     // run browser js-env code - init-test
     /* istanbul ignore next */
-    case 'browser':
+    (function () {
+        if (!local.isBrowser) {
+            return;
+        }
         local.testRunBrowser = function (event) {
             if (!event || (event &&
                     event.currentTarget &&
@@ -70,9 +67,9 @@ instruction
                     event.currentTarget.className.includes &&
                     event.currentTarget.className.includes('onreset'))) {
                 // reset output
-                Array.from(
-                    document.querySelectorAll('body > .resettable')
-                ).forEach(function (element) {
+                Array.from(document.querySelectorAll(
+                    'body > .resettable'
+                )).forEach(function (element) {
                     switch (element.tagName) {
                     case 'INPUT':
                     case 'TEXTAREA':
@@ -126,17 +123,17 @@ instruction
                 }
             }
         };
-        // log stderr and stdout to #outputTextareaStdout1
+        // log stderr and stdout to #outputStdoutTextarea1
         ['error', 'log'].forEach(function (key) {
             console[key + '_original'] = console[key];
             console[key] = function () {
                 var element;
                 console[key + '_original'].apply(console, arguments);
-                element = document.querySelector('#outputTextareaStdout1');
+                element = document.querySelector('#outputStdoutTextarea1');
                 if (!element) {
                     return;
                 }
-                // append text to #outputTextareaStdout1
+                // append text to #outputStdoutTextarea1
                 element.value += Array.from(arguments).map(function (arg) {
                     return typeof arg === 'string'
                         ? arg
@@ -154,13 +151,16 @@ instruction
         });
         // run tests
         local.testRunBrowser();
-        break;
+    }());
 
 
 
     // run node js-env code - init-test
     /* istanbul ignore next */
-    case 'node':
+    (function () {
+        if (local.isBrowser) {
+            return;
+        }
         // init exports
         module.exports = local;
         // require builtins
@@ -168,8 +168,6 @@ instruction
         local.buffer = require('buffer');
         local.child_process = require('child_process');
         local.cluster = require('cluster');
-        local.console = require('console');
-        local.constants = require('constants');
         local.crypto = require('crypto');
         local.dgram = require('dgram');
         local.dns = require('dns');
@@ -178,12 +176,9 @@ instruction
         local.fs = require('fs');
         local.http = require('http');
         local.https = require('https');
-        local.module = require('module');
         local.net = require('net');
         local.os = require('os');
         local.path = require('path');
-        local.process = require('process');
-        local.punycode = require('punycode');
         local.querystring = require('querystring');
         local.readline = require('readline');
         local.repl = require('repl');
@@ -215,7 +210,116 @@ instruction
             }
         });
         /* jslint-ignore-begin */
-        local.assetsDict['/assets.index.template.html'] = '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<!-- "assets.utility2.template.html" -->\n<title>{{env.npm_package_name}} ({{env.npm_package_version}})</title>\n<style>\n/* jslint-utility2 */\n/*csslint\n*/\n/* jslint-ignore-begin */\n*,\n*:after,\n*:before {\n    box-sizing: border-box;\n}\n/* jslint-ignore-end */\n@keyframes uiAnimateShake {\n    0%, 50% {\n        transform: translateX(10px);\n    }\n    25%, 75% {\n        transform: translateX(-10px);\n    }\n    100% {\n        transform: translateX(0);\n    }\n}\n@keyframes uiAnimateSpin {\n    0% {\n        transform: rotate(0deg);\n    }\n    100% {\n        transform: rotate(360deg);\n    }\n}\na {\n    overflow-wrap: break-word;\n}\nbody {\n    background: #eef;\n    font-family: Arial, Helvetica, sans-serif;\n    margin: 0 40px;\n}\nbody > div,\nbody > pre,\nbody > textarea,\nbody > .button {\n    margin-bottom: 20px;\n}\nbody > textarea {\n    height: 10rem;\n    width: 100%;\n}\nbody > textarea[readonly] {\n    background: #ddd;\n}\nbody > .button {\n    width: 20rem;\n}\ncode,\npre,\ntextarea {\n    font-family: Consolas, Menlo, monospace;\n    font-size: small;\n}\npre {\n    overflow-wrap: break-word;\n    white-space: pre-wrap;\n}\ntextarea {\n    overflow: auto;\n    white-space: pre;\n}\n.button {\n    background-color: #fff;\n    border: 1px solid;\n    border-bottom-color: rgb(186, 186, 186);\n    border-left-color: rgb(209, 209, 209);\n    border-radius: 4px;\n    border-right-color: rgb(209, 209, 209);\n    border-top-color: rgb(216, 216, 216);\n    color: #00d;\n    cursor: pointer;\n    display: inline-block;\n    font-family: Arial, Helvetica, sans-serif;\n    font-size: 12px;\n    font-style: normal;\n    font-weight: normal;\n    margin: 0;\n    padding: 2px 7px 3px 7px;\n    text-align: center;\n    text-decoration: underline;\n}\n.colorError {\n    color: #d00;\n}\n.uiAnimateShake {\n    animation-duration: 500ms;\n    animation-name: uiAnimateShake;\n}\n.uiAnimateSlide {\n    overflow-y: hidden;\n    transition: max-height ease-in 250ms, min-height ease-in 250ms, padding-bottom ease-in 250ms, padding-top ease-in 250ms;\n}\n.utility2FooterDiv {\n    text-align: center;\n}\n.zeroPixel {\n    border: 0;\n    height: 0;\n    margin: 0;\n    padding: 0;\n    width: 0;\n}\n</style>\n</head>\n<body>\n<div id="ajaxProgressDiv1" style="background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;"></div>\n<div class="uiAnimateSpin" style="animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;"></div>\n<code style="display: none;"></code><div class="button colorError uiAnimateShake uiAnimateSlide utility2FooterDiv zeroPixel" style="display: none;"></div><pre style="display: none;"></pre><textarea readonly style="display: none;"></textarea>\n<script>\n/* jslint-utility2 */\n/*jslint\n    bitwise: true,\n    browser: true,\n    maxerr: 4,\n    maxlen: 100,\n    node: true,\n    nomen: true,\n    regexp: true,\n    stupid: true\n*/\n// init timerIntervalAjaxProgressUpdate\n(function () {\n/*\n * this function will increment the ajax-progress-bar until the webpage has loaded\n */\n    "use strict";\n    var ajaxProgressDiv1,\n        ajaxProgressState,\n        ajaxProgressUpdate;\n    if (window.timerIntervalAjaxProgressUpdate) {\n        return;\n    }\n    ajaxProgressDiv1 = document.querySelector("#ajaxProgressDiv1");\n    setTimeout(function () {\n        ajaxProgressDiv1.style.width = "25%";\n    });\n    ajaxProgressState = 0;\n    ajaxProgressUpdate = (window.local &&\n        window.local.ajaxProgressUpdate) || function () {\n        ajaxProgressDiv1.style.width = "100%";\n        setTimeout(function () {\n            ajaxProgressDiv1.style.background = "transparent";\n            setTimeout(function () {\n                ajaxProgressDiv1.style.width = "0%";\n            }, 500);\n        }, 1500);\n    };\n    window.timerIntervalAjaxProgressUpdate = setInterval(function () {\n        ajaxProgressState += 1;\n        ajaxProgressDiv1.style.width = Math.max(\n            100 - 75 * Math.exp(-0.125 * ajaxProgressState),\n            ajaxProgressDiv1.style.width.slice(0, -1) | 0\n        ) + "%";\n    }, 1000);\n    window.addEventListener("load", function () {\n        clearInterval(window.timerIntervalAjaxProgressUpdate);\n        ajaxProgressUpdate();\n    });\n}());\n// init domOnEventSelectAllWithinPre\n(function () {\n/*\n * this function will limit select-all within <pre tabIndex="0"> elements\n * https://stackoverflow.com/questions/985272/selecting-text-in-an-element-akin-to-highlighting-with-your-mouse\n */\n    "use strict";\n    if (window.domOnEventSelectAllWithinPre) {\n        return;\n    }\n    window.domOnEventSelectAllWithinPre = function (event) {\n        var range, selection;\n        if (event &&\n                event.code === "KeyA" &&\n                (event.ctrlKey || event.metaKey) &&\n                event.target.closest("pre")) {\n            range = document.createRange();\n            range.selectNodeContents(event.target.closest("pre"));\n            selection = window.getSelection();\n            selection.removeAllRanges();\n            selection.addRange(range);\n            event.preventDefault();\n        }\n    };\n    document.addEventListener("keydown", window.domOnEventSelectAllWithinPre);\n}());\n</script>\n<h1>\n<!-- utility2-comment\n    <a\n        {{#if env.npm_package_homepage}}\n        href="{{env.npm_package_homepage}}"\n        {{/if env.npm_package_homepage}}\n        target="_blank"\n    >\nutility2-comment -->\n        {{env.npm_package_name}} ({{env.npm_package_version}})\n<!-- utility2-comment\n    </a>\nutility2-comment -->\n</h1>\n<h3>{{env.npm_package_description}}</h3>\n<!-- utility2-comment\n<a class="button" download href="assets.app.js">download standalone app</a><br>\n<button class="button onclick onreset" id="testRunButton1">run internal test</button><br>\n<div class="uiAnimateSlide" id="testReportDiv1" style="border-bottom: 0; border-top: 0; margin-bottom: 0; margin-top: 0; max-height: 0; padding-bottom: 0; padding-top: 0;"></div>\nutility2-comment -->\n\n\n\n<label>edit or paste script below to cover and eval</label>\n<textarea class="onkeyup onreset" id="inputTextarea1">\nvar aa;\naa = "hello";\nconsole.log(aa);\nconsole.log(null);\n</textarea>\n<label>uglified-code</label>\n<textarea class="resettable" id="outputTextarea1" readonly></textarea>\n<label>stderr and stdout</label>\n<textarea class="resettable" id="outputTextareaStdout1" readonly></textarea>\n<!-- utility2-comment\n{{#if isRollup}}\n<script src="assets.app.js"></script>\n{{#unless isRollup}}\nutility2-comment -->\n<script src="assets.utility2.rollup.js"></script>\n<script>window.utility2.onResetBefore.counter += 1;</script>\n<script src="jsonp.utility2.stateInit?callback=window.utility2.stateInit"></script>\n<script src="assets.uglifyjs.js"></script>\n<script src="assets.example.js"></script>\n<script src="assets.test.js"></script>\n<script>window.utility2.onResetBefore();</script>\n<!-- utility2-comment\n{{/if isRollup}}\nutility2-comment -->\n<div class="utility2FooterDiv">\n    [ this app was created with\n    <a href="https://github.com/kaizhu256/node-utility2" target="_blank">utility2</a>\n    ]\n</div>\n</body>\n</html>\n';
+        local.assetsDict['/assets.index.template.html'] = '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<!-- "assets.utility2.template.html" -->\n<title>{{env.npm_package_name}} ({{env.npm_package_version}})</title>\n<style>\n/* jslint-utility2 */\n/*csslint\n*/\n/* jslint-ignore-begin */\n*,\n*:after,\n*:before {\n    box-sizing: border-box;\n}\n/* jslint-ignore-end */\n@keyframes uiAnimateShake {\n    0%, 50% {\n        transform: translateX(10px);\n    }\n    25%, 75% {\n        transform: translateX(-10px);\n    }\n    100% {\n        transform: translateX(0);\n    }\n}\n@keyframes uiAnimateSpin {\n    0% {\n        transform: rotate(0deg);\n    }\n    100% {\n        transform: rotate(360deg);\n    }\n}\na {\n    overflow-wrap: break-word;\n}\nbody {\n    background: #eef;\n    font-family: Arial, Helvetica, sans-serif;\n    margin: 0 40px;\n}\nbody > div,\nbody > form > div,\nbody > form > input,\nbody > form > pre,\nbody > form > textarea,\nbody > form > .button,\nbody > input,\nbody > pre,\nbody > textarea,\nbody > .button {\n    margin-bottom: 20px;\n}\nbody > form > input,\nbody > form > .button,\nbody > input,\nbody > .button {\n    width: 20rem;\n}\nbody > form > textarea,\nbody > textarea {\n    height: 10rem;\n    width: 100%;\n}\nbody > textarea[readonly] {\n    background: #ddd;\n}\ncode,\npre,\ntextarea {\n    font-family: Consolas, Menlo, monospace;\n    font-size: small;\n}\npre {\n    overflow-wrap: break-word;\n    white-space: pre-wrap;\n}\ntextarea {\n    overflow: auto;\n    white-space: pre;\n}\n.button {\n    background-color: #fff;\n    border: 1px solid;\n    border-bottom-color: rgb(186, 186, 186);\n    border-left-color: rgb(209, 209, 209);\n    border-radius: 4px;\n    border-right-color: rgb(209, 209, 209);\n    border-top-color: rgb(216, 216, 216);\n    color: #00d;\n    cursor: pointer;\n    display: inline-block;\n    font-family: Arial, Helvetica, sans-serif;\n    font-size: 12px;\n    font-style: normal;\n    font-weight: normal;\n    margin: 0;\n    padding: 2px 7px 3px 7px;\n    text-align: center;\n    text-decoration: underline;\n}\n.colorError {\n    color: #d00;\n}\n.uiAnimateShake {\n    animation-duration: 500ms;\n    animation-name: uiAnimateShake;\n}\n.uiAnimateSlide {\n    overflow-y: hidden;\n    transition: max-height ease-in 250ms, min-height ease-in 250ms, padding-bottom ease-in 250ms, padding-top ease-in 250ms;\n}\n.utility2FooterDiv {\n    text-align: center;\n}\n.zeroPixel {\n    border: 0;\n    height: 0;\n    margin: 0;\n    padding: 0;\n    width: 0;\n}\n</style>\n</head>\n<body>\n<div id="ajaxProgressDiv1" style="background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;"></div>\n<div class="uiAnimateSpin" style="animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;"></div>\n<script>\n/* jslint-utility2 */\n/*jslint\n    bitwise: true,\n    browser: true,\n    maxerr: 4,\n    maxlen: 100,\n    node: true,\n    nomen: true,\n    regexp: true,\n    stupid: true\n*/\n// init domOnEventWindowOnloadTimeElapsed\n(function () {\n/*\n * this function will measure and print the time-elapsed for window.onload\n */\n    "use strict";\n    if (window.domOnEventWindowOnloadTimeElapsed) {\n        return;\n    }\n    window.domOnEventWindowOnloadTimeElapsed = Date.now() + 100;\n    window.addEventListener("load", function () {\n        setTimeout(function () {\n            window.domOnEventWindowOnloadTimeElapsed = Date.now() -\n                window.domOnEventWindowOnloadTimeElapsed;\n            console.error("domOnEventWindowOnloadTimeElapsed = " +\n                window.domOnEventWindowOnloadTimeElapsed);\n        }, 100);\n    });\n}());\n// init timerIntervalAjaxProgressUpdate\n(function () {\n/*\n * this function will increment the ajax-progress-bar until the webpage has loaded\n */\n    "use strict";\n    var ajaxProgressDiv1,\n        ajaxProgressState,\n        ajaxProgressUpdate;\n    if (window.timerIntervalAjaxProgressUpdate || !document.querySelector("#ajaxProgressDiv1")) {\n        return;\n    }\n    ajaxProgressDiv1 = document.querySelector("#ajaxProgressDiv1");\n    setTimeout(function () {\n        ajaxProgressDiv1.style.width = "25%";\n    });\n    ajaxProgressState = 0;\n    ajaxProgressUpdate = (window.local &&\n        window.local.ajaxProgressUpdate) || function () {\n        ajaxProgressDiv1.style.width = "100%";\n        setTimeout(function () {\n            ajaxProgressDiv1.style.background = "transparent";\n            setTimeout(function () {\n                ajaxProgressDiv1.style.width = "0%";\n            }, 500);\n        }, 1500);\n    };\n    window.timerIntervalAjaxProgressUpdate = setInterval(function () {\n        ajaxProgressState += 1;\n        ajaxProgressDiv1.style.width = Math.max(\n            100 - 75 * Math.exp(-0.125 * ajaxProgressState),\n            ajaxProgressDiv1.style.width.slice(0, -1) | 0\n        ) + "%";\n    }, 1000);\n    window.addEventListener("load", function () {\n        clearInterval(window.timerIntervalAjaxProgressUpdate);\n        ajaxProgressUpdate();\n    });\n}());\n// init domOnEventMediaHotkeys\n(function () {\n/*\n * this function will add media-hotkeys to elements with class=".domOnEventMediaHotkeysInit"\n */\n    "use strict";\n    var input, onEvent;\n    if (window.domOnEventMediaHotkeys) {\n        return;\n    }\n    onEvent = window.domOnEventMediaHotkeys = function (event) {\n        var media;\n        if (event === "init") {\n            Array.from(document.querySelectorAll(\n                ".domOnEventMediaHotkeysInit"\n            )).forEach(function (media) {\n                media.classList.remove("domOnEventMediaHotkeysInit");\n                media.classList.add("domOnEventMediaHotkeys");\n                ["play", "pause", "seeking"].forEach(function (event) {\n                    media.addEventListener(event, onEvent);\n                });\n            });\n            return;\n        }\n        if (event.currentTarget.classList.contains("domOnEventMediaHotkeys")) {\n            window.domOnEventMediaHotkeysMedia1 = event.currentTarget;\n            window.domOnEventMediaHotkeysInput.focus();\n            return;\n        }\n        media = window.domOnEventMediaHotkeysMedia1;\n        try {\n            switch (event.key || event.type) {\n            case ",":\n            case ".":\n                media.currentTime += (event.key === "," && -0.03125) || 0.03125;\n                break;\n            case "<":\n            case ">":\n                media.playbackRate *= (event.key === "<" && 0.5) || 2;\n                break;\n            case "ArrowDown":\n            case "ArrowUp":\n                media.volume += (event.key === "ArrowDown" && -0.05) || 0.05;\n                break;\n            case "ArrowLeft":\n            case "ArrowRight":\n                media.currentTime += (event.key === "ArrowLeft" && -5) || 5;\n                break;\n            case "j":\n            case "l":\n                media.currentTime += (event.key === "j" && -10) || 10;\n                break;\n            case "k":\n            case " ":\n                if (media.paused) {\n                    media.play();\n                } else {\n                    media.pause();\n                }\n                break;\n            case "m":\n                media.muted = !media.muted;\n                break;\n            default:\n                if (event.key >= 0) {\n                    media.currentTime = 0.1 * event.key * media.duration;\n                    break;\n                }\n                return;\n            }\n        } catch (ignore) {\n        }\n        event.preventDefault();\n    };\n    input = window.domOnEventMediaHotkeysInput = document.createElement("button");\n    input.style = "border:0;height:0;margin:0;padding:0;position:fixed;width:0;z-index:-1;";\n    input.addEventListener("click", onEvent);\n    input.addEventListener("keydown", onEvent);\n    document.body.appendChild(input);\n    onEvent("init");\n}());\n// init domOnEventSelectAllWithinPre\n(function () {\n/*\n * this function will limit select-all within <pre tabIndex="0"> elements\n * https://stackoverflow.com/questions/985272/selecting-text-in-an-element-akin-to-highlighting-with-your-mouse\n */\n    "use strict";\n    if (window.domOnEventSelectAllWithinPre) {\n        return;\n    }\n    window.domOnEventSelectAllWithinPre = function (event) {\n        var range, selection;\n        if (event &&\n                event.key === "a" &&\n                (event.ctrlKey || event.metaKey) &&\n                event.target.closest("pre")) {\n            range = document.createRange();\n            range.selectNodeContents(event.target.closest("pre"));\n            selection = window.getSelection();\n            selection.removeAllRanges();\n            selection.addRange(range);\n            event.preventDefault();\n        }\n    };\n    document.addEventListener("keydown", window.domOnEventSelectAllWithinPre);\n}());\n</script>\n<h1>\n<!-- utility2-comment\n    <a\n        {{#if env.npm_package_homepage}}\n        href="{{env.npm_package_homepage}}"\n        {{/if env.npm_package_homepage}}\n        target="_blank"\n    >\nutility2-comment -->\n        {{env.npm_package_name}} ({{env.npm_package_version}})\n<!-- utility2-comment\n    </a>\nutility2-comment -->\n</h1>\n<h3>{{env.npm_package_description}}</h3>\n<!-- utility2-comment\n<a class="button" download href="assets.app.js">download standalone app</a><br>\n<button class="button onclick onreset" id="testRunButton1">run internal test</button><br>\n<div class="uiAnimateSlide" id="testReportDiv1" style="border-bottom: 0; border-top: 0; margin-bottom: 0; margin-top: 0; max-height: 0; padding-bottom: 0; padding-top: 0;"></div>\nutility2-comment -->\n\n\n\n<label>edit or paste script below to cover and eval</label>\n<textarea class="onkeyup onreset" id="inputTextarea1">\nvar aa;\naa = "hello";\nconsole.log(aa);\nconsole.log(null);\n</textarea>\n<label>uglified-code</label>\n<textarea class="resettable" id="outputTextarea1" readonly></textarea>\n<label>stderr and stdout</label>\n<textarea class="resettable" id="outputStdoutTextarea1" readonly></textarea>\n<!-- utility2-comment\n{{#if isRollup}}\n<script src="assets.app.js"></script>\n{{#unless isRollup}}\nutility2-comment -->\n<script src="assets.utility2.rollup.js"></script>\n<script>window.utility2.onResetBefore.counter += 1;</script>\n<script src="jsonp.utility2.stateInit?callback=window.utility2.stateInit"></script>\n<script src="assets.uglifyjs.js"></script>\n<script src="assets.example.js"></script>\n<script src="assets.test.js"></script>\n<script>window.utility2.onResetBefore();</script>\n<!-- utility2-comment\n{{/if isRollup}}\nutility2-comment -->\n<div class="utility2FooterDiv">\n    [ this app was created with\n    <a href="https://github.com/kaizhu256/node-utility2" target="_blank">utility2</a>\n    ]\n</div>\n</body>\n</html>\n';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -502,7 +606,7 @@ instruction
             });
         // init cli
         if (module !== require.main || local.global.utility2_rollup) {
-            break;
+            return;
         }
         local.assetsDict['/assets.example.js'] =
             local.assetsDict['/assets.example.js'] ||
@@ -515,7 +619,7 @@ instruction
         }
         // start server
         if (local.global.utility2_serverHttp1) {
-            break;
+            return;
         }
         process.env.PORT = process.env.PORT || '8081';
         console.error('server starting on port ' + process.env.PORT);
@@ -528,6 +632,5 @@ instruction
             response.statusCode = 404;
             response.end();
         }).listen(process.env.PORT);
-        break;
-    }
+    }());
 }());

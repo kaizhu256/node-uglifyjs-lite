@@ -249,7 +249,7 @@
     window.domOnEventSelectAllWithinPre = function (event) {
         var range, selection;
         if (event &&
-                event.code === "KeyA" &&
+                event.key === "a" &&
                 (event.ctrlKey || event.metaKey) &&
                 event.target.closest("pre")) {
             range = document.createRange();
@@ -265,7 +265,7 @@
 </script>
 <div class="header high">
     <h1 style="font-weight: bold;">
-        <a href="https://github.com/kaizhu256/node-uglifyjs-lite">uglifyjs-lite (2018.5.25)</a>
+        <a href="https://github.com/kaizhu256/node-uglifyjs-lite">uglifyjs-lite (2018.8.15)</a>
     </h1>
     <h1>Code coverage report for <span class="entity">node-uglifyjs-lite/example.js</span></h1>
     <table class="tableHeader">
@@ -279,11 +279,11 @@
     </tr>
     </thead>
     <tbody>
-        <td>branches: 28<br>statements: 26<br>functions: 1</td>
-        <td>100%<br>(118 / 118)</td>
-        <td>100%<br>(73 / 73)</td>
-        <td>100%<br>(13 / 13)</td>
-        <td>100%<br>(118 / 118)</td>
+        <td>branches: 28<br>statements: 25<br>functions: 1</td>
+        <td>100%<br>(113 / 113)</td>
+        <td>100%<br>(74 / 74)</td>
+        <td>100%<br>(14 / 14)</td>
+        <td>100%<br>(113 / 113)</td>
     </tbody>
     </table>
     <div class="path"><a href="../index.html">All files</a> &#187; <a href="index.html">node-uglifyjs-lite/</a> &#187; example.js</div>
@@ -926,7 +926,114 @@
 634
 635
 636
-637</td><td class="line-coverage"><span class="cline-any cline-neutral">&nbsp;</span>
+637
+638
+639
+640
+641
+642
+643
+644
+645
+646
+647
+648
+649
+650
+651
+652
+653
+654
+655
+656
+657
+658
+659
+660
+661
+662
+663
+664
+665
+666
+667
+668
+669
+670
+671
+672
+673
+674
+675
+676
+677
+678
+679
+680
+681
+682
+683
+684
+685
+686
+687
+688
+689
+690
+691
+692
+693
+694
+695
+696
+697
+698
+699
+700
+701
+702
+703
+704
+705
+706
+707
+708
+709
+710
+711
+712
+713
+714
+715
+716
+717
+718
+719
+720
+721
+722
+723
+724
+725
+726
+727
+728
+729
+730
+731
+732
+733
+734
+735
+736
+737
+738
+739
+740
+741
+742</td><td class="line-coverage"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1068,13 +1175,8 @@
 <span class="cline-any cline-yes">2</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2</span>
-<span class="cline-any cline-yes">2</span>
-<span class="cline-any cline-yes">2</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2</span>
@@ -1087,12 +1189,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-yes">2</span>
@@ -1161,20 +1265,20 @@
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-yes">2</span>
 <span class="cline-any cline-yes">2</span>
-<span class="cline-any cline-yes">23</span>
-<span class="cline-any cline-yes">23</span>
-<span class="cline-any cline-yes">23</span>
-<span class="cline-any cline-yes">23</span>
+<span class="cline-any cline-yes">28</span>
+<span class="cline-any cline-yes">28</span>
+<span class="cline-any cline-yes">28</span>
+<span class="cline-any cline-yes">28</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">23</span>
-<span class="cline-any cline-yes">23</span>
+<span class="cline-any cline-yes">28</span>
+<span class="cline-any cline-yes">28</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">23</span>
+<span class="cline-any cline-yes">28</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1185,22 +1289,20 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-yes">2</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-yes">1</span>
@@ -1247,6 +1349,115 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1559,10 +1770,11 @@
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js" tabIndex="0">&nbsp;
+&nbsp;
+&nbsp;
 &nbsp;
 &nbsp;
 &nbsp;
@@ -1702,34 +1914,31 @@ instruction
     (function () {
         // init local
         local = {};
-        // init modeJs
-        (function () {
-            try {
-                local.modeJs = typeof process.versions.node === 'string' &amp;&amp;
-                    typeof require('http').createServer === 'function' &amp;&amp;
-                    'node';
-            } catch (ignore) {
-            }
-            local.modeJs = local.modeJs || 'browser';
-        }());
+        // init isBrowser
+        local.isBrowser = typeof window === "object" &amp;&amp;
+            typeof window.XMLHttpRequest === "function" &amp;&amp;
+            window.document &amp;&amp;
+            typeof window.document.querySelectorAll === "function";
         // init global
-        local.global = local.modeJs === 'browser'
+        local.global = local.isBrowser
             ? window
             : global;
         // re-init local
-        local = local.global.utility2_rollup || (local.modeJs === 'browser'
+        local = local.global.utility2_rollup || (local.isBrowser
             ? local.global.utility2_uglifyjs
             : global.utility2_moduleExports);
         // init exports
         local.global.local = local;
     }());
-    switch (local.modeJs) {
 &nbsp;
 &nbsp;
 &nbsp;
     // run browser js-env code - init-test
     /* istanbul ignore next */
-    case 'browser':
+    (function () {
+        if (!local.isBrowser) {
+            return;
+        }
         local.testRunBrowser = function (event) {
             <span class="skip-if-branch" title="else path not taken" >E</span>if (!event || (event &amp;&amp;
                     event.currentTarget &amp;&amp;
@@ -1737,9 +1946,9 @@ instruction
                     event.currentTarget.className.includes &amp;&amp;
                     event.currentTarget.className.includes('onreset'))) {
                 // reset output
-                Array.from(
-                    document.querySelectorAll('body &gt; .resettable')
-                ).forEach(function (element) {
+                Array.from(document.querySelectorAll(
+                    'body &gt; .resettable'
+                )).forEach(function (element) {
                     switch (element.tagName) {
 <span class="branch-0 cbranch-skip" title="branch not covered" >                    case 'INPUT':</span>
                     case 'TEXTAREA':
@@ -1793,17 +2002,17 @@ instruction
                 }
             }
         };
-        // log stderr and stdout to #outputTextareaStdout1
+        // log stderr and stdout to #outputStdoutTextarea1
         ['error', 'log'].forEach(function (key) {
             console[key + '_original'] = console[key];
             console[key] = function () {
                 var element;
                 console[key + '_original'].apply(console, arguments);
-                element = document.querySelector('#outputTextareaStdout1');
+                element = document.querySelector('#outputStdoutTextarea1');
                 <span class="skip-if-branch" title="if path not taken" >I</span>if (!element) {
 <span class="cstat-skip" title="statement not covered" >                    return;</span>
                 }
-                // append text to #outputTextareaStdout1
+                // append text to #outputStdoutTextarea1
                 element.value += Array.from(arguments).map(function (arg) {
                     return typeof arg === 'string'
                         ? arg
@@ -1821,13 +2030,16 @@ instruction
         });
         // run tests
         local.testRunBrowser();
-        break;
+    }());
 &nbsp;
 &nbsp;
 &nbsp;
     // run node js-env code - init-test
     /* istanbul ignore next */
-    case 'node':
+    (function () {
+        if (local.isBrowser) {
+            return;
+        }
         // init exports
         module.exports = local;
         // require builtins
@@ -1835,8 +2047,6 @@ instruction
         local.buffer = require('buffer');
         local.child_process = require('child_process');
         local.cluster = require('cluster');
-        local.console = require('console');
-        local.constants = require('constants');
         local.crypto = require('crypto');
         local.dgram = require('dgram');
         local.dns = require('dns');
@@ -1845,12 +2055,9 @@ instruction
         local.fs = require('fs');
         local.http = require('http');
         local.https = require('https');
-        local.module = require('module');
         local.net = require('net');
         local.os = require('os');
         local.path = require('path');
-        local.process = require('process');
-        local.punycode = require('punycode');
         local.querystring = require('querystring');
         local.readline = require('readline');
         local.repl = require('repl');
@@ -1886,7 +2093,7 @@ instruction
 &lt;!doctype html&gt;\n\
 &lt;html lang="en"&gt;\n\
 &lt;head&gt;\n\
-&lt;meta charset="UTF-8"&gt;\n\
+&lt;meta charset="utf-8"&gt;\n\
 &lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;\n\
 &lt;!-- "assets.utility2.template.html" --&gt;\n\
 &lt;title&gt;{{env.npm_package_name}} ({{env.npm_package_version}})&lt;/title&gt;\n\
@@ -1929,20 +2136,30 @@ body {\n\
     margin: 0 40px;\n\
 }\n\
 body &gt; div,\n\
+body &gt; form &gt; div,\n\
+body &gt; form &gt; input,\n\
+body &gt; form &gt; pre,\n\
+body &gt; form &gt; textarea,\n\
+body &gt; form &gt; .button,\n\
+body &gt; input,\n\
 body &gt; pre,\n\
 body &gt; textarea,\n\
 body &gt; .button {\n\
     margin-bottom: 20px;\n\
 }\n\
+body &gt; form &gt; input,\n\
+body &gt; form &gt; .button,\n\
+body &gt; input,\n\
+body &gt; .button {\n\
+    width: 20rem;\n\
+}\n\
+body &gt; form &gt; textarea,\n\
 body &gt; textarea {\n\
     height: 10rem;\n\
     width: 100%;\n\
 }\n\
 body &gt; textarea[readonly] {\n\
     background: #ddd;\n\
-}\n\
-body &gt; .button {\n\
-    width: 20rem;\n\
 }\n\
 code,\n\
 pre,\n\
@@ -2004,7 +2221,6 @@ textarea {\n\
 &lt;body&gt;\n\
 &lt;div id="ajaxProgressDiv1" style="background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;"&gt;&lt;/div&gt;\n\
 &lt;div class="uiAnimateSpin" style="animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;"&gt;&lt;/div&gt;\n\
-&lt;code style="display: none;"&gt;&lt;/code&gt;&lt;div class="button colorError uiAnimateShake uiAnimateSlide utility2FooterDiv zeroPixel" style="display: none;"&gt;&lt;/div&gt;&lt;pre style="display: none;"&gt;&lt;/pre&gt;&lt;textarea readonly style="display: none;"&gt;&lt;/textarea&gt;\n\
 &lt;script&gt;\n\
 /* jslint-utility2 */\n\
 /*jslint\n\
@@ -2017,6 +2233,25 @@ textarea {\n\
     regexp: true,\n\
     stupid: true\n\
 */\n\
+// init domOnEventWindowOnloadTimeElapsed\n\
+(function () {\n\
+/*\n\
+ * this function will measure and print the time-elapsed for window.onload\n\
+ */\n\
+    "use strict";\n\
+    if (window.domOnEventWindowOnloadTimeElapsed) {\n\
+        return;\n\
+    }\n\
+    window.domOnEventWindowOnloadTimeElapsed = Date.now() + 100;\n\
+    window.addEventListener("load", function () {\n\
+        setTimeout(function () {\n\
+            window.domOnEventWindowOnloadTimeElapsed = Date.now() -\n\
+                window.domOnEventWindowOnloadTimeElapsed;\n\
+            console.error("domOnEventWindowOnloadTimeElapsed = " +\n\
+                window.domOnEventWindowOnloadTimeElapsed);\n\
+        }, 100);\n\
+    });\n\
+}());\n\
 // init timerIntervalAjaxProgressUpdate\n\
 (function () {\n\
 /*\n\
@@ -2026,7 +2261,7 @@ textarea {\n\
     var ajaxProgressDiv1,\n\
         ajaxProgressState,\n\
         ajaxProgressUpdate;\n\
-    if (window.timerIntervalAjaxProgressUpdate) {\n\
+    if (window.timerIntervalAjaxProgressUpdate || !document.querySelector("#ajaxProgressDiv1")) {\n\
         return;\n\
     }\n\
     ajaxProgressDiv1 = document.querySelector("#ajaxProgressDiv1");\n\
@@ -2056,6 +2291,87 @@ textarea {\n\
         ajaxProgressUpdate();\n\
     });\n\
 }());\n\
+// init domOnEventMediaHotkeys\n\
+(function () {\n\
+/*\n\
+ * this function will add media-hotkeys to elements with class=".domOnEventMediaHotkeysInit"\n\
+ */\n\
+    "use strict";\n\
+    var input, onEvent;\n\
+    if (window.domOnEventMediaHotkeys) {\n\
+        return;\n\
+    }\n\
+    onEvent = window.domOnEventMediaHotkeys = function (event) {\n\
+        var media;\n\
+        if (event === "init") {\n\
+            Array.from(document.querySelectorAll(\n\
+                ".domOnEventMediaHotkeysInit"\n\
+            )).forEach(function (media) {\n\
+                media.classList.remove("domOnEventMediaHotkeysInit");\n\
+                media.classList.add("domOnEventMediaHotkeys");\n\
+                ["play", "pause", "seeking"].forEach(function (event) {\n\
+                    media.addEventListener(event, onEvent);\n\
+                });\n\
+            });\n\
+            return;\n\
+        }\n\
+        if (event.currentTarget.classList.contains("domOnEventMediaHotkeys")) {\n\
+            window.domOnEventMediaHotkeysMedia1 = event.currentTarget;\n\
+            window.domOnEventMediaHotkeysInput.focus();\n\
+            return;\n\
+        }\n\
+        media = window.domOnEventMediaHotkeysMedia1;\n\
+        try {\n\
+            switch (event.key || event.type) {\n\
+            case ",":\n\
+            case ".":\n\
+                media.currentTime += (event.key === "," &amp;&amp; -0.03125) || 0.03125;\n\
+                break;\n\
+            case "&lt;":\n\
+            case "&gt;":\n\
+                media.playbackRate *= (event.key === "&lt;" &amp;&amp; 0.5) || 2;\n\
+                break;\n\
+            case "ArrowDown":\n\
+            case "ArrowUp":\n\
+                media.volume += (event.key === "ArrowDown" &amp;&amp; -0.05) || 0.05;\n\
+                break;\n\
+            case "ArrowLeft":\n\
+            case "ArrowRight":\n\
+                media.currentTime += (event.key === "ArrowLeft" &amp;&amp; -5) || 5;\n\
+                break;\n\
+            case "j":\n\
+            case "l":\n\
+                media.currentTime += (event.key === "j" &amp;&amp; -10) || 10;\n\
+                break;\n\
+            case "k":\n\
+            case " ":\n\
+                if (media.paused) {\n\
+                    media.play();\n\
+                } else {\n\
+                    media.pause();\n\
+                }\n\
+                break;\n\
+            case "m":\n\
+                media.muted = !media.muted;\n\
+                break;\n\
+            default:\n\
+                if (event.key &gt;= 0) {\n\
+                    media.currentTime = 0.1 * event.key * media.duration;\n\
+                    break;\n\
+                }\n\
+                return;\n\
+            }\n\
+        } catch (ignore) {\n\
+        }\n\
+        event.preventDefault();\n\
+    };\n\
+    input = window.domOnEventMediaHotkeysInput = document.createElement("button");\n\
+    input.style = "border:0;height:0;margin:0;padding:0;position:fixed;width:0;z-index:-1;";\n\
+    input.addEventListener("click", onEvent);\n\
+    input.addEventListener("keydown", onEvent);\n\
+    document.body.appendChild(input);\n\
+    onEvent("init");\n\
+}());\n\
 // init domOnEventSelectAllWithinPre\n\
 (function () {\n\
 /*\n\
@@ -2069,7 +2385,7 @@ textarea {\n\
     window.domOnEventSelectAllWithinPre = function (event) {\n\
         var range, selection;\n\
         if (event &amp;&amp;\n\
-                event.code === "KeyA" &amp;&amp;\n\
+                event.key === "a" &amp;&amp;\n\
                 (event.ctrlKey || event.metaKey) &amp;&amp;\n\
                 event.target.closest("pre")) {\n\
             range = document.createRange();\n\
@@ -2116,7 +2432,7 @@ console.log(null);\n\
 &lt;label&gt;uglified-code&lt;/label&gt;\n\
 &lt;textarea class="resettable" id="outputTextarea1" readonly&gt;&lt;/textarea&gt;\n\
 &lt;label&gt;stderr and stdout&lt;/label&gt;\n\
-&lt;textarea class="resettable" id="outputTextareaStdout1" readonly&gt;&lt;/textarea&gt;\n\
+&lt;textarea class="resettable" id="outputStdoutTextarea1" readonly&gt;&lt;/textarea&gt;\n\
 &lt;!-- utility2-comment\n\
 {{#if isRollup}}\n\
 &lt;script src="assets.app.js"&gt;&lt;/script&gt;\n\
@@ -2169,7 +2485,7 @@ utility2-comment --&gt;\n\
             });
         // init cli
         <span class="skip-if-branch" title="else path not taken" >E</span>if (module !== require.main || <span class="branch-1 cbranch-skip" title="branch not covered" >local.global.utility2_rollup)</span> {
-            break;
+            return;
         }
 <span class="cstat-skip" title="statement not covered" >        local.assetsDict['/assets.example.js'] =</span>
             local.assetsDict['/assets.example.js'] ||
@@ -2182,7 +2498,7 @@ utility2-comment --&gt;\n\
         }
         // start server
 <span class="cstat-skip" title="statement not covered" >        if (local.global.utility2_serverHttp1) {</span>
-<span class="cstat-skip" title="statement not covered" >            break;</span>
+<span class="cstat-skip" title="statement not covered" >            return;</span>
         }
 <span class="cstat-skip" title="statement not covered" >        process.env.PORT = process.env.PORT || '8081';</span>
 <span class="cstat-skip" title="statement not covered" >        console.error('server starting on port ' + process.env.PORT);</span>
@@ -2195,14 +2511,13 @@ utility2-comment --&gt;\n\
 <span class="cstat-skip" title="statement not covered" >            response.statusCode = 404;</span>
 <span class="cstat-skip" title="statement not covered" >            response.end();</span>
         }).listen(process.env.PORT);
-<span class="cstat-skip" title="statement not covered" >        break;</span>
-    }
+    }());
 }());
 &nbsp;</pre></td></tr>
 </table></pre>
 </div>
 <div class="footer">
-    <div class="meta">Generated by <a href="https://github.com/kaizhu256/node-utility2" target="_blank">utility2</a> at Fri May 25 2018 13:52:21 GMT+0000 (UTC)</div>
+    <div class="meta">Generated by <a href="https://github.com/kaizhu256/node-utility2" target="_blank">utility2</a> at Wed Aug 15 2018 06:00:43 GMT+0000 (Coordinated Universal Time)</div>
 </div>
 </body>
 </html>

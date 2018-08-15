@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- "" -->
 <title>test-report</title>
@@ -44,20 +44,30 @@ body {
     margin: 0 40px;
 }
 body > div,
+body > form > div,
+body > form > input,
+body > form > pre,
+body > form > textarea,
+body > form > .button,
+body > input,
 body > pre,
 body > textarea,
 body > .button {
     margin-bottom: 20px;
 }
+body > form > input,
+body > form > .button,
+body > input,
+body > .button {
+    width: 20rem;
+}
+body > form > textarea,
 body > textarea {
     height: 10rem;
     width: 100%;
 }
 body > textarea[readonly] {
     background: #ddd;
-}
-body > .button {
-    width: 20rem;
 }
 code,
 pre,
@@ -168,7 +178,6 @@ textarea {
 <body>
 <div id="ajaxProgressDiv1" style="background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;"></div>
 <div class="uiAnimateSpin" style="animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;"></div>
-<code style="display: none;"></code><div class="button colorError uiAnimateShake uiAnimateSlide utility2FooterDiv zeroPixel" style="display: none;"></div><pre style="display: none;"></pre><textarea readonly style="display: none;"></textarea>
 <script>
 /* jslint-utility2 */
 /*jslint
@@ -181,6 +190,25 @@ textarea {
     regexp: true,
     stupid: true
 */
+// init domOnEventWindowOnloadTimeElapsed
+(function () {
+/*
+ * this function will measure and print the time-elapsed for window.onload
+ */
+    "use strict";
+    if (window.domOnEventWindowOnloadTimeElapsed) {
+        return;
+    }
+    window.domOnEventWindowOnloadTimeElapsed = Date.now() + 100;
+    window.addEventListener("load", function () {
+        setTimeout(function () {
+            window.domOnEventWindowOnloadTimeElapsed = Date.now() -
+                window.domOnEventWindowOnloadTimeElapsed;
+            console.error("domOnEventWindowOnloadTimeElapsed = " +
+                window.domOnEventWindowOnloadTimeElapsed);
+        }, 100);
+    });
+}());
 // init timerIntervalAjaxProgressUpdate
 (function () {
 /*
@@ -190,7 +218,7 @@ textarea {
     var ajaxProgressDiv1,
         ajaxProgressState,
         ajaxProgressUpdate;
-    if (window.timerIntervalAjaxProgressUpdate) {
+    if (window.timerIntervalAjaxProgressUpdate || !document.querySelector("#ajaxProgressDiv1")) {
         return;
     }
     ajaxProgressDiv1 = document.querySelector("#ajaxProgressDiv1");
@@ -220,6 +248,87 @@ textarea {
         ajaxProgressUpdate();
     });
 }());
+// init domOnEventMediaHotkeys
+(function () {
+/*
+ * this function will add media-hotkeys to elements with class=".domOnEventMediaHotkeysInit"
+ */
+    "use strict";
+    var input, onEvent;
+    if (window.domOnEventMediaHotkeys) {
+        return;
+    }
+    onEvent = window.domOnEventMediaHotkeys = function (event) {
+        var media;
+        if (event === "init") {
+            Array.from(document.querySelectorAll(
+                ".domOnEventMediaHotkeysInit"
+            )).forEach(function (media) {
+                media.classList.remove("domOnEventMediaHotkeysInit");
+                media.classList.add("domOnEventMediaHotkeys");
+                ["play", "pause", "seeking"].forEach(function (event) {
+                    media.addEventListener(event, onEvent);
+                });
+            });
+            return;
+        }
+        if (event.currentTarget.classList.contains("domOnEventMediaHotkeys")) {
+            window.domOnEventMediaHotkeysMedia1 = event.currentTarget;
+            window.domOnEventMediaHotkeysInput.focus();
+            return;
+        }
+        media = window.domOnEventMediaHotkeysMedia1;
+        try {
+            switch (event.key || event.type) {
+            case ",":
+            case ".":
+                media.currentTime += (event.key === "," && -0.03125) || 0.03125;
+                break;
+            case "<":
+            case ">":
+                media.playbackRate *= (event.key === "<" && 0.5) || 2;
+                break;
+            case "ArrowDown":
+            case "ArrowUp":
+                media.volume += (event.key === "ArrowDown" && -0.05) || 0.05;
+                break;
+            case "ArrowLeft":
+            case "ArrowRight":
+                media.currentTime += (event.key === "ArrowLeft" && -5) || 5;
+                break;
+            case "j":
+            case "l":
+                media.currentTime += (event.key === "j" && -10) || 10;
+                break;
+            case "k":
+            case " ":
+                if (media.paused) {
+                    media.play();
+                } else {
+                    media.pause();
+                }
+                break;
+            case "m":
+                media.muted = !media.muted;
+                break;
+            default:
+                if (event.key >= 0) {
+                    media.currentTime = 0.1 * event.key * media.duration;
+                    break;
+                }
+                return;
+            }
+        } catch (ignore) {
+        }
+        event.preventDefault();
+    };
+    input = window.domOnEventMediaHotkeysInput = document.createElement("button");
+    input.style = "border:0;height:0;margin:0;padding:0;position:fixed;width:0;z-index:-1;";
+    input.addEventListener("click", onEvent);
+    input.addEventListener("keydown", onEvent);
+    document.body.appendChild(input);
+    onEvent("init");
+}());
 // init domOnEventSelectAllWithinPre
 (function () {
 /*
@@ -233,7 +342,7 @@ textarea {
     window.domOnEventSelectAllWithinPre = function (event) {
         var range, selection;
         if (event &&
-                event.code === "KeyA" &&
+                event.key === "a" &&
                 (event.ctrlKey || event.metaKey) &&
                 event.target.closest("pre")) {
             range = document.createRange();
@@ -254,18 +363,18 @@ textarea {
         href="https://github.com/kaizhu256/node-uglifyjs-lite"
         
     >
-        uglifyjs-lite (2018.5.25)
+        uglifyjs-lite (2018.8.15)
     </a>
 </h1>
 <div class="platform summary">
 <h2>summary</h2>
 <h4>
     <span>version</span>-
-        2018.5.25<br>
-    <span>test date</span>- 2018-05-25T13:55:05.042Z<br>
+        2018.8.15<br>
+    <span>test date</span>- 2018-08-15T06:01:10.398Z<br>
     <span>commit info</span>-
         
-        8807ed2a823817c1845d9f42bc73ae4b0555749a - <br>
+        4170be64b6c46d437a7996572d2da4bc8a0e798f - <br>
         
 </h4>
 <table>
@@ -278,9 +387,9 @@ textarea {
     </tr>
 </thead>
 <tbody><tr>
-    <td>263544 ms</td>
+    <td>118580 ms</td>
     <td class="testPassed">0</td>
-    <td>55</td>
+    <td>37</td>
     <td>0</td>
 </tr></tbody>
 </table>
@@ -288,14 +397,14 @@ textarea {
 
 <div class="platform">
 <h4>
-    1. buildApidoc - node - linux v10.2.1 - 2018-05-25T13:52:23.055Z<br>
+    1. buildApidoc - node - linux v10.8.0 - 2018-08-15T06:00:45.591Z<br>
     
     <a href="screenshot.buildApidoc.svg">
         <img alt="screenshot.buildApidoc.svg" src="screenshot.buildApidoc.svg">
     </a>
     <br>
     
-    <span>time-elapsed</span>- 178092 ms<br>
+    <span>time-elapsed</span>- 31603 ms<br>
     <span>tests failed</span>- 0<br>
     <span>tests passed</span>- 1<br>
     <span>tests pending</span>- 0<br>
@@ -311,7 +420,7 @@ textarea {
 
 <tr>
     <td>1</td>
-    <td>5472 ms</td>
+    <td>5586 ms</td>
     <td class="testPassed">passed</td>
     <td>testCase_buildApp_default</td>
 </tr>
@@ -325,14 +434,14 @@ textarea {
 
 <div class="platform">
 <h4>
-    2. deployGithubTest - browser - /node-uglifyjs-lite/build..beta..travis-ci.org/app/ - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Electron/1.7.15 Safari/537.36 - 2018-05-25T13:54:17.670Z<br>
+    2. npmTest - browser - / - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Electron/1.7.15 Safari/537.36 - 2018-08-15T06:00:27.920Z<br>
     
-    <a href="screenshot.deployGithubTest.browser.%252Fnode-uglifyjs-lite%252Fbuild%252Fapp.png">
-        <img alt="screenshot.deployGithubTest.browser.%252Fnode-uglifyjs-lite%252Fbuild%252Fapp.png" src="screenshot.deployGithubTest.browser.%252Fnode-uglifyjs-lite%252Fbuild%252Fapp.png">
+    <a href="screenshot.npmTest.browser.%252F.png">
+        <img alt="screenshot.npmTest.browser.%252F.png" src="screenshot.npmTest.browser.%252F.png">
     </a>
     <br>
     
-    <span>time-elapsed</span>- 63546 ms<br>
+    <span>time-elapsed</span>- 49300 ms<br>
     <span>tests failed</span>- 0<br>
     <span>tests passed</span>- 9<br>
     <span>tests pending</span>- 0<br>
@@ -355,7 +464,7 @@ textarea {
 
 <tr>
     <td>3</td>
-    <td>1 ms</td>
+    <td>0 ms</td>
     <td class="testPassed">passed</td>
     <td>testCase_buildApp_default</td>
 </tr>
@@ -383,7 +492,7 @@ textarea {
 
 <tr>
     <td>7</td>
-    <td>1 ms</td>
+    <td>0 ms</td>
     <td class="testPassed">passed</td>
     <td>testCase_buildTest_default</td>
 </tr>
@@ -397,14 +506,14 @@ textarea {
 
 <tr>
     <td>9</td>
-    <td>2 ms</td>
+    <td>5 ms</td>
     <td class="testPassed">passed</td>
     <td>testCase_uglify_default</td>
 </tr>
 
 <tr>
     <td>10</td>
-    <td>11 ms</td>
+    <td>17 ms</td>
     <td class="testPassed">passed</td>
     <td>testCase_webpage_default</td>
 </tr>
@@ -418,14 +527,14 @@ textarea {
 
 <div class="platform">
 <h4>
-    3. deployHerokuTest - browser - / - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Electron/1.7.15 Safari/537.36 - 2018-05-25T13:55:06.253Z<br>
+    3. npmTest - node - linux v10.8.0 - 2018-08-15T06:00:25.535Z<br>
     
-    <a href="screenshot.deployHerokuTest.browser.%252F.png">
-        <img alt="screenshot.deployHerokuTest.browser.%252F.png" src="screenshot.deployHerokuTest.browser.%252F.png">
+    <a href="screenshot.npmTest.svg">
+        <img alt="screenshot.npmTest.svg" src="screenshot.npmTest.svg">
     </a>
     <br>
     
-    <span>time-elapsed</span>- 14960 ms<br>
+    <span>time-elapsed</span>- 51141 ms<br>
     <span>tests failed</span>- 0<br>
     <span>tests passed</span>- 9<br>
     <span>tests pending</span>- 0<br>
@@ -441,14 +550,14 @@ textarea {
 
 <tr>
     <td>11</td>
-    <td>0 ms</td>
+    <td>189 ms</td>
     <td class="testPassed">passed</td>
     <td>testCase_buildApidoc_default</td>
 </tr>
 
 <tr>
     <td>12</td>
-    <td>0 ms</td>
+    <td>6086 ms</td>
     <td class="testPassed">passed</td>
     <td>testCase_buildApp_default</td>
 </tr>
@@ -462,14 +571,14 @@ textarea {
 
 <tr>
     <td>14</td>
-    <td>0 ms</td>
+    <td>1 ms</td>
     <td class="testPassed">passed</td>
     <td>testCase_buildLib_default</td>
 </tr>
 
 <tr>
     <td>15</td>
-    <td>0 ms</td>
+    <td>7 ms</td>
     <td class="testPassed">passed</td>
     <td>testCase_buildReadme_default</td>
 </tr>
@@ -490,14 +599,14 @@ textarea {
 
 <tr>
     <td>18</td>
-    <td>3 ms</td>
+    <td>13 ms</td>
     <td class="testPassed">passed</td>
     <td>testCase_uglify_default</td>
 </tr>
 
 <tr>
     <td>19</td>
-    <td>11 ms</td>
+    <td>16354 ms</td>
     <td class="testPassed">passed</td>
     <td>testCase_webpage_default</td>
 </tr>
@@ -511,14 +620,14 @@ textarea {
 
 <div class="platform">
 <h4>
-    4. npmTest - browser - / - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Electron/1.7.15 Safari/537.36 - 2018-05-25T13:52:05.684Z<br>
+    4. npmTestPublished - browser - / - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Electron/1.7.15 Safari/537.36 - 2018-08-15T05:59:20.967Z<br>
     
-    <a href="screenshot.npmTest.browser.%252F.png">
-        <img alt="screenshot.npmTest.browser.%252F.png" src="screenshot.npmTest.browser.%252F.png">
+    <a href="screenshot.npmTestPublished.browser.%252F.png">
+        <img alt="screenshot.npmTestPublished.browser.%252F.png" src="screenshot.npmTestPublished.browser.%252F.png">
     </a>
     <br>
     
-    <span>time-elapsed</span>- 195476 ms<br>
+    <span>time-elapsed</span>- 116235 ms<br>
     <span>tests failed</span>- 0<br>
     <span>tests passed</span>- 9<br>
     <span>tests pending</span>- 0<br>
@@ -534,7 +643,7 @@ textarea {
 
 <tr>
     <td>20</td>
-    <td>0 ms</td>
+    <td>1 ms</td>
     <td class="testPassed">passed</td>
     <td>testCase_buildApidoc_default</td>
 </tr>
@@ -548,7 +657,7 @@ textarea {
 
 <tr>
     <td>22</td>
-    <td>1 ms</td>
+    <td>0 ms</td>
     <td class="testPassed">passed</td>
     <td>testCase_buildCustomOrg_default</td>
 </tr>
@@ -562,7 +671,7 @@ textarea {
 
 <tr>
     <td>24</td>
-    <td>0 ms</td>
+    <td>1 ms</td>
     <td class="testPassed">passed</td>
     <td>testCase_buildReadme_default</td>
 </tr>
@@ -576,21 +685,21 @@ textarea {
 
 <tr>
     <td>26</td>
-    <td>0 ms</td>
+    <td>1 ms</td>
     <td class="testPassed">passed</td>
     <td>testCase_nop_default</td>
 </tr>
 
 <tr>
     <td>27</td>
-    <td>3 ms</td>
+    <td>6 ms</td>
     <td class="testPassed">passed</td>
     <td>testCase_uglify_default</td>
 </tr>
 
 <tr>
     <td>28</td>
-    <td>17 ms</td>
+    <td>42 ms</td>
     <td class="testPassed">passed</td>
     <td>testCase_webpage_default</td>
 </tr>
@@ -604,14 +713,14 @@ textarea {
 
 <div class="platform">
 <h4>
-    5. npmTest - node - linux v10.2.1 - 2018-05-25T13:52:03.616Z<br>
+    5. npmTestPublished - node - linux v10.8.0 - 2018-08-15T05:59:17.872Z<br>
     
-    <a href="screenshot.npmTest.svg">
-        <img alt="screenshot.npmTest.svg" src="screenshot.npmTest.svg">
+    <a href="screenshot.npmTestPublished.svg">
+        <img alt="screenshot.npmTestPublished.svg" src="screenshot.npmTestPublished.svg">
     </a>
     <br>
     
-    <span>time-elapsed</span>- 197101 ms<br>
+    <span>time-elapsed</span>- 118580 ms<br>
     <span>tests failed</span>- 0<br>
     <span>tests passed</span>- 9<br>
     <span>tests pending</span>- 0<br>
@@ -627,14 +736,14 @@ textarea {
 
 <tr>
     <td>29</td>
-    <td>177 ms</td>
+    <td>204 ms</td>
     <td class="testPassed">passed</td>
     <td>testCase_buildApidoc_default</td>
 </tr>
 
 <tr>
     <td>30</td>
-    <td>5672 ms</td>
+    <td>5780 ms</td>
     <td class="testPassed">passed</td>
     <td>testCase_buildApp_default</td>
 </tr>
@@ -648,21 +757,21 @@ textarea {
 
 <tr>
     <td>32</td>
-    <td>2 ms</td>
+    <td>1 ms</td>
     <td class="testPassed">passed</td>
     <td>testCase_buildLib_default</td>
 </tr>
 
 <tr>
     <td>33</td>
-    <td>4 ms</td>
+    <td>5 ms</td>
     <td class="testPassed">passed</td>
     <td>testCase_buildReadme_default</td>
 </tr>
 
 <tr>
     <td>34</td>
-    <td>0 ms</td>
+    <td>1 ms</td>
     <td class="testPassed">passed</td>
     <td>testCase_buildTest_default</td>
 </tr>
@@ -676,200 +785,14 @@ textarea {
 
 <tr>
     <td>36</td>
-    <td>11 ms</td>
+    <td>14 ms</td>
     <td class="testPassed">passed</td>
     <td>testCase_uglify_default</td>
 </tr>
 
 <tr>
     <td>37</td>
-    <td>16110 ms</td>
-    <td class="testPassed">passed</td>
-    <td>testCase_webpage_default</td>
-</tr>
-
-</tbody>
-</table>
-<pre class="displayNone" tabIndex="0">
-
-</pre>
-</div>
-
-<div class="platform">
-<h4>
-    6. npmTestPublished - browser - / - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Electron/1.7.15 Safari/537.36 - 2018-05-25T13:50:59.723Z<br>
-    
-    <a href="screenshot.npmTestPublished.browser.%252F.png">
-        <img alt="screenshot.npmTestPublished.browser.%252F.png" src="screenshot.npmTestPublished.browser.%252F.png">
-    </a>
-    <br>
-    
-    <span>time-elapsed</span>- 261437 ms<br>
-    <span>tests failed</span>- 0<br>
-    <span>tests passed</span>- 9<br>
-    <span>tests pending</span>- 0<br>
-</h4>
-<table>
-<thead><tr>
-    <th>#</th>
-    <th>time-elapsed</th>
-    <th>status</th>
-    <th>test-case</th>
-</tr></thead>
-<tbody>
-
-<tr>
-    <td>38</td>
-    <td>0 ms</td>
-    <td class="testPassed">passed</td>
-    <td>testCase_buildApidoc_default</td>
-</tr>
-
-<tr>
-    <td>39</td>
-    <td>0 ms</td>
-    <td class="testPassed">passed</td>
-    <td>testCase_buildApp_default</td>
-</tr>
-
-<tr>
-    <td>40</td>
-    <td>0 ms</td>
-    <td class="testPassed">passed</td>
-    <td>testCase_buildCustomOrg_default</td>
-</tr>
-
-<tr>
-    <td>41</td>
-    <td>0 ms</td>
-    <td class="testPassed">passed</td>
-    <td>testCase_buildLib_default</td>
-</tr>
-
-<tr>
-    <td>42</td>
-    <td>0 ms</td>
-    <td class="testPassed">passed</td>
-    <td>testCase_buildReadme_default</td>
-</tr>
-
-<tr>
-    <td>43</td>
-    <td>0 ms</td>
-    <td class="testPassed">passed</td>
-    <td>testCase_buildTest_default</td>
-</tr>
-
-<tr>
-    <td>44</td>
-    <td>1 ms</td>
-    <td class="testPassed">passed</td>
-    <td>testCase_nop_default</td>
-</tr>
-
-<tr>
-    <td>45</td>
-    <td>7 ms</td>
-    <td class="testPassed">passed</td>
-    <td>testCase_uglify_default</td>
-</tr>
-
-<tr>
-    <td>46</td>
-    <td>20 ms</td>
-    <td class="testPassed">passed</td>
-    <td>testCase_webpage_default</td>
-</tr>
-
-</tbody>
-</table>
-<pre class="displayNone" tabIndex="0">
-
-</pre>
-</div>
-
-<div class="platform">
-<h4>
-    7. npmTestPublished - node - linux v10.2.1 - 2018-05-25T13:50:56.928Z<br>
-    
-    <a href="screenshot.npmTestPublished.svg">
-        <img alt="screenshot.npmTestPublished.svg" src="screenshot.npmTestPublished.svg">
-    </a>
-    <br>
-    
-    <span>time-elapsed</span>- 263544 ms<br>
-    <span>tests failed</span>- 0<br>
-    <span>tests passed</span>- 9<br>
-    <span>tests pending</span>- 0<br>
-</h4>
-<table>
-<thead><tr>
-    <th>#</th>
-    <th>time-elapsed</th>
-    <th>status</th>
-    <th>test-case</th>
-</tr></thead>
-<tbody>
-
-<tr>
-    <td>47</td>
-    <td>177 ms</td>
-    <td class="testPassed">passed</td>
-    <td>testCase_buildApidoc_default</td>
-</tr>
-
-<tr>
-    <td>48</td>
-    <td>5791 ms</td>
-    <td class="testPassed">passed</td>
-    <td>testCase_buildApp_default</td>
-</tr>
-
-<tr>
-    <td>49</td>
-    <td>0 ms</td>
-    <td class="testPassed">passed</td>
-    <td>testCase_buildCustomOrg_default</td>
-</tr>
-
-<tr>
-    <td>50</td>
-    <td>2 ms</td>
-    <td class="testPassed">passed</td>
-    <td>testCase_buildLib_default</td>
-</tr>
-
-<tr>
-    <td>51</td>
-    <td>5 ms</td>
-    <td class="testPassed">passed</td>
-    <td>testCase_buildReadme_default</td>
-</tr>
-
-<tr>
-    <td>52</td>
-    <td>0 ms</td>
-    <td class="testPassed">passed</td>
-    <td>testCase_buildTest_default</td>
-</tr>
-
-<tr>
-    <td>53</td>
-    <td>0 ms</td>
-    <td class="testPassed">passed</td>
-    <td>testCase_nop_default</td>
-</tr>
-
-<tr>
-    <td>54</td>
-    <td>15 ms</td>
-    <td class="testPassed">passed</td>
-    <td>testCase_uglify_default</td>
-</tr>
-
-<tr>
-    <td>55</td>
-    <td>16644 ms</td>
+    <td>16859 ms</td>
     <td class="testPassed">passed</td>
     <td>testCase_webpage_default</td>
 </tr>

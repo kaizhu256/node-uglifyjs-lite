@@ -1,8 +1,8 @@
 <html lang="en"><head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- "assets.utility2.template.html" -->
-<title>uglifyjs-lite (2018.5.25)</title>
+<title>uglifyjs-lite (2018.8.15)</title>
 <style>
 /* jslint-utility2 */
 /*csslint
@@ -42,20 +42,30 @@ body {
     margin: 0 40px;
 }
 body > div,
+body > form > div,
+body > form > input,
+body > form > pre,
+body > form > textarea,
+body > form > .button,
+body > input,
 body > pre,
 body > textarea,
 body > .button {
     margin-bottom: 20px;
 }
+body > form > input,
+body > form > .button,
+body > input,
+body > .button {
+    width: 20rem;
+}
+body > form > textarea,
 body > textarea {
     height: 10rem;
     width: 100%;
 }
 body > textarea[readonly] {
     background: #ddd;
-}
-body > .button {
-    width: 20rem;
 }
 code,
 pre,
@@ -117,7 +127,6 @@ textarea {
 <body>
 <div id="ajaxProgressDiv1" style="background: transparent; height: 2px; left: 0px; margin: 0px; padding: 0px; position: fixed; top: 0px; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;"></div>
 <div class="uiAnimateSpin" style="animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;"></div>
-<code style="display: none;"></code><div class="button colorError uiAnimateShake uiAnimateSlide utility2FooterDiv zeroPixel" style="display: none;"></div><pre style="display: none;"></pre><textarea readonly="" style="display: none;"></textarea>
 <script>
 /* jslint-utility2 */
 /*jslint
@@ -130,6 +139,25 @@ textarea {
     regexp: true,
     stupid: true
 */
+// init domOnEventWindowOnloadTimeElapsed
+(function () {
+/*
+ * this function will measure and print the time-elapsed for window.onload
+ */
+    "use strict";
+    if (window.domOnEventWindowOnloadTimeElapsed) {
+        return;
+    }
+    window.domOnEventWindowOnloadTimeElapsed = Date.now() + 100;
+    window.addEventListener("load", function () {
+        setTimeout(function () {
+            window.domOnEventWindowOnloadTimeElapsed = Date.now() -
+                window.domOnEventWindowOnloadTimeElapsed;
+            console.error("domOnEventWindowOnloadTimeElapsed = " +
+                window.domOnEventWindowOnloadTimeElapsed);
+        }, 100);
+    });
+}());
 // init timerIntervalAjaxProgressUpdate
 (function () {
 /*
@@ -139,7 +167,7 @@ textarea {
     var ajaxProgressDiv1,
         ajaxProgressState,
         ajaxProgressUpdate;
-    if (window.timerIntervalAjaxProgressUpdate) {
+    if (window.timerIntervalAjaxProgressUpdate || !document.querySelector("#ajaxProgressDiv1")) {
         return;
     }
     ajaxProgressDiv1 = document.querySelector("#ajaxProgressDiv1");
@@ -169,6 +197,87 @@ textarea {
         ajaxProgressUpdate();
     });
 }());
+// init domOnEventMediaHotkeys
+(function () {
+/*
+ * this function will add media-hotkeys to elements with class=".domOnEventMediaHotkeysInit"
+ */
+    "use strict";
+    var input, onEvent;
+    if (window.domOnEventMediaHotkeys) {
+        return;
+    }
+    onEvent = window.domOnEventMediaHotkeys = function (event) {
+        var media;
+        if (event === "init") {
+            Array.from(document.querySelectorAll(
+                ".domOnEventMediaHotkeysInit"
+            )).forEach(function (media) {
+                media.classList.remove("domOnEventMediaHotkeysInit");
+                media.classList.add("domOnEventMediaHotkeys");
+                ["play", "pause", "seeking"].forEach(function (event) {
+                    media.addEventListener(event, onEvent);
+                });
+            });
+            return;
+        }
+        if (event.currentTarget.classList.contains("domOnEventMediaHotkeys")) {
+            window.domOnEventMediaHotkeysMedia1 = event.currentTarget;
+            window.domOnEventMediaHotkeysInput.focus();
+            return;
+        }
+        media = window.domOnEventMediaHotkeysMedia1;
+        try {
+            switch (event.key || event.type) {
+            case ",":
+            case ".":
+                media.currentTime += (event.key === "," && -0.03125) || 0.03125;
+                break;
+            case "<":
+            case ">":
+                media.playbackRate *= (event.key === "<" && 0.5) || 2;
+                break;
+            case "ArrowDown":
+            case "ArrowUp":
+                media.volume += (event.key === "ArrowDown" && -0.05) || 0.05;
+                break;
+            case "ArrowLeft":
+            case "ArrowRight":
+                media.currentTime += (event.key === "ArrowLeft" && -5) || 5;
+                break;
+            case "j":
+            case "l":
+                media.currentTime += (event.key === "j" && -10) || 10;
+                break;
+            case "k":
+            case " ":
+                if (media.paused) {
+                    media.play();
+                } else {
+                    media.pause();
+                }
+                break;
+            case "m":
+                media.muted = !media.muted;
+                break;
+            default:
+                if (event.key >= 0) {
+                    media.currentTime = 0.1 * event.key * media.duration;
+                    break;
+                }
+                return;
+            }
+        } catch (ignore) {
+        }
+        event.preventDefault();
+    };
+    input = window.domOnEventMediaHotkeysInput = document.createElement("button");
+    input.style = "border:0;height:0;margin:0;padding:0;position:fixed;width:0;z-index:-1;";
+    input.addEventListener("click", onEvent);
+    input.addEventListener("keydown", onEvent);
+    document.body.appendChild(input);
+    onEvent("init");
+}());
 // init domOnEventSelectAllWithinPre
 (function () {
 /*
@@ -182,7 +291,7 @@ textarea {
     window.domOnEventSelectAllWithinPre = function (event) {
         var range, selection;
         if (event &&
-                event.code === "KeyA" &&
+                event.key === "a" &&
                 (event.ctrlKey || event.metaKey) &&
                 event.target.closest("pre")) {
             range = document.createRange();
@@ -195,12 +304,12 @@ textarea {
     };
     document.addEventListener("keydown", window.domOnEventSelectAllWithinPre);
 }());
-</script>
+</script><button style="border: 0px; height: 0px; margin: 0px; padding: 0px; position: fixed; width: 0px; z-index: -1;"></button>
 <h1>
 
     <a href="https://github.com/kaizhu256/node-uglifyjs-lite" target="_blank">
 
-        uglifyjs-lite (2018.5.25)
+        uglifyjs-lite (2018.8.15)
 
     </a>
 
@@ -212,7 +321,7 @@ textarea {
 <div class="uiAnimateSlide" id="testReportDiv1" style="max-height: 100%;">
 
 
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- "" -->
 <title>test-report</title>
@@ -255,20 +364,30 @@ body {
     margin: 0 40px;
 }
 body > div,
+body > form > div,
+body > form > input,
+body > form > pre,
+body > form > textarea,
+body > form > .button,
+body > input,
 body > pre,
 body > textarea,
 body > .button {
     margin-bottom: 20px;
 }
+body > form > input,
+body > form > .button,
+body > input,
+body > .button {
+    width: 20rem;
+}
+body > form > textarea,
 body > textarea {
     height: 10rem;
     width: 100%;
 }
 body > textarea[readonly] {
     background: #ddd;
-}
-body > .button {
-    width: 20rem;
 }
 code,
 pre,
@@ -379,7 +498,6 @@ textarea {
 
 <div id="ajaxProgressDiv1" style="background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;"></div>
 <div class="uiAnimateSpin" style="animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;"></div>
-<code style="display: none;"></code><div class="button colorError uiAnimateShake uiAnimateSlide utility2FooterDiv zeroPixel" style="display: none;"></div><pre style="display: none;"></pre><textarea readonly="" style="display: none;"></textarea>
 <script>
 /* jslint-utility2 */
 /*jslint
@@ -392,6 +510,25 @@ textarea {
     regexp: true,
     stupid: true
 */
+// init domOnEventWindowOnloadTimeElapsed
+(function () {
+/*
+ * this function will measure and print the time-elapsed for window.onload
+ */
+    "use strict";
+    if (window.domOnEventWindowOnloadTimeElapsed) {
+        return;
+    }
+    window.domOnEventWindowOnloadTimeElapsed = Date.now() + 100;
+    window.addEventListener("load", function () {
+        setTimeout(function () {
+            window.domOnEventWindowOnloadTimeElapsed = Date.now() -
+                window.domOnEventWindowOnloadTimeElapsed;
+            console.error("domOnEventWindowOnloadTimeElapsed = " +
+                window.domOnEventWindowOnloadTimeElapsed);
+        }, 100);
+    });
+}());
 // init timerIntervalAjaxProgressUpdate
 (function () {
 /*
@@ -401,7 +538,7 @@ textarea {
     var ajaxProgressDiv1,
         ajaxProgressState,
         ajaxProgressUpdate;
-    if (window.timerIntervalAjaxProgressUpdate) {
+    if (window.timerIntervalAjaxProgressUpdate || !document.querySelector("#ajaxProgressDiv1")) {
         return;
     }
     ajaxProgressDiv1 = document.querySelector("#ajaxProgressDiv1");
@@ -431,6 +568,87 @@ textarea {
         ajaxProgressUpdate();
     });
 }());
+// init domOnEventMediaHotkeys
+(function () {
+/*
+ * this function will add media-hotkeys to elements with class=".domOnEventMediaHotkeysInit"
+ */
+    "use strict";
+    var input, onEvent;
+    if (window.domOnEventMediaHotkeys) {
+        return;
+    }
+    onEvent = window.domOnEventMediaHotkeys = function (event) {
+        var media;
+        if (event === "init") {
+            Array.from(document.querySelectorAll(
+                ".domOnEventMediaHotkeysInit"
+            )).forEach(function (media) {
+                media.classList.remove("domOnEventMediaHotkeysInit");
+                media.classList.add("domOnEventMediaHotkeys");
+                ["play", "pause", "seeking"].forEach(function (event) {
+                    media.addEventListener(event, onEvent);
+                });
+            });
+            return;
+        }
+        if (event.currentTarget.classList.contains("domOnEventMediaHotkeys")) {
+            window.domOnEventMediaHotkeysMedia1 = event.currentTarget;
+            window.domOnEventMediaHotkeysInput.focus();
+            return;
+        }
+        media = window.domOnEventMediaHotkeysMedia1;
+        try {
+            switch (event.key || event.type) {
+            case ",":
+            case ".":
+                media.currentTime += (event.key === "," && -0.03125) || 0.03125;
+                break;
+            case "<":
+            case ">":
+                media.playbackRate *= (event.key === "<" && 0.5) || 2;
+                break;
+            case "ArrowDown":
+            case "ArrowUp":
+                media.volume += (event.key === "ArrowDown" && -0.05) || 0.05;
+                break;
+            case "ArrowLeft":
+            case "ArrowRight":
+                media.currentTime += (event.key === "ArrowLeft" && -5) || 5;
+                break;
+            case "j":
+            case "l":
+                media.currentTime += (event.key === "j" && -10) || 10;
+                break;
+            case "k":
+            case " ":
+                if (media.paused) {
+                    media.play();
+                } else {
+                    media.pause();
+                }
+                break;
+            case "m":
+                media.muted = !media.muted;
+                break;
+            default:
+                if (event.key >= 0) {
+                    media.currentTime = 0.1 * event.key * media.duration;
+                    break;
+                }
+                return;
+            }
+        } catch (ignore) {
+        }
+        event.preventDefault();
+    };
+    input = window.domOnEventMediaHotkeysInput = document.createElement("button");
+    input.style = "border:0;height:0;margin:0;padding:0;position:fixed;width:0;z-index:-1;";
+    input.addEventListener("click", onEvent);
+    input.addEventListener("keydown", onEvent);
+    document.body.appendChild(input);
+    onEvent("init");
+}());
 // init domOnEventSelectAllWithinPre
 (function () {
 /*
@@ -444,7 +662,7 @@ textarea {
     window.domOnEventSelectAllWithinPre = function (event) {
         var range, selection;
         if (event &&
-                event.code === "KeyA" &&
+                event.key === "a" &&
                 (event.ctrlKey || event.metaKey) &&
                 event.target.closest("pre")) {
             range = document.createRange();
@@ -461,15 +679,15 @@ textarea {
 <div class="testReportDiv">
 <h1>test-report for
     <a href="https://github.com/kaizhu256/node-uglifyjs-lite">
-        uglifyjs-lite (2018.5.25)
+        uglifyjs-lite (2018.8.15)
     </a>
 </h1>
 <div class="platform summary">
 <h2>summary</h2>
 <h4>
     <span>version</span>-
-        2018.5.25<br>
-    <span>test date</span>- 2018-05-25T13:52:05.802Z<br>
+        2018.8.15<br>
+    <span>test date</span>- 2018-08-15T06:00:28.040Z<br>
     <span>commit info</span>-
         
         undefined<br>
@@ -485,7 +703,7 @@ textarea {
     </tr>
 </thead>
 <tbody><tr>
-    <td>1005 ms</td>
+    <td>1006 ms</td>
     <td class="testPassed">0</td>
     <td>9</td>
     <td>0</td>
@@ -495,9 +713,9 @@ textarea {
 
 <div class="platform">
 <h4>
-    1. browser - / - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Electron/1.7.15 Safari/537.36 - 2018-05-25T13:52:05.684Z<br>
+    1. browser - / - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Electron/1.7.15 Safari/537.36 - 2018-08-15T06:00:27.920Z<br>
     
-    <span>time-elapsed</span>- 1005 ms<br>
+    <span>time-elapsed</span>- 1006 ms<br>
     <span>tests failed</span>- 0<br>
     <span>tests passed</span>- 9<br>
     <span>tests pending</span>- 0<br>
@@ -527,7 +745,7 @@ textarea {
 
 <tr>
     <td>3</td>
-    <td>1 ms</td>
+    <td>0 ms</td>
     <td class="testPassed">passed</td>
     <td>testCase_buildCustomOrg_default</td>
 </tr>
@@ -562,7 +780,7 @@ textarea {
 
 <tr>
     <td>8</td>
-    <td>3 ms</td>
+    <td>5 ms</td>
     <td class="testPassed">passed</td>
     <td>testCase_uglify_default</td>
 </tr>
@@ -602,7 +820,7 @@ console.log(null);
 <label>uglified-code</label>
 <textarea class="resettable" id="outputTextarea1" readonly=""></textarea>
 <label>stderr and stdout</label>
-<textarea class="resettable" id="outputTextareaStdout1" readonly=""></textarea>
+<textarea class="resettable" id="outputStdoutTextarea1" readonly=""></textarea>
 
 
 
