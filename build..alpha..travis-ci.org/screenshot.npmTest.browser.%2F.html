@@ -197,87 +197,6 @@ textarea {
         ajaxProgressUpdate();
     });
 }());
-// init domOnEventMediaHotkeys
-(function () {
-/*
- * this function will add media-hotkeys to elements with class=".domOnEventMediaHotkeysInit"
- */
-    "use strict";
-    var input, onEvent;
-    if (window.domOnEventMediaHotkeys) {
-        return;
-    }
-    onEvent = window.domOnEventMediaHotkeys = function (event) {
-        var media;
-        if (event === "init") {
-            Array.from(document.querySelectorAll(
-                ".domOnEventMediaHotkeysInit"
-            )).forEach(function (media) {
-                media.classList.remove("domOnEventMediaHotkeysInit");
-                media.classList.add("domOnEventMediaHotkeys");
-                ["play", "pause", "seeking"].forEach(function (event) {
-                    media.addEventListener(event, onEvent);
-                });
-            });
-            return;
-        }
-        if (event.currentTarget.classList.contains("domOnEventMediaHotkeys")) {
-            window.domOnEventMediaHotkeysMedia1 = event.currentTarget;
-            window.domOnEventMediaHotkeysInput.focus();
-            return;
-        }
-        media = window.domOnEventMediaHotkeysMedia1;
-        try {
-            switch (event.key || event.type) {
-            case ",":
-            case ".":
-                media.currentTime += (event.key === "," && -0.03125) || 0.03125;
-                break;
-            case "<":
-            case ">":
-                media.playbackRate *= (event.key === "<" && 0.5) || 2;
-                break;
-            case "ArrowDown":
-            case "ArrowUp":
-                media.volume += (event.key === "ArrowDown" && -0.05) || 0.05;
-                break;
-            case "ArrowLeft":
-            case "ArrowRight":
-                media.currentTime += (event.key === "ArrowLeft" && -5) || 5;
-                break;
-            case "j":
-            case "l":
-                media.currentTime += (event.key === "j" && -10) || 10;
-                break;
-            case "k":
-            case " ":
-                if (media.paused) {
-                    media.play();
-                } else {
-                    media.pause();
-                }
-                break;
-            case "m":
-                media.muted = !media.muted;
-                break;
-            default:
-                if (event.key >= 0) {
-                    media.currentTime = 0.1 * event.key * media.duration;
-                    break;
-                }
-                return;
-            }
-        } catch (ignore) {
-        }
-        event.preventDefault();
-    };
-    input = window.domOnEventMediaHotkeysInput = document.createElement("button");
-    input.style = "border:0;height:0;margin:0;padding:0;position:fixed;width:0;z-index:-1;";
-    input.addEventListener("click", onEvent);
-    input.addEventListener("keydown", onEvent);
-    document.body.appendChild(input);
-    onEvent("init");
-}());
 // init domOnEventSelectAllWithinPre
 (function () {
 /*
@@ -304,7 +223,7 @@ textarea {
     };
     document.addEventListener("keydown", window.domOnEventSelectAllWithinPre);
 }());
-</script><button style="border: 0px; height: 0px; margin: 0px; padding: 0px; position: fixed; width: 0px; z-index: -1;"></button>
+</script>
 <h1>
 
     <a href="https://github.com/kaizhu256/node-uglifyjs-lite" target="_blank">
@@ -568,87 +487,6 @@ textarea {
         ajaxProgressUpdate();
     });
 }());
-// init domOnEventMediaHotkeys
-(function () {
-/*
- * this function will add media-hotkeys to elements with class=".domOnEventMediaHotkeysInit"
- */
-    "use strict";
-    var input, onEvent;
-    if (window.domOnEventMediaHotkeys) {
-        return;
-    }
-    onEvent = window.domOnEventMediaHotkeys = function (event) {
-        var media;
-        if (event === "init") {
-            Array.from(document.querySelectorAll(
-                ".domOnEventMediaHotkeysInit"
-            )).forEach(function (media) {
-                media.classList.remove("domOnEventMediaHotkeysInit");
-                media.classList.add("domOnEventMediaHotkeys");
-                ["play", "pause", "seeking"].forEach(function (event) {
-                    media.addEventListener(event, onEvent);
-                });
-            });
-            return;
-        }
-        if (event.currentTarget.classList.contains("domOnEventMediaHotkeys")) {
-            window.domOnEventMediaHotkeysMedia1 = event.currentTarget;
-            window.domOnEventMediaHotkeysInput.focus();
-            return;
-        }
-        media = window.domOnEventMediaHotkeysMedia1;
-        try {
-            switch (event.key || event.type) {
-            case ",":
-            case ".":
-                media.currentTime += (event.key === "," && -0.03125) || 0.03125;
-                break;
-            case "<":
-            case ">":
-                media.playbackRate *= (event.key === "<" && 0.5) || 2;
-                break;
-            case "ArrowDown":
-            case "ArrowUp":
-                media.volume += (event.key === "ArrowDown" && -0.05) || 0.05;
-                break;
-            case "ArrowLeft":
-            case "ArrowRight":
-                media.currentTime += (event.key === "ArrowLeft" && -5) || 5;
-                break;
-            case "j":
-            case "l":
-                media.currentTime += (event.key === "j" && -10) || 10;
-                break;
-            case "k":
-            case " ":
-                if (media.paused) {
-                    media.play();
-                } else {
-                    media.pause();
-                }
-                break;
-            case "m":
-                media.muted = !media.muted;
-                break;
-            default:
-                if (event.key >= 0) {
-                    media.currentTime = 0.1 * event.key * media.duration;
-                    break;
-                }
-                return;
-            }
-        } catch (ignore) {
-        }
-        event.preventDefault();
-    };
-    input = window.domOnEventMediaHotkeysInput = document.createElement("button");
-    input.style = "border:0;height:0;margin:0;padding:0;position:fixed;width:0;z-index:-1;";
-    input.addEventListener("click", onEvent);
-    input.addEventListener("keydown", onEvent);
-    document.body.appendChild(input);
-    onEvent("init");
-}());
 // init domOnEventSelectAllWithinPre
 (function () {
 /*
@@ -687,7 +525,7 @@ textarea {
 <h4>
     <span>version</span>-
         2018.8.15<br>
-    <span>test date</span>- 2018-08-15T05:52:16.499Z<br>
+    <span>test date</span>- 2018-08-17T11:52:21.622Z<br>
     <span>commit info</span>-
         
         undefined<br>
@@ -703,7 +541,7 @@ textarea {
     </tr>
 </thead>
 <tbody><tr>
-    <td>1011 ms</td>
+    <td>1006 ms</td>
     <td class="testPassed">0</td>
     <td>9</td>
     <td>0</td>
@@ -713,9 +551,9 @@ textarea {
 
 <div class="platform">
 <h4>
-    1. browser - / - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Electron/1.7.15 Safari/537.36 - 2018-08-15T05:52:16.363Z<br>
+    1. browser - / - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Electron/1.7.15 Safari/537.36 - 2018-08-17T11:52:21.492Z<br>
     
-    <span>time-elapsed</span>- 1011 ms<br>
+    <span>time-elapsed</span>- 1006 ms<br>
     <span>tests failed</span>- 0<br>
     <span>tests passed</span>- 9<br>
     <span>tests pending</span>- 0<br>
@@ -738,7 +576,7 @@ textarea {
 
 <tr>
     <td>2</td>
-    <td>1 ms</td>
+    <td>0 ms</td>
     <td class="testPassed">passed</td>
     <td>testCase_buildApp_default</td>
 </tr>
@@ -780,14 +618,14 @@ textarea {
 
 <tr>
     <td>8</td>
-    <td>7 ms</td>
+    <td>6 ms</td>
     <td class="testPassed">passed</td>
     <td>testCase_uglify_default</td>
 </tr>
 
 <tr>
     <td>9</td>
-    <td>25 ms</td>
+    <td>41 ms</td>
     <td class="testPassed">passed</td>
     <td>testCase_webpage_default</td>
 </tr>
