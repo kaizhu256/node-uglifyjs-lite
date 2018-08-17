@@ -3,7 +3,7 @@
 <text fill="#7f7" font-family="Courier New" font-size="12" xml:space="preserve">
 <tspan x="10" y="26"></tspan>
 
-<tspan x="10" y="42">[MODE_BUILD=npmTest] - 2018-08-17T05:59:50.709Z - npm-testing /home/travis/build/kaizhu256/node-\</tspan>
+<tspan x="10" y="42">[MODE_BUILD=npmTest] - 2018-08-17T11:52:18.646Z - npm-testing /home/travis/build/kaizhu256/node-\</tspan>
 <tspan x="10" y="58">uglifyjs-lite</tspan>
 
 <tspan x="10" y="74"></tspan>
@@ -18,7 +18,7 @@
 <tspan x="10" y="154">npmTest - merged test-report from file /home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/build\</tspan>
 <tspan x="10" y="170">/test-report.json</tspan>
 
-<tspan x="10" y="186">&gt; server listening on http-port 48541</tspan>
+<tspan x="10" y="186">&gt; server listening on http-port 41537</tspan>
 
 <tspan x="10" y="202">apidocCreate - readExample /home/travis/build/kaizhu256/node-uglifyjs-lite/package.json</tspan>
 
@@ -65,195 +65,195 @@
 <tspan x="10" y="538"></tspan>
 
 <tspan x="10" y="554">browserTest - created electron entry-page /home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/el\</tspan>
-<tspan x="10" y="570">ectron.1654677f7780.34881b292b5e9.html</tspan>
+<tspan x="10" y="570">ectron.16547baa8920.22fd9fa957deb.html</tspan>
 
 <tspan x="10" y="586"></tspan>
 
-<tspan x="10" y="602">(node:5495) ExperimentalWarning: The http2 module is an experimental API.</tspan>
+<tspan x="10" y="602">(node:5629) ExperimentalWarning: The http2 module is an experimental API.</tspan>
 
-<tspan x="10" y="618">(node:5495) [DEP0025] DeprecationWarning: sys is deprecated. Use util instead.</tspan>
+<tspan x="10" y="618">(node:5629) [DEP0025] DeprecationWarning: sys is deprecated. Use util instead.</tspan>
 
-<tspan x="10" y="634">(node:5495) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/splaytree' module \</tspan>
+<tspan x="10" y="634">(node:5629) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/splaytree' module \</tspan>
 <tspan x="10" y="650">is deprecated. Please install the necessary module locally.</tspan>
 
-<tspan x="10" y="666">(node:5495) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/codemap' module is\</tspan>
+<tspan x="10" y="666">(node:5629) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/codemap' module is\</tspan>
 <tspan x="10" y="682"> deprecated. Please install the necessary module locally.</tspan>
 
-<tspan x="10" y="698">(node:5495) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/consarray' module \</tspan>
+<tspan x="10" y="698">(node:5629) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/consarray' module \</tspan>
 <tspan x="10" y="714">is deprecated. Please install the necessary module locally.</tspan>
 
-<tspan x="10" y="730">(node:5495) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/csvparser' module \</tspan>
+<tspan x="10" y="730">(node:5629) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/csvparser' module \</tspan>
 <tspan x="10" y="746">is deprecated. Please install the necessary module locally.</tspan>
 
-<tspan x="10" y="762">(node:5495) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/profile' module is\</tspan>
+<tspan x="10" y="762">(node:5629) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/profile' module is\</tspan>
 <tspan x="10" y="778"> deprecated. Please install the necessary module locally.</tspan>
 
-<tspan x="10" y="794">(node:5495) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/profile_view' modu\</tspan>
+<tspan x="10" y="794">(node:5629) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/profile_view' modu\</tspan>
 <tspan x="10" y="810">le is deprecated. Please install the necessary module locally.</tspan>
 
-<tspan x="10" y="826">(node:5495) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/logreader' module \</tspan>
+<tspan x="10" y="826">(node:5629) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/logreader' module \</tspan>
 <tspan x="10" y="842">is deprecated. Please install the necessary module locally.</tspan>
 
-<tspan x="10" y="858">(node:5495) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/arguments' module \</tspan>
+<tspan x="10" y="858">(node:5629) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/arguments' module \</tspan>
 <tspan x="10" y="874">is deprecated. Please install the necessary module locally.</tspan>
 
-<tspan x="10" y="890">(node:5495) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/tickprocessor' mod\</tspan>
+<tspan x="10" y="890">(node:5629) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/tickprocessor' mod\</tspan>
 <tspan x="10" y="906">ule is deprecated. Please install the necessary module locally.</tspan>
 
-<tspan x="10" y="922">(node:5495) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/SourceMap' module \</tspan>
+<tspan x="10" y="922">(node:5629) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/SourceMap' module \</tspan>
 <tspan x="10" y="938">is deprecated. Please install the necessary module locally.</tspan>
 
-<tspan x="10" y="954">(node:5495) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/tickprocessor-driv\</tspan>
+<tspan x="10" y="954">(node:5629) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/tickprocessor-driv\</tspan>
 <tspan x="10" y="970">er' module is deprecated. Please install the necessary module locally.</tspan>
 
-<tspan x="10" y="986">(node:5495) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'node-inspect/lib/_inspect' \</tspan>
+<tspan x="10" y="986">(node:5629) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'node-inspect/lib/_inspect' \</tspan>
 <tspan x="10" y="1002">module is deprecated. Please install the necessary module locally.</tspan>
 
-<tspan x="10" y="1018">(node:5495) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'node-inspect/lib/internal/i\</tspan>
+<tspan x="10" y="1018">(node:5629) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'node-inspect/lib/internal/i\</tspan>
 <tspan x="10" y="1034">nspect_client' module is deprecated. Please install the necessary module locally.</tspan>
 
-<tspan x="10" y="1050">(node:5495) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'node-inspect/lib/internal/i\</tspan>
+<tspan x="10" y="1050">(node:5629) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'node-inspect/lib/internal/i\</tspan>
 <tspan x="10" y="1066">nspect_repl' module is deprecated. Please install the necessary module locally.</tspan>
 
 <tspan x="10" y="1082">Xlib:  extension "RANDR" missing on display ":99.0".</tspan>
 
 <tspan x="10" y="1098">Xlib:  extension "RANDR" missing on display ":99.0".</tspan>
 
-<tspan x="10" y="1114">[5562:0817/055952.751248:WARNING:audio_manager.cc(295)] Multiple instances of AudioManager detec\</tspan>
+<tspan x="10" y="1114">[5697:0817/115220.750651:WARNING:audio_manager.cc(295)] Multiple instances of AudioManager detec\</tspan>
 <tspan x="10" y="1130">ted</tspan>
 
-<tspan x="10" y="1146">[5562:0817/055952.751321:WARNING:audio_manager.cc(254)] Multiple instances of AudioManager detec\</tspan>
+<tspan x="10" y="1146">[5697:0817/115220.750720:WARNING:audio_manager.cc(254)] Multiple instances of AudioManager detec\</tspan>
 <tspan x="10" y="1162">ted</tspan>
 
-<tspan x="10" y="1178">[5594:0817/055952.794056:ERROR:sandbox_linux.cc(343)] InitializeSandbox() called with multiple t\</tspan>
+<tspan x="10" y="1178">[5729:0817/115220.831728:ERROR:sandbox_linux.cc(343)] InitializeSandbox() called with multiple t\</tspan>
 <tspan x="10" y="1194">hreads in process gpu-process. </tspan>
 
-<tspan x="10" y="1210">[5562:0817/055952.886990:ERROR:browser_gpu_channel_host_factory.cc(125)] Failed to create channe\</tspan>
-<tspan x="10" y="1226">l.</tspan>
+<tspan x="10" y="1210">&gt; server listening on http-port 32843</tspan>
 
-<tspan x="10" y="1242">[5562:0817/055952.887320:ERROR:browser_gpu_channel_host_factory.cc(125)] Failed to create channe\</tspan>
-<tspan x="10" y="1258">l.</tspan>
+<tspan x="10" y="1226">[5697:0817/115220.907341:ERROR:browser_gpu_channel_host_factory.cc(125)] Failed to create channe\</tspan>
+<tspan x="10" y="1242">l.</tspan>
 
-<tspan x="10" y="1274">[5562:0817/055952.887636:ERROR:browser_gpu_channel_host_factory.cc(125)] Failed to create channe\</tspan>
-<tspan x="10" y="1290">l.</tspan>
+<tspan x="10" y="1258">[5697:0817/115220.908442:ERROR:browser_gpu_channel_host_factory.cc(125)] Failed to create channe\</tspan>
+<tspan x="10" y="1274">l.</tspan>
 
-<tspan x="10" y="1306">[5562:0817/055952.889882:ERROR:browser_gpu_channel_host_factory.cc(125)] Failed to create channe\</tspan>
-<tspan x="10" y="1322">l.</tspan>
+<tspan x="10" y="1290">[5697:0817/115220.909695:ERROR:browser_gpu_channel_host_factory.cc(125)] Failed to create channe\</tspan>
+<tspan x="10" y="1306">l.</tspan>
 
-<tspan x="10" y="1338">[5562:0817/055952.890066:ERROR:browser_gpu_channel_host_factory.cc(125)] Failed to create channe\</tspan>
-<tspan x="10" y="1354">l.</tspan>
+<tspan x="10" y="1322">[5697:0817/115220.912267:ERROR:browser_gpu_channel_host_factory.cc(125)] Failed to create channe\</tspan>
+<tspan x="10" y="1338">l.</tspan>
 
-<tspan x="10" y="1370">&gt; server listening on http-port 39366</tspan>
+<tspan x="10" y="1354">[5697:0817/115220.913609:ERROR:browser_gpu_channel_host_factory.cc(125)] Failed to create channe\</tspan>
+<tspan x="10" y="1370">l.</tspan>
 
 <tspan x="10" y="1386"></tspan>
 
-<tspan x="10" y="1402">browserTest - opened http://127.0.0.1:48541?modeTest=1&amp;timeoutDefault=30000</tspan>
+<tspan x="10" y="1402">browserTest - opened http://127.0.0.1:41537?modeTest=1&amp;timeoutDefault=30000</tspan>
 
 <tspan x="10" y="1418"></tspan>
 
-<tspan x="10" y="1434">[5562:0817/055953.659332:INFO:CONSOLE(284)] "hello", source: file:///home/travis/build/kaizhu256\</tspan>
-<tspan x="10" y="1450">/node-uglifyjs-lite/tmp/electron.1654677f7780.34881b292b5e9.html (284)</tspan>
+<tspan x="10" y="1434">[5697:0817/115221.601324:INFO:CONSOLE(284)] "hello", source: file:///home/travis/build/kaizhu256\</tspan>
+<tspan x="10" y="1450">/node-uglifyjs-lite/tmp/electron.16547baa8920.22fd9fa957deb.html (284)</tspan>
 
-<tspan x="10" y="1466">[5562:0817/055953.662379:INFO:CONSOLE(284)] "null", source: file:///home/travis/build/kaizhu256/\</tspan>
-<tspan x="10" y="1482">node-uglifyjs-lite/tmp/electron.1654677f7780.34881b292b5e9.html (284)</tspan>
+<tspan x="10" y="1466">[5697:0817/115221.603183:INFO:CONSOLE(284)] "null", source: file:///home/travis/build/kaizhu256/\</tspan>
+<tspan x="10" y="1482">node-uglifyjs-lite/tmp/electron.16547baa8920.22fd9fa957deb.html (284)</tspan>
 
-<tspan x="10" y="1498">[5562:0817/055953.685716:INFO:CONSOLE(284)] "[browser test-case 1 of 9 passed] - testCase_buildA\</tspan>
+<tspan x="10" y="1498">[5697:0817/115221.629131:INFO:CONSOLE(284)] "[browser test-case 1 of 9 passed] - testCase_buildA\</tspan>
 <tspan x="10" y="1514">pidoc_default", source: file:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.1654\</tspan>
-<tspan x="10" y="1530">677f7780.34881b292b5e9.html (284)</tspan>
+<tspan x="10" y="1530">7baa8920.22fd9fa957deb.html (284)</tspan>
 
-<tspan x="10" y="1546">[5562:0817/055953.698926:INFO:CONSOLE(284)] "[browser test-case 2 of 9 passed] - testCase_buildA\</tspan>
-<tspan x="10" y="1562">pp_default", source: file:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.1654677\</tspan>
-<tspan x="10" y="1578">f7780.34881b292b5e9.html (284)</tspan>
+<tspan x="10" y="1546">[5697:0817/115221.638825:INFO:CONSOLE(284)] "[browser test-case 2 of 9 passed] - testCase_buildA\</tspan>
+<tspan x="10" y="1562">pp_default", source: file:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.16547ba\</tspan>
+<tspan x="10" y="1578">a8920.22fd9fa957deb.html (284)</tspan>
 
-<tspan x="10" y="1594">[5562:0817/055953.700380:INFO:CONSOLE(284)] "[browser test-case 3 of 9 passed] - testCase_buildC\</tspan>
+<tspan x="10" y="1594">[5697:0817/115221.641499:INFO:CONSOLE(284)] "[browser test-case 3 of 9 passed] - testCase_buildC\</tspan>
 <tspan x="10" y="1610">ustomOrg_default", source: file:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.1\</tspan>
-<tspan x="10" y="1626">654677f7780.34881b292b5e9.html (284)</tspan>
+<tspan x="10" y="1626">6547baa8920.22fd9fa957deb.html (284)</tspan>
 
-<tspan x="10" y="1642">[5562:0817/055953.701695:INFO:CONSOLE(284)] "[browser test-case 4 of 9 passed] - testCase_buildL\</tspan>
-<tspan x="10" y="1658">ib_default", source: file:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.1654677\</tspan>
-<tspan x="10" y="1674">f7780.34881b292b5e9.html (284)</tspan>
+<tspan x="10" y="1642">[5697:0817/115221.643901:INFO:CONSOLE(284)] "[browser test-case 4 of 9 passed] - testCase_buildL\</tspan>
+<tspan x="10" y="1658">ib_default", source: file:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.16547ba\</tspan>
+<tspan x="10" y="1674">a8920.22fd9fa957deb.html (284)</tspan>
 
-<tspan x="10" y="1690">[5562:0817/055953.702783:INFO:CONSOLE(284)] "[browser test-case 5 of 9 passed] - testCase_buildR\</tspan>
+<tspan x="10" y="1690">[5697:0817/115221.654398:INFO:CONSOLE(284)] "[browser test-case 5 of 9 passed] - testCase_buildR\</tspan>
 <tspan x="10" y="1706">eadme_default", source: file:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.1654\</tspan>
-<tspan x="10" y="1722">677f7780.34881b292b5e9.html (284)</tspan>
+<tspan x="10" y="1722">7baa8920.22fd9fa957deb.html (284)</tspan>
 
-<tspan x="10" y="1738">[5562:0817/055953.704199:INFO:CONSOLE(284)] "[browser test-case 6 of 9 passed] - testCase_buildT\</tspan>
-<tspan x="10" y="1754">est_default", source: file:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.165467\</tspan>
-<tspan x="10" y="1770">7f7780.34881b292b5e9.html (284)</tspan>
+<tspan x="10" y="1738">[5697:0817/115221.654573:INFO:CONSOLE(284)] "[browser test-case 6 of 9 passed] - testCase_buildT\</tspan>
+<tspan x="10" y="1754">est_default", source: file:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.16547b\</tspan>
+<tspan x="10" y="1770">aa8920.22fd9fa957deb.html (284)</tspan>
 
-<tspan x="10" y="1786">[5562:0817/055953.705601:INFO:CONSOLE(284)] "[browser test-case 7 of 9 passed] - testCase_nop_de\</tspan>
-<tspan x="10" y="1802">fault", source: file:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.1654677f7780\</tspan>
-<tspan x="10" y="1818">.34881b292b5e9.html (284)</tspan>
+<tspan x="10" y="1786">[5697:0817/115221.654621:INFO:CONSOLE(284)] "[browser test-case 7 of 9 passed] - testCase_nop_de\</tspan>
+<tspan x="10" y="1802">fault", source: file:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.16547baa8920\</tspan>
+<tspan x="10" y="1818">.22fd9fa957deb.html (284)</tspan>
 
-<tspan x="10" y="1834">[5562:0817/055953.711602:INFO:CONSOLE(284)] "[browser test-case 8 of 9 passed] - testCase_uglify\</tspan>
-<tspan x="10" y="1850">_default", source: file:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.1654677f7\</tspan>
-<tspan x="10" y="1866">780.34881b292b5e9.html (284)</tspan>
+<tspan x="10" y="1834">[5697:0817/115221.656006:INFO:CONSOLE(284)] "[browser test-case 8 of 9 passed] - testCase_uglify\</tspan>
+<tspan x="10" y="1850">_default", source: file:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.16547baa8\</tspan>
+<tspan x="10" y="1866">920.22fd9fa957deb.html (284)</tspan>
 
-<tspan x="10" y="1882">[5562:0817/055953.720219:INFO:CONSOLE(284)] "domStyleValidateUnmatched 0. 1 pre,", source: file:\</tspan>
-<tspan x="10" y="1898">///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.1654677f7780.34881b292b5e9.html (\</tspan>
+<tspan x="10" y="1882">[5697:0817/115221.661709:INFO:CONSOLE(284)] "domStyleValidateUnmatched 0. 1 pre,", source: file:\</tspan>
+<tspan x="10" y="1898">///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.16547baa8920.22fd9fa957deb.html (\</tspan>
 <tspan x="10" y="1914">284)</tspan>
 
-<tspan x="10" y="1930">[5562:0817/055953.721606:INFO:CONSOLE(284)] "domStyleValidateUnmatched 1. 1 pre,", source: file:\</tspan>
-<tspan x="10" y="1946">///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.1654677f7780.34881b292b5e9.html (\</tspan>
+<tspan x="10" y="1930">[5697:0817/115221.662746:INFO:CONSOLE(284)] "domStyleValidateUnmatched 1. 1 pre,", source: file:\</tspan>
+<tspan x="10" y="1946">///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.16547baa8920.22fd9fa957deb.html (\</tspan>
 <tspan x="10" y="1962">284)</tspan>
 
-<tspan x="10" y="1978">[5562:0817/055953.722064:INFO:CONSOLE(284)] "domStyleValidateUnmatched 2. 1 pre {", source: file\</tspan>
-<tspan x="10" y="1994">:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.1654677f7780.34881b292b5e9.html \</tspan>
+<tspan x="10" y="1978">[5697:0817/115221.664659:INFO:CONSOLE(284)] "domStyleValidateUnmatched 2. 1 pre {", source: file\</tspan>
+<tspan x="10" y="1994">:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.16547baa8920.22fd9fa957deb.html \</tspan>
 <tspan x="10" y="2010">(284)</tspan>
 
-<tspan x="10" y="2026">[5562:0817/055953.722468:INFO:CONSOLE(284)] "domStyleValidateUnmatched 3. 1 pre {", source: file\</tspan>
-<tspan x="10" y="2042">:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.1654677f7780.34881b292b5e9.html \</tspan>
+<tspan x="10" y="2026">[5697:0817/115221.674000:INFO:CONSOLE(284)] "domStyleValidateUnmatched 3. 1 pre {", source: file\</tspan>
+<tspan x="10" y="2042">:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.16547baa8920.22fd9fa957deb.html \</tspan>
 <tspan x="10" y="2058">(284)</tspan>
 
-<tspan x="10" y="2074">[5562:0817/055953.722819:INFO:CONSOLE(284)] "domStyleValidateUnmatched 4. 1 body {", source: fil\</tspan>
-<tspan x="10" y="2090">e:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.1654677f7780.34881b292b5e9.html\</tspan>
+<tspan x="10" y="2074">[5697:0817/115221.674062:INFO:CONSOLE(284)] "domStyleValidateUnmatched 4. 1 body {", source: fil\</tspan>
+<tspan x="10" y="2090">e:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.16547baa8920.22fd9fa957deb.html\</tspan>
 <tspan x="10" y="2106"> (284)</tspan>
 
-<tspan x="10" y="2122">[5562:0817/055953.722938:INFO:CONSOLE(284)] "domStyleValidateUnmatched 5. 1 body {", source: fil\</tspan>
-<tspan x="10" y="2138">e:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.1654677f7780.34881b292b5e9.html\</tspan>
+<tspan x="10" y="2122">[5697:0817/115221.674100:INFO:CONSOLE(284)] "domStyleValidateUnmatched 5. 1 body {", source: fil\</tspan>
+<tspan x="10" y="2138">e:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.16547baa8920.22fd9fa957deb.html\</tspan>
 <tspan x="10" y="2154"> (284)</tspan>
 
-<tspan x="10" y="2170">[5562:0817/055953.723253:INFO:CONSOLE(284)] "domStyleValidateUnmatched 6. 1 .utility2FooterDiv {\</tspan>
-<tspan x="10" y="2186">", source: file:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.1654677f7780.3488\</tspan>
-<tspan x="10" y="2202">1b292b5e9.html (284)</tspan>
+<tspan x="10" y="2170">[5697:0817/115221.674141:INFO:CONSOLE(284)] "domStyleValidateUnmatched 6. 1 .utility2FooterDiv {\</tspan>
+<tspan x="10" y="2186">", source: file:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.16547baa8920.22fd\</tspan>
+<tspan x="10" y="2202">9fa957deb.html (284)</tspan>
 
-<tspan x="10" y="2218">[5562:0817/055953.723493:INFO:CONSOLE(284)] "domStyleValidateUnmatched 7. 1 .utility2FooterDiv {\</tspan>
-<tspan x="10" y="2234">", source: file:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.1654677f7780.3488\</tspan>
-<tspan x="10" y="2250">1b292b5e9.html (284)</tspan>
+<tspan x="10" y="2218">[5697:0817/115221.674171:INFO:CONSOLE(284)] "domStyleValidateUnmatched 7. 1 .utility2FooterDiv {\</tspan>
+<tspan x="10" y="2234">", source: file:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.16547baa8920.22fd\</tspan>
+<tspan x="10" y="2250">9fa957deb.html (284)</tspan>
 
-<tspan x="10" y="2266">[5562:0817/055953.724003:INFO:CONSOLE(284)] "domStyleValidateUnmatched 8. 1 .uiAnimateSlide {", \</tspan>
-<tspan x="10" y="2282">source: file:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.1654677f7780.34881b2\</tspan>
-<tspan x="10" y="2298">92b5e9.html (284)</tspan>
+<tspan x="10" y="2266">[5697:0817/115221.674710:INFO:CONSOLE(284)] "domStyleValidateUnmatched 8. 1 .uiAnimateSlide {", \</tspan>
+<tspan x="10" y="2282">source: file:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.16547baa8920.22fd9fa\</tspan>
+<tspan x="10" y="2298">957deb.html (284)</tspan>
 
-<tspan x="10" y="2314">[5562:0817/055953.725421:INFO:CONSOLE(284)] "domStyleValidateUnmatched 9. 1 .uiAnimateSlide {", \</tspan>
-<tspan x="10" y="2330">source: file:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.1654677f7780.34881b2\</tspan>
-<tspan x="10" y="2346">92b5e9.html (284)</tspan>
+<tspan x="10" y="2314">[5697:0817/115221.675096:INFO:CONSOLE(284)] "domStyleValidateUnmatched 9. 1 .uiAnimateSlide {", \</tspan>
+<tspan x="10" y="2330">source: file:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.16547baa8920.22fd9fa\</tspan>
+<tspan x="10" y="2346">957deb.html (284)</tspan>
 
-<tspan x="10" y="2362">[5562:0817/055953.726606:INFO:CONSOLE(284)] "domStyleValidateUnmatched 10. 1 .testReportDiv pre \</tspan>
-<tspan x="10" y="2378">{", source: file:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.1654677f7780.348\</tspan>
-<tspan x="10" y="2394">81b292b5e9.html (284)</tspan>
+<tspan x="10" y="2362">[5697:0817/115221.685262:INFO:CONSOLE(284)] "domStyleValidateUnmatched 10. 1 .testReportDiv pre \</tspan>
+<tspan x="10" y="2378">{", source: file:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.16547baa8920.22f\</tspan>
+<tspan x="10" y="2394">d9fa957deb.html (284)</tspan>
 
-<tspan x="10" y="2410">[5562:0817/055953.728386:INFO:CONSOLE(284)] "domStyleValidateUnmatched 11. 1 .testReportDiv .sum\</tspan>
-<tspan x="10" y="2426">mary {", source: file:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.1654677f778\</tspan>
-<tspan x="10" y="2442">0.34881b292b5e9.html (284)</tspan>
+<tspan x="10" y="2410">[5697:0817/115221.698037:INFO:CONSOLE(284)] "domStyleValidateUnmatched 11. 1 .testReportDiv .sum\</tspan>
+<tspan x="10" y="2426">mary {", source: file:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.16547baa892\</tspan>
+<tspan x="10" y="2442">0.22fd9fa957deb.html (284)</tspan>
 
-<tspan x="10" y="2458">[5562:0817/055953.730313:INFO:CONSOLE(284)] "domStyleValidateUnmatched 12. 1 .testReportDiv .foo\</tspan>
-<tspan x="10" y="2474">ter {", source: file:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.1654677f7780\</tspan>
-<tspan x="10" y="2490">.34881b292b5e9.html (284)</tspan>
+<tspan x="10" y="2458">[5697:0817/115221.698077:INFO:CONSOLE(284)] "domStyleValidateUnmatched 12. 1 .testReportDiv .foo\</tspan>
+<tspan x="10" y="2474">ter {", source: file:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.16547baa8920\</tspan>
+<tspan x="10" y="2490">.22fd9fa957deb.html (284)</tspan>
 
-<tspan x="10" y="2506">[5562:0817/055953.735882:INFO:CONSOLE(284)] "domStyleValidateUnmatched 13. 1 .testReportDiv .dis\</tspan>
-<tspan x="10" y="2522">playNone {", source: file:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.1654677\</tspan>
-<tspan x="10" y="2538">f7780.34881b292b5e9.html (284)</tspan>
+<tspan x="10" y="2506">[5697:0817/115221.698090:INFO:CONSOLE(284)] "domStyleValidateUnmatched 13. 1 .testReportDiv .dis\</tspan>
+<tspan x="10" y="2522">playNone {", source: file:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.16547ba\</tspan>
+<tspan x="10" y="2538">a8920.22fd9fa957deb.html (284)</tspan>
 
-<tspan x="10" y="2554">[5562:0817/055953.735922:INFO:CONSOLE(284)] "[browser test-case 9 of 9 passed] - testCase_webpag\</tspan>
-<tspan x="10" y="2570">e_default", source: file:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.1654677f\</tspan>
-<tspan x="10" y="2586">7780.34881b292b5e9.html (284)</tspan>
+<tspan x="10" y="2554">[5697:0817/115221.698472:INFO:CONSOLE(284)] "[browser test-case 9 of 9 passed] - testCase_webpag\</tspan>
+<tspan x="10" y="2570">e_default", source: file:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.16547baa\</tspan>
+<tspan x="10" y="2586">8920.22fd9fa957deb.html (284)</tspan>
 
-<tspan x="10" y="2602">[5562:0817/055953.777718:INFO:CONSOLE(284)] "domOnEventWindowOnloadTimeElapsed = 397", source: f\</tspan>
-<tspan x="10" y="2618">ile:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.1654677f7780.34881b292b5e9.ht\</tspan>
+<tspan x="10" y="2602">[5697:0817/115221.728172:INFO:CONSOLE(284)] "domOnEventWindowOnloadTimeElapsed = 412", source: f\</tspan>
+<tspan x="10" y="2618">ile:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.16547baa8920.22fd9fa957deb.ht\</tspan>
 <tspan x="10" y="2634">ml (284)</tspan>
 
-<tspan x="10" y="2650">[5562:0817/055954.741274:INFO:CONSOLE(284)] "----------|-----------|-----------|-----------|----\</tspan>
+<tspan x="10" y="2650">[5697:0817/115222.723465:INFO:CONSOLE(284)] "----------|-----------|-----------|-----------|----\</tspan>
 <tspan x="10" y="2666">-------|</tspan>
 
 <tspan x="10" y="2682">File      |   % Stmts |% Branches |   % Funcs |   % Lines |</tspan>
@@ -266,12 +266,12 @@
 
 <tspan x="10" y="2746">----------|-----------|-----------|-----------|-----------|</tspan>
 
-<tspan x="10" y="2762">", source: file:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.1654677f7780.3488\</tspan>
-<tspan x="10" y="2778">1b292b5e9.html (284)</tspan>
+<tspan x="10" y="2762">", source: file:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.16547baa8920.22fd\</tspan>
+<tspan x="10" y="2778">9fa957deb.html (284)</tspan>
 
-<tspan x="10" y="2794">[5562:0817/055954.749262:INFO:CONSOLE(284)] "created coverage file /tmp/build/coverage.html/inde\</tspan>
-<tspan x="10" y="2810">x.html", source: file:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.1654677f778\</tspan>
-<tspan x="10" y="2826">0.34881b292b5e9.html (284)</tspan>
+<tspan x="10" y="2794">[5697:0817/115222.731774:INFO:CONSOLE(284)] "created coverage file /tmp/build/coverage.html/inde\</tspan>
+<tspan x="10" y="2810">x.html", source: file:///home/travis/build/kaizhu256/node-uglifyjs-lite/tmp/electron.16547baa892\</tspan>
+<tspan x="10" y="2826">0.22fd9fa957deb.html (284)</tspan>
 
 <tspan x="10" y="2842">[node test-case 8 of 9 passed] - testCase_buildApp_default</tspan>
 
@@ -287,7 +287,7 @@
 
 <tspan x="10" y="2954"></tspan>
 
-<tspan x="10" y="2970">browserTest - exit-code 0 - http://127.0.0.1:48541?modeTest=1&amp;timeoutDefault=30000</tspan>
+<tspan x="10" y="2970">browserTest - exit-code 0 - http://127.0.0.1:41537?modeTest=1&amp;timeoutDefault=30000</tspan>
 
 <tspan x="10" y="2986"></tspan>
 
@@ -342,29 +342,29 @@
 <tspan x="10" y="3418">-------------------------------------------------------</tspan>
 
 <tspan x="10" y="3434">| test-report - npmTest - browser - / - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTM\</tspan>
-<tspan x="10" y="3450">L, like Gecko) Chrome/58.0.3029.110 Electron/1.7.15 Safari/537.36 - 2018-08-17T05:59:53.554Z</tspan>
+<tspan x="10" y="3450">L, like Gecko) Chrome/58.0.3029.110 Electron/1.7.15 Safari/537.36 - 2018-08-17T11:52:21.492Z</tspan>
 
-<tspan x="10" y="3466">|      55 ms            0 failed        9 passed      |</tspan>
+<tspan x="10" y="3466">|      94 ms            0 failed        9 passed      |</tspan>
 
 <tspan x="10" y="3482">-------------------------------------------------------</tspan>
 
-<tspan x="10" y="3498">| test-report - npmTest - node - linux v10.9.0 - 2018-08-17T05:59:50.953Z</tspan>
+<tspan x="10" y="3498">| test-report - npmTest - node - linux v10.9.0 - 2018-08-17T11:52:18.865Z</tspan>
 
-<tspan x="10" y="3514">|   16791 ms            0 failed        9 passed      |</tspan>
+<tspan x="10" y="3514">|   16836 ms            0 failed        9 passed      |</tspan>
 
 <tspan x="10" y="3530">-------------------------------------------------------</tspan>
 
 <tspan x="10" y="3546">| test-report - npmTestPublished - browser - / - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537\</tspan>
-<tspan x="10" y="3562">.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Electron/1.7.15 Safari/537.36 - 2018-08-17T05:58:46\</tspan>
-<tspan x="10" y="3578">.200Z</tspan>
+<tspan x="10" y="3562">.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Electron/1.7.15 Safari/537.36 - 2018-08-17T11:51:13\</tspan>
+<tspan x="10" y="3578">.913Z</tspan>
 
-<tspan x="10" y="3594">|      84 ms            0 failed        9 passed      |</tspan>
+<tspan x="10" y="3594">|      83 ms            0 failed        9 passed      |</tspan>
 
 <tspan x="10" y="3610">-------------------------------------------------------</tspan>
 
-<tspan x="10" y="3626">| test-report - npmTestPublished - node - linux v10.9.0 - 2018-08-17T05:58:43.010Z</tspan>
+<tspan x="10" y="3626">| test-report - npmTestPublished - node - linux v10.9.0 - 2018-08-17T11:51:10.621Z</tspan>
 
-<tspan x="10" y="3642">|   17183 ms            0 failed        9 passed      |</tspan>
+<tspan x="10" y="3642">|   17292 ms            0 failed        9 passed      |</tspan>
 
 <tspan x="10" y="3658">-------------------------------------------------------</tspan>
 
@@ -383,7 +383,7 @@
 
 <tspan x="10" y="3786"></tspan>
 
-<tspan x="10" y="3802">[MODE_BUILD=npmTest] - 2018-08-17T06:00:09.813Z - EXIT_CODE - 0</tspan>
+<tspan x="10" y="3802">[MODE_BUILD=npmTest] - 2018-08-17T11:52:37.763Z - EXIT_CODE - 0</tspan>
 
 </text>
 </svg>

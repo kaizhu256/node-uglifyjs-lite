@@ -361,8 +361,8 @@
          * https://stackoverflow.com/questions/7381974/which-characters-need-to-be-escaped-on-html
          */
             return text
-                .replace((/"/g), '&quot;')
                 .replace((/&/g), '&amp;')
+                .replace((/"/g), '&quot;')
                 .replace((/'/g), '&apos;')
                 .replace((/</g), '&lt;')
                 .replace((/>/g), '&gt;')
@@ -4931,16 +4931,19 @@ substr(0,3),n==="==="||n==="!=="||n===">>>"||n==="<<="||n===">>="?l+=3:(n=n.subs
 n==="++"||n==="--"||n==="<<"||n===">>"||n==="&="||n==="|="||n==="^="||n==="%="||
 n==="<="||n===">="||n==="=>"?l+=2:(n=a[l],"<>=!+-*%&|^/".indexOf(n)>=0&&++l)))}return l===
 e.start&&Lt(),e.end=l,e.value=n,e}function Z(e){var n="";while(l<E){if(!O(a[l]))
+// break;n+=a[l++]}return n.length===0&&Lt(),B(a.charCodeAt(l))&&Lt(),{type:t.NumericLiteral
 break;n+=a[l++]}return n.length===0&&Lt(),
 a[l]==='n'&&(n+=a[l++]), // Bigint
 B(a.charCodeAt(l))&&Lt(),{type:t.NumericLiteral
 ,value:parseInt("0x"+n,16),lineNumber:c,lineStart:h,start:e,end:l}}function et(e
 ){var n,r;r="";while(l<E){n=a[l];if(n!=="0"&&n!=="1")break;r+=a[l++]}return r.length===0&&
+// Lt(),l<E&&(n=a.charCodeAt(l),(B(n)||A(n))&&Lt()),{type:t.NumericLiteral,value:parseInt
 Lt(),
 a[l]==='n'&&(r+=a[l++]), // Bigint
 l<E&&(n=a.charCodeAt(l),(B(n)||A(n))&&Lt()),{type:t.NumericLiteral,value:parseInt
 (r,2),lineNumber:c,lineStart:h,start:e,end:l}}function tt(e,n){var r,i;M(e)?(i=!0
 ,r="0"+a[l++]):(i=!1,++l,r="");while(l<E){if(!M(a[l]))break;r+=a[l++]}return!i&&
+// r.length===0&&Lt(),(B(a.charCodeAt(l))||A(a.charCodeAt(l)))&&Lt(),{type:t.NumericLiteral
 r.length===0&&Lt(),
 a[l]==='n'&&(r+=a[l++]), // Bigint
 (B(a.charCodeAt(l))||A(a.charCodeAt(l)))&&Lt(),{type:t.NumericLiteral
@@ -4952,6 +4955,7 @@ a[l]==='n'&&(r+=a[l++]), // Bigint
 M(r)&&nt())return tt(r,n)}while(A(a.charCodeAt(l)))e+=a[l++];r=a[l]}if(r==="."){
 e+=a[l++];while(A(a.charCodeAt(l)))e+=a[l++];r=a[l]}if(r==="e"||r==="E"){e+=a[l++
 ],r=a[l];if(r==="+"||r==="-")e+=a[l++];if(A(a.charCodeAt(l)))while(A(a.charCodeAt
+// (l)))e+=a[l++];else Lt()}return B(a.charCodeAt(l))&&Lt(),{type:t.NumericLiteral,
 (l)))e+=a[l++];else Lt()}
 a[l]==='n'&&(e+=a[l++]) // Bigint
 return B(a.charCodeAt(l))&&Lt(),{type:t.NumericLiteral,
@@ -16030,87 +16034,6 @@ textarea {\n\
         ajaxProgressUpdate();\n\
     });\n\
 }());\n\
-// init domOnEventMediaHotkeys\n\
-(function () {\n\
-/*\n\
- * this function will add media-hotkeys to elements with class=".domOnEventMediaHotkeysInit"\n\
- */\n\
-    "use strict";\n\
-    var input, onEvent;\n\
-    if (window.domOnEventMediaHotkeys) {\n\
-        return;\n\
-    }\n\
-    onEvent = window.domOnEventMediaHotkeys = function (event) {\n\
-        var media;\n\
-        if (event === "init") {\n\
-            Array.from(document.querySelectorAll(\n\
-                ".domOnEventMediaHotkeysInit"\n\
-            )).forEach(function (media) {\n\
-                media.classList.remove("domOnEventMediaHotkeysInit");\n\
-                media.classList.add("domOnEventMediaHotkeys");\n\
-                ["play", "pause", "seeking"].forEach(function (event) {\n\
-                    media.addEventListener(event, onEvent);\n\
-                });\n\
-            });\n\
-            return;\n\
-        }\n\
-        if (event.currentTarget.classList.contains("domOnEventMediaHotkeys")) {\n\
-            window.domOnEventMediaHotkeysMedia1 = event.currentTarget;\n\
-            window.domOnEventMediaHotkeysInput.focus();\n\
-            return;\n\
-        }\n\
-        media = window.domOnEventMediaHotkeysMedia1;\n\
-        try {\n\
-            switch (event.key || event.type) {\n\
-            case ",":\n\
-            case ".":\n\
-                media.currentTime += (event.key === "," && -0.03125) || 0.03125;\n\
-                break;\n\
-            case "<":\n\
-            case ">":\n\
-                media.playbackRate *= (event.key === "<" && 0.5) || 2;\n\
-                break;\n\
-            case "ArrowDown":\n\
-            case "ArrowUp":\n\
-                media.volume += (event.key === "ArrowDown" && -0.05) || 0.05;\n\
-                break;\n\
-            case "ArrowLeft":\n\
-            case "ArrowRight":\n\
-                media.currentTime += (event.key === "ArrowLeft" && -5) || 5;\n\
-                break;\n\
-            case "j":\n\
-            case "l":\n\
-                media.currentTime += (event.key === "j" && -10) || 10;\n\
-                break;\n\
-            case "k":\n\
-            case " ":\n\
-                if (media.paused) {\n\
-                    media.play();\n\
-                } else {\n\
-                    media.pause();\n\
-                }\n\
-                break;\n\
-            case "m":\n\
-                media.muted = !media.muted;\n\
-                break;\n\
-            default:\n\
-                if (event.key >= 0) {\n\
-                    media.currentTime = 0.1 * event.key * media.duration;\n\
-                    break;\n\
-                }\n\
-                return;\n\
-            }\n\
-        } catch (ignore) {\n\
-        }\n\
-        event.preventDefault();\n\
-    };\n\
-    input = window.domOnEventMediaHotkeysInput = document.createElement("button");\n\
-    input.style = "border:0;height:0;margin:0;padding:0;position:fixed;width:0;z-index:-1;";\n\
-    input.addEventListener("click", onEvent);\n\
-    input.addEventListener("keydown", onEvent);\n\
-    document.body.appendChild(input);\n\
-    onEvent("init");\n\
-}());\n\
 // init domOnEventSelectAllWithinPre\n\
 (function () {\n\
 /*\n\
@@ -19306,11 +19229,11 @@ local.assetsDict['/favicon.ico'] = '';
                 'lib.' + local.env.npm_package_nameLib + '.sh',
                 'npm_scripts.sh'
             ].forEach(function (file) {
-                options.dataFunctionBefore = local.fsReadFileOrEmptyStringSync(
+                options.dataLib = local.fsReadFileOrEmptyStringSync(
                     file,
                     'utf8'
                 ).replace((
-                    /^ {8}local\.(\w+) = function \([\S\s]+?\n {8}\};$/gm
+                    /^ {8}local\.(\w+) = function \([\S\s]*?\n {8}\};$/gm
                 ), function (match0, match1) {
                     [local, local.github_crud, local.swgg].some(function (dict) {
                         if (match1[0] !== '_' && typeof dict[match1] === 'function') {
@@ -19321,8 +19244,8 @@ local.assetsDict['/favicon.ico'] = '';
                     return match0;
                 });
                 /* istanbul ignore next */
-                if (options.dataFunctionBefore && !local.env.npm_config_mode_coverage) {
-                    local.fs.writeFileSync(file, options.dataFunctionBefore);
+                if (options.dataLib && !local.env.npm_config_mode_coverage) {
+                    local.fs.writeFileSync(file, options.dataLib);
                 }
             });
             onError();
@@ -19457,7 +19380,7 @@ local.assetsDict['/favicon.ico'] = '';
             if (local.assetsDict['/index.html']
                     .indexOf('<script src="assets.example.js"></script>') < 0) {
                 options.dataTo = options.dataTo.replace(
-                    (/\n {8}if \(!local\.isBrowser\) \{\n[\S\s]+?\n {4}\}\(\)\);\n/g),
+                    (/\n {8}if \(!local\.isBrowser\) \{\n[\S\s]*?\n {4}\}\(\)\);\n/g),
                     "\n        if (!local.isBrowser) {\n            return;\n        }\n    }());\n"
                 );
             }
@@ -20325,7 +20248,7 @@ local.assetsDict['/favicon.ico'] = '';
             }
             // recurse - csslint <style>...</style>
             script.replace(
-                (/^<style>(?:\\n\\)?\n([\S\s]+?)\n<\/style>(?:\\n\\)?$/gm),
+                (/^<style>(?:\\n\\)?\n([\S\s]*?)\n<\/style>(?:\\n\\)?$/gm),
                 function (match0, match1, ii, text) {
                     match0 = match1;
                     local.jslintAndPrintConditional(
@@ -20341,7 +20264,7 @@ local.assetsDict['/favicon.ico'] = '';
             );
             // recurse - jslint <script>...</script>
             script.replace((
-                /^(?:\/\/ )?<script>(?:\\n\\)?\n([\S\s]+?)\n(?:\/\/ )?<\/script>(?:\\n\\)?$/gm
+                /^(?:\/\/ )?<script>(?:\\n\\)?\n([\S\s]*?)\n(?:\/\/ )?<\/script>(?:\\n\\)?$/gm
             ), function (match0, match1, ii, text) {
                 match0 = match1;
                 local.jslintAndPrintConditional(
@@ -21617,7 +21540,7 @@ vendor)s{0,1}(\\b|_)\
             );
             local.tryCatchOnError(function () {
                 tmp = !local.env.npm_package_buildCustomOrg &&
-                    (/```\w*?(\n[\W\s]*?example\.js[\n\"][\S\s]+?)\n```/).exec(
+                    (/```\w*?(\n[\W\s]*?example\.js[\n\"][\S\s]*?)\n```/).exec(
                         local.fs.readFileSync('README.md', 'utf8')
                     );
                 script = tmp.input.slice(0, tmp.index).replace((/.+/g), '') + tmp[1];
@@ -21674,7 +21597,7 @@ vendor)s{0,1}(\\b|_)\
                     ) || local.templateRender(
                         // uncomment utility2-comment
                         local.assetsDict['/' + tmp].replace(
-                            (/<!-- utility2-comment\b([\S\s]+?)\butility2-comment -->/g),
+                            (/<!-- utility2-comment\b([\S\s]*?)\butility2-comment -->/g),
                             '$1'
                         ),
                         { env: local.env, isRollup: isRollup }
@@ -23826,7 +23749,7 @@ instruction\n\
                             .replace((/npm_package_/g), '')
                             // uncomment utility2-comment
                             .replace(
-                                (/<!-- utility2-comment\b([\S\s]+?)\butility2-comment -->/g),
+                                (/<!-- utility2-comment\b([\S\s]*?)\butility2-comment -->/g),
                                 '$1'
                             ), {
                                 env: local.objectSetDefault({
@@ -25556,7 +25479,87 @@ local.assetsDict['/assets.swgg.html'] = local.assetsDict['/assets.utility2.templ
     regexp: true,\n\
     stupid: true\n\
 */\n\
-"use strict";\n\
+// init domOnEventMediaHotkeys\n\
+(function () {\n\
+/*\n\
+ * this function will add media-hotkeys to elements with class=".domOnEventMediaHotkeysInit"\n\
+ */\n\
+    "use strict";\n\
+    var input, onEvent;\n\
+    if (window.domOnEventMediaHotkeys) {\n\
+        return;\n\
+    }\n\
+    onEvent = window.domOnEventMediaHotkeys = function (event) {\n\
+        var media;\n\
+        if (event === "init") {\n\
+            Array.from(document.querySelectorAll(\n\
+                ".domOnEventMediaHotkeysInit"\n\
+            )).forEach(function (media) {\n\
+                media.classList.remove("domOnEventMediaHotkeysInit");\n\
+                media.classList.add("domOnEventMediaHotkeys");\n\
+                ["play", "pause", "seeking"].forEach(function (event) {\n\
+                    media.addEventListener(event, onEvent);\n\
+                });\n\
+            });\n\
+            return;\n\
+        }\n\
+        if (event.currentTarget.classList.contains("domOnEventMediaHotkeys")) {\n\
+            window.domOnEventMediaHotkeysMedia1 = event.currentTarget;\n\
+            window.domOnEventMediaHotkeysInput.focus();\n\
+            return;\n\
+        }\n\
+        media = window.domOnEventMediaHotkeysMedia1;\n\
+        try {\n\
+            switch (event.key || event.type) {\n\
+            case ",":\n\
+            case ".":\n\
+                media.currentTime += (event.key === "," && -0.03125) || 0.03125;\n\
+                break;\n\
+            case "<":\n\
+            case ">":\n\
+                media.playbackRate *= (event.key === "<" && 0.5) || 2;\n\
+                break;\n\
+            case "ArrowDown":\n\
+            case "ArrowUp":\n\
+                media.volume += (event.key === "ArrowDown" && -0.05) || 0.05;\n\
+                break;\n\
+            case "ArrowLeft":\n\
+            case "ArrowRight":\n\
+                media.currentTime += (event.key === "ArrowLeft" && -5) || 5;\n\
+                break;\n\
+            case "j":\n\
+            case "l":\n\
+                media.currentTime += (event.key === "j" && -10) || 10;\n\
+                break;\n\
+            case "k":\n\
+            case " ":\n\
+                if (media.paused) {\n\
+                    media.play();\n\
+                } else {\n\
+                    media.pause();\n\
+                }\n\
+                break;\n\
+            case "m":\n\
+                media.muted = !media.muted;\n\
+                break;\n\
+            default:\n\
+                if (event.key >= 0) {\n\
+                    media.currentTime = 0.1 * event.key * media.duration;\n\
+                    break;\n\
+                }\n\
+                return;\n\
+            }\n\
+        } catch (ignore) {\n\
+        }\n\
+        event.preventDefault();\n\
+    };\n\
+    input = window.domOnEventMediaHotkeysInput = document.createElement("button");\n\
+    input.style = "border:0;height:0;margin:0;padding:0;position:fixed;width:0;z-index:-1;";\n\
+    input.addEventListener("click", onEvent);\n\
+    input.addEventListener("keydown", onEvent);\n\
+    document.body.appendChild(input);\n\
+    onEvent("init");\n\
+}());\n\
 document.querySelector(".swggUiContainer > .thead > .td2").value =\n\
     ((/\\bmodeSwaggerJsonUrl=([^&]+)/g).exec(location.search) || {})[1] ||\n\
     "assets.swgg.swagger.json";\n\
@@ -29787,87 +29790,6 @@ textarea {\\n\
         ajaxProgressUpdate();\\n\
     });\\n\
 }());\\n\
-// init domOnEventMediaHotkeys\\n\
-(function () {\\n\
-/*\\n\
- * this function will add media-hotkeys to elements with class=\".domOnEventMediaHotkeysInit\"\\n\
- */\\n\
-    \"use strict\";\\n\
-    var input, onEvent;\\n\
-    if (window.domOnEventMediaHotkeys) {\\n\
-        return;\\n\
-    }\\n\
-    onEvent = window.domOnEventMediaHotkeys = function (event) {\\n\
-        var media;\\n\
-        if (event === \"init\") {\\n\
-            Array.from(document.querySelectorAll(\\n\
-                \".domOnEventMediaHotkeysInit\"\\n\
-            )).forEach(function (media) {\\n\
-                media.classList.remove(\"domOnEventMediaHotkeysInit\");\\n\
-                media.classList.add(\"domOnEventMediaHotkeys\");\\n\
-                [\"play\", \"pause\", \"seeking\"].forEach(function (event) {\\n\
-                    media.addEventListener(event, onEvent);\\n\
-                });\\n\
-            });\\n\
-            return;\\n\
-        }\\n\
-        if (event.currentTarget.classList.contains(\"domOnEventMediaHotkeys\")) {\\n\
-            window.domOnEventMediaHotkeysMedia1 = event.currentTarget;\\n\
-            window.domOnEventMediaHotkeysInput.focus();\\n\
-            return;\\n\
-        }\\n\
-        media = window.domOnEventMediaHotkeysMedia1;\\n\
-        try {\\n\
-            switch (event.key || event.type) {\\n\
-            case \",\":\\n\
-            case \".\":\\n\
-                media.currentTime += (event.key === \",\" && -0.03125) || 0.03125;\\n\
-                break;\\n\
-            case \"<\":\\n\
-            case \">\":\\n\
-                media.playbackRate *= (event.key === \"<\" && 0.5) || 2;\\n\
-                break;\\n\
-            case \"ArrowDown\":\\n\
-            case \"ArrowUp\":\\n\
-                media.volume += (event.key === \"ArrowDown\" && -0.05) || 0.05;\\n\
-                break;\\n\
-            case \"ArrowLeft\":\\n\
-            case \"ArrowRight\":\\n\
-                media.currentTime += (event.key === \"ArrowLeft\" && -5) || 5;\\n\
-                break;\\n\
-            case \"j\":\\n\
-            case \"l\":\\n\
-                media.currentTime += (event.key === \"j\" && -10) || 10;\\n\
-                break;\\n\
-            case \"k\":\\n\
-            case \" \":\\n\
-                if (media.paused) {\\n\
-                    media.play();\\n\
-                } else {\\n\
-                    media.pause();\\n\
-                }\\n\
-                break;\\n\
-            case \"m\":\\n\
-                media.muted = !media.muted;\\n\
-                break;\\n\
-            default:\\n\
-                if (event.key >= 0) {\\n\
-                    media.currentTime = 0.1 * event.key * media.duration;\\n\
-                    break;\\n\
-                }\\n\
-                return;\\n\
-            }\\n\
-        } catch (ignore) {\\n\
-        }\\n\
-        event.preventDefault();\\n\
-    };\\n\
-    input = window.domOnEventMediaHotkeysInput = document.createElement(\"button\");\\n\
-    input.style = \"border:0;height:0;margin:0;padding:0;position:fixed;width:0;z-index:-1;\";\\n\
-    input.addEventListener(\"click\", onEvent);\\n\
-    input.addEventListener(\"keydown\", onEvent);\\n\
-    document.body.appendChild(input);\\n\
-    onEvent(\"init\");\\n\
-}());\\n\
 // init domOnEventSelectAllWithinPre\\n\
 (function () {\\n\
 /*\\n\
@@ -30276,87 +30198,6 @@ textarea {\n\
         clearInterval(window.timerIntervalAjaxProgressUpdate);\n\
         ajaxProgressUpdate();\n\
     });\n\
-}());\n\
-// init domOnEventMediaHotkeys\n\
-(function () {\n\
-/*\n\
- * this function will add media-hotkeys to elements with class=\".domOnEventMediaHotkeysInit\"\n\
- */\n\
-    \"use strict\";\n\
-    var input, onEvent;\n\
-    if (window.domOnEventMediaHotkeys) {\n\
-        return;\n\
-    }\n\
-    onEvent = window.domOnEventMediaHotkeys = function (event) {\n\
-        var media;\n\
-        if (event === \"init\") {\n\
-            Array.from(document.querySelectorAll(\n\
-                \".domOnEventMediaHotkeysInit\"\n\
-            )).forEach(function (media) {\n\
-                media.classList.remove(\"domOnEventMediaHotkeysInit\");\n\
-                media.classList.add(\"domOnEventMediaHotkeys\");\n\
-                [\"play\", \"pause\", \"seeking\"].forEach(function (event) {\n\
-                    media.addEventListener(event, onEvent);\n\
-                });\n\
-            });\n\
-            return;\n\
-        }\n\
-        if (event.currentTarget.classList.contains(\"domOnEventMediaHotkeys\")) {\n\
-            window.domOnEventMediaHotkeysMedia1 = event.currentTarget;\n\
-            window.domOnEventMediaHotkeysInput.focus();\n\
-            return;\n\
-        }\n\
-        media = window.domOnEventMediaHotkeysMedia1;\n\
-        try {\n\
-            switch (event.key || event.type) {\n\
-            case \",\":\n\
-            case \".\":\n\
-                media.currentTime += (event.key === \",\" && -0.03125) || 0.03125;\n\
-                break;\n\
-            case \"<\":\n\
-            case \">\":\n\
-                media.playbackRate *= (event.key === \"<\" && 0.5) || 2;\n\
-                break;\n\
-            case \"ArrowDown\":\n\
-            case \"ArrowUp\":\n\
-                media.volume += (event.key === \"ArrowDown\" && -0.05) || 0.05;\n\
-                break;\n\
-            case \"ArrowLeft\":\n\
-            case \"ArrowRight\":\n\
-                media.currentTime += (event.key === \"ArrowLeft\" && -5) || 5;\n\
-                break;\n\
-            case \"j\":\n\
-            case \"l\":\n\
-                media.currentTime += (event.key === \"j\" && -10) || 10;\n\
-                break;\n\
-            case \"k\":\n\
-            case \" \":\n\
-                if (media.paused) {\n\
-                    media.play();\n\
-                } else {\n\
-                    media.pause();\n\
-                }\n\
-                break;\n\
-            case \"m\":\n\
-                media.muted = !media.muted;\n\
-                break;\n\
-            default:\n\
-                if (event.key >= 0) {\n\
-                    media.currentTime = 0.1 * event.key * media.duration;\n\
-                    break;\n\
-                }\n\
-                return;\n\
-            }\n\
-        } catch (ignore) {\n\
-        }\n\
-        event.preventDefault();\n\
-    };\n\
-    input = window.domOnEventMediaHotkeysInput = document.createElement(\"button\");\n\
-    input.style = \"border:0;height:0;margin:0;padding:0;position:fixed;width:0;z-index:-1;\";\n\
-    input.addEventListener(\"click\", onEvent);\n\
-    input.addEventListener(\"keydown\", onEvent);\n\
-    document.body.appendChild(input);\n\
-    onEvent(\"init\");\n\
 }());\n\
 // init domOnEventSelectAllWithinPre\n\
 (function () {\n\
