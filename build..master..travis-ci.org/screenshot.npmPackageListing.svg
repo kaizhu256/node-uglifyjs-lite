@@ -1,25 +1,27 @@
-<svg height="190" width="720" xmlns="http://www.w3.org/2000/svg">
-<rect height="190" fill="#555" width="720"></rect>
+<svg height="206" width="720" xmlns="http://www.w3.org/2000/svg">
+<rect height="206" fill="#555" width="720"></rect>
 <text fill="#7f7" font-family="Courier New" font-size="12" xml:space="preserve">
-<tspan x="10" y="26">  package files</tspan>
+<tspan x="10" y="26">package files</tspan>
 
 <tspan x="10" y="42"></tspan>
 
-<tspan x="10" y="58">  0.  2018-04-09 08:43:17 +0800   104401 bytes  .</tspan>
+<tspan x="10" y="58">0.   2018-08-15 12:42:11 +0700   110859 bytes  .</tspan>
 
-<tspan x="10" y="74">  1.  2017-02-19 01:35:39 +0800       99 bytes  .gitignore</tspan>
+<tspan x="10" y="74">1.   2018-05-25 21:22:11 +0800      117 bytes  .gitignore</tspan>
 
-<tspan x="10" y="90">  2.  2018-04-09 08:43:17 +0800     1317 bytes  .travis.yml</tspan>
+<tspan x="10" y="90">2.   2018-05-25 21:22:11 +0800     1589 bytes  .travis.yml</tspan>
 
-<tspan x="10" y="106">  3.  2017-03-28 23:19:09 +0800     1120 bytes  LICENSE</tspan>
+<tspan x="10" y="106">3.   2018-08-15 12:42:11 +0700     1090 bytes  LICENSE</tspan>
 
-<tspan x="10" y="122">  4.  2018-04-09 08:43:17 +0800    33420 bytes  README.md</tspan>
+<tspan x="10" y="122">4.   2018-08-15 12:42:11 +0700    37687 bytes  README.md</tspan>
 
-<tspan x="10" y="138">  5.  2018-04-09 08:43:17 +0800    64769 bytes  lib.uglifyjs.js</tspan>
+<tspan x="10" y="138">5.   2018-08-15 12:42:11 +0700    65324 bytes  lib.uglifyjs.js</tspan>
 
-<tspan x="10" y="154">  6.  2018-04-09 08:43:17 +0800     1677 bytes  package.json</tspan>
+<tspan x="10" y="154">6.   2018-08-15 12:42:11 +0700     2095 bytes  npm_scripts.sh</tspan>
 
-<tspan x="10" y="170">  7.  2018-04-09 08:43:17 +0800     1999 bytes  test.js</tspan>
+<tspan x="10" y="170">7.   2018-08-15 12:42:11 +0700     1333 bytes  package.json</tspan>
+
+<tspan x="10" y="186">8.   2018-08-15 12:42:11 +0700     1624 bytes  test.js</tspan>
 
 </text>
 </svg>

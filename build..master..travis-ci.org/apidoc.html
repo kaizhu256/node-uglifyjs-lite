@@ -52,7 +52,7 @@
 
         href="https://github.com/kaizhu256/node-uglifyjs-lite"
 
-    >uglifyjs-lite (v2018.4.8)</a>
+    >uglifyjs-lite (2018.8.15)</a>
 </h1>
 <h4>this zero-dependency package will provide a browser-compatible version of the uglifyjs (v1.3.5) javascript-minifier, with a working web-demo</h4>
 <div class="apidocSectionDiv"><a
@@ -199,18 +199,18 @@
 
         <li>
 
-            <a class="apidocElementLiA" href="#apidoc.element.uglifyjs-lite.parse">
-            function <span class="apidocSignatureSpan">uglifyjs-lite.</span>parse
-            <span class="apidocSignatureSpan">(e, t, n)</span>
+            <a class="apidocElementLiA" href="#apidoc.element.uglifyjs-lite.nop">
+            function <span class="apidocSignatureSpan">uglifyjs-lite.</span>nop
+            <span class="apidocSignatureSpan">()</span>
             </a>
 
         </li>
 
         <li>
 
-            <a class="apidocElementLiA" href="#apidoc.element.uglifyjs-lite.serverLog">
-            function <span class="apidocSignatureSpan">uglifyjs-lite.</span>serverLog
-            <span class="apidocSignatureSpan">(options)</span>
+            <a class="apidocElementLiA" href="#apidoc.element.uglifyjs-lite.parse">
+            function <span class="apidocSignatureSpan">uglifyjs-lite.</span>parse
+            <span class="apidocSignatureSpan">(e, t, n)</span>
             </a>
 
         </li>
@@ -262,6 +262,12 @@
 
         <li>
 
+            <span class="apidocSignatureSpan">number <span class="apidocSignatureSpan">uglifyjs-lite.</span>timeExit</span>
+
+        </li>
+
+        <li>
+
             <span class="apidocSignatureSpan">object <span class="apidocSignatureSpan">uglifyjs-lite.</span>ATOMIC_START_TOKEN</span>
 
         </li>
@@ -293,12 +299,6 @@
         <li>
 
             <span class="apidocSignatureSpan">object <span class="apidocSignatureSpan">uglifyjs-lite.</span>RESERVED_WORDS</span>
-
-        </li>
-
-        <li>
-
-            <span class="apidocSignatureSpan">object <span class="apidocSignatureSpan">uglifyjs-lite.</span>_debugTryCatchError</span>
 
         </li>
 
@@ -372,7 +372,7 @@
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">MAP = function (r, i, s){function f(){var f=i.call(s,r[a],a);f instanceof t?(f=f.v,f instanceof n?u.
+    <li>description and source-code<pre class="apidocCodePre">function(r, i, s){function f(){var f=i.call(s,r[a],a);f instanceof t?(f=f.v,f instanceof n?u.
 push.apply(u,f.v):u.push(f)):f!=e&amp;&amp;(f instanceof n?o.push.apply(o,f.v):o.push(f)
 )}var o=[],u=[],a;if(r instanceof Array)for(a=0;a&lt;r.length;++a)f();else for(a in
 r)HOP(r,a)&amp;&amp;f();return u.concat(o)}</pre></li>
@@ -504,7 +504,7 @@ mangle:!0,toplevel:!1,defines:null,except:null,no_functions:!1}),n.with_walkers(
 tmp = local.parse(code
     .trim()
     // comment shebang
-    .replace((/^#!/), &apos;//&apos;));
+    .replace((/^#!\//), &apos;// &apos;));
 // get a new AST with mangled names
 tmp = local.<span class="apidocCodeKeywordSpan">ast_mangle</span>(tmp);
 // get an AST with compression optimizations
@@ -531,7 +531,7 @@ return tmp;
         tmp = local.parse(code
             .trim()
             // comment shebang
-            .replace((/^#!/), &apos;//&apos;));
+            .replace((/^#!\//), &apos;// &apos;));
         // get a new AST with mangled names
         tmp = local.ast_mangle(tmp);
         // get an AST with compression optimizations
@@ -613,67 +613,69 @@ e){return[this[0],e]}},r={},i=[];return{walk:s,dive:o,with_walkers:u,parent:func
     };
     local.cliDict._eval = local.cliDict._eval || function () {
     /*
-     * code
-     * eval code
+     * &lt;code&gt;
+     * # eval code
      */
         local.global.local = local;
         require(&apos;vm&apos;).runInThisContext(process.argv[3]);
     };
     local.cliDict[&apos;--eval&apos;] = local.cliDict[&apos;--eval&apos;] || local.cliDict._eval;
     local.cliDict[&apos;-e&apos;] = local.cliDict[&apos;-e&apos;] || local.cliDict._eval;
-    local.cliDict._help = local.cliDict._help || function () {
+    local.cliDict._help = local.cliDict._help || function (options) {
     /*
-     * [none]
-     * print help
+     *
+     * # print help
      */
-        var element, result, lengthList, sortDict;
-        console.log(require(__dirname + &apos;/package.json&apos;).name + &apos; v&apos; +
-            require(__dirname + &apos;/package.json&apos;).version);
-        sortDict = {};
-        result = [[&apos;[command]&apos;, &apos;[args]&apos;, &apos;[description]&apos;, -1]];
-        lengthList = [result[0][0].length, result[0][1].length];
+        var commandList, file, packageJson, text, textDict;
+        commandList = [{
+            arg: &apos;&lt;arg2&gt; ...&apos;,
+            description: &apos;usage:&apos;,
+            command: [&apos;&lt;arg1&gt;&apos;]
+        }];
+        file = __filename.replace((/.*\//), &apos;&apos;);
+        packageJson = require(&apos;./package.json&apos;);
+        textDict = {};
         Object.keys(local.cliDict).sort().forEach(function (key, ii) {
             if (key[0] === &apos;_&apos; &amp;&amp; key !== &apos;_default&apos;) {
                 return;
             }
-            sortDict[local.cliDict[key].toString()] =
-                sortDict[local.cliDict[key].toString()] || (ii + 1);
-            element = (/\n +\*(.*)\n +\*(.*)/).exec(local.cliDict[key].toString());
-            // coverage-hack - ignore else-statement
-            nop(local.global.__coverage__ &amp;&amp; (function () {
-                element = element || [&apos;&apos;, &apos;&apos;, &apos;&apos;];
-            }()));
-            element = [
-                key.replace(&apos;_default&apos;, &apos;[none]&apos;) + &apos; &apos;,
-                element[1].trim() + &apos; &apos;,
-                element[2].trim(),
-                (sortDict[local.cliDict[key].toString()] &lt;&lt; 8) + ii
-            ];
-            result.push(element);
-            lengthList.forEach(function (length, jj) {
-                lengthList[jj] = Math.max(element[jj].length, length);
-            });
-        });
-        result.sort(function (aa, bb) {
-            return aa[3] &lt; bb[3]
-                ? -1
-                : 1;
-        });
-        console.log(&apos;usage:   &apos; + __filename + &apos; [command] [args]&apos;);
-        console.log(&apos;example: &apos; + __filename + &apos; --eval    &apos; +
-            &apos;&quot;console.log(\&apos;hello world\&apos;)&quot;\n&apos;);
-        result.forEach(function (element, ii) {
-            lengthList.forEach(function (length, jj) {
-                while (element[jj].length &lt; length) {
-                    element[jj] += &apos;-&apos;;
-                }
-            });
-            element = element.slice(0, 3).join(&apos;---- &apos;);
-            if (!ii) {
-                element = element.replace((/-/g), &apos; &apos;);
+            text = String(local.cliDict[key]);
+            if (key === &apos;_default&apos;) {
+                key = &apos;&lt;&gt;&apos;;
             }
-            console.log(element);
+            ii = textDict[text] = textDict[text] || (ii + 1);
+            if (commandList[ii]) {
+                commandList[ii].command.push(key);
+            } else {
+                commandList[ii] = (/\n +?\*(.*?)\n +?\*(.*?)\n/).exec(text);
+                // coverage-hack - ignore else-statement
+                nop(local.global.__coverage__ &amp;&amp; (function () {
+                    commandList[ii] = commandList[ii] || [&apos;&apos;, &apos;&apos;, &apos;&apos;];
+                }()));
+                commandList[ii] = {
+                    arg: commandList[ii][1].trim(),
+                    command: [key],
+                    description: commandList[ii][2].trim()
+                };
+            }
         });
+        (options &amp;&amp; options.modeError
+            ? console.error
+            : console.log)((options &amp;&amp; options.modeError
+            ? &apos;\u001b[31merror: missing &lt;arg1&gt;\u001b[39m\n\n&apos;
+            : &apos;&apos;) + packageJson.name + &apos; (&apos; + packageJson.version + &apos;)\n\n&apos; + commandList
+            .filter(function (element) {
+                return element;
+            }).map(function (element) {
+                return (element.description + &apos;\n&apos; +
+                    file + &apos;  &apos; +
+                    element.command.sort().join(&apos;|&apos;) + &apos;  &apos; +
+                    element.arg.replace((/ +/g), &apos;  &apos;))
+                        .replace((/&lt;&gt;\||\|&lt;&gt;|&lt;&gt; {2}/), &apos;&apos;)
+                        .trim();
+            })
+            .join(&apos;\n\n&apos;) + &apos;\n\nexample:\n&apos; + file +
+            &apos;  --eval  \&apos;console.log(&quot;hello world&quot;)\&apos;&apos;);
     };
     local.cliDict[&apos;--help&apos;] = local.cliDict[&apos;--help&apos;] || local.cliDict._help;
     local.cliDict[&apos;-h&apos;] = local.cliDict[&apos;-h&apos;] || local.cliDict._help;
@@ -681,8 +683,8 @@ e){return[this[0],e]}},r={},i=[];return{walk:s,dive:o,with_walkers:u,parent:func
     local.cliDict.help = local.cliDict.help || local.cliDict._help;
     local.cliDict._interactive = local.cliDict._interactive || function () {
     /*
-     * [none]
-     * start interactive-mode
+     *
+     * # start interactive-mode
      */
         local.global.local = local;
         local.replStart();
@@ -694,12 +696,7 @@ e){return[this[0],e]}},r={},i=[];return{walk:s,dive:o,with_walkers:u,parent:func
     }
     local.cliDict._version = local.cliDict._version || function () {
     /*
-     * [none]
-     * print version
-     */
-        console.log(require(__dirname + &apos;/package.json&apos;).version);
-    };
-    local...</pre></li>
+     *...</pre></li>
     <li>example usage<pre class="apidocCodePre">...
             }
             // uglify file
@@ -709,8 +706,7 @@ e){return[this[0],e]}},r={},i=[];return{walk:s,dive:o,with_walkers:u,parent:func
             ), process.argv[2]));
         };
         local.<span class="apidocCodeKeywordSpan">cliRun</span>();
-        break;
-    }
+    }());
 }());
 ...</pre></li>
     </ul>
@@ -779,7 +775,7 @@ n&amp;&amp;s&amp;&amp;r&lt;t-1&amp;&amp;(o+=&quot;;&quot;),o}).join(i)+i+a(&quot
 n=e[1];return n!=null&amp;&amp;(t=h([u(t),&quot;=&quot;,d(n,&quot;seq&quot;)])),t}t=defau...</pre></li>
     <li>example usage<pre class="apidocCodePre">...
             // comment shebang
-            .replace((/^#!/), &apos;//&apos;));
+            .replace((/^#!\//), &apos;// &apos;));
         // get a new AST with mangled names
         tmp = local.ast_mangle(tmp);
         // get an AST with compression optimizations
@@ -791,7 +787,6 @@ n=e[1];return n!=null&amp;&amp;(t=h([u(t),&quot;=&quot;,d(n,&quot;seq&quot;)])),
         return tmp;
     };
 }());
-switch (local.modeJs) {
 ...</pre></li>
     </ul>
 
@@ -872,13 +867,32 @@ var n=t.length;--n&gt;=0;)if(t[n]==e)return!0;return!1}</pre></li>
 
 
     <h2>
+        <a href="#apidoc.element.uglifyjs-lite.nop" id="apidoc.element.uglifyjs-lite.nop">
+        function <span class="apidocSignatureSpan">uglifyjs-lite.</span>nop
+        <span class="apidocSignatureSpan">()</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">nop = function () {
+<span class="apidocCodeCommentSpan">/*
+ * this function will do nothing
+ */
+</span>    return;
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    </ul>
+
+
+
+    <h2>
         <a href="#apidoc.element.uglifyjs-lite.parse" id="apidoc.element.uglifyjs-lite.parse">
         function <span class="apidocSignatureSpan">uglifyjs-lite.</span>parse
         <span class="apidocSignatureSpan">(e, t, n)</span>
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">function parse(e, t, n){function i(e,t){return is_token(r.token,e,t)}function s(){return r.peeked||
+    <li>description and source-code<pre class="apidocCodePre">function parse
+(e, t, n){function i(e,t){return is_token(r.token,e,t)}function s(){return r.peeked||
 (r.peeked=r.input())}function o(){return r.prev=r.token,r.peeked?(r.token=r.peeked
 ,r.peeked=null):r.token=r.input(),r.in_directives=r.in_directives&amp;&amp;(r.token.type==&quot;string&quot;||
 i(&quot;punc&quot;,&quot;;&quot;)),r.token}function u(){return r.prev}function a(e,t,n,i){var s=r.input
@@ -913,7 +927,7 @@ t,n)}function L(){h(&quot;{&quot;);var e=[];while(!i(&quot;punc&quot;,&quot;}&qu
 i(&quot;punc&quot;,&quot;,&quot;)&amp;&amp;n?s.push([&quot;atom&quot;,&quot;undefined&quot;]):s.push(K(!1))}return o(),s}function j
 (){return v(&quot;array&quot;,B(&quot;]&quot;,!t,!0))}function F(){var e=!0,n=[];while(!i(&quot;punc&quot;,&quot;}&quot;
 )){e?e=!1:h(&quot;,&quot;);if(!t&amp;&amp;i(&quot;punc&quot;,&quot;}&quot;))break;var s=r.token.type,u=I();s!=&quot;name&quot;||
-u!=&quot;get&quot;&amp;&amp;u!=&quot;set&quot;||!!i(&quot;punc&quot;,&quot;:&quot;)?(h(&quot;:&quot;),n.push([u,K(!1)])...</pre></li>
+u!=&quot;get&quot;&amp;&amp;u!=&quot;set&quot;||!!i(&quot;punc&quot;,&quot;:&quot;)?(h(&quot;:&quot;),n.push([u,K(!1)]...</pre></li>
     <li>example usage<pre class="apidocCodePre">...
 n){return t.ascii_only&amp;&amp;(e=to_ascii(e)),&quot;/&quot;+e+&quot;/&quot;+n},array:function(e){return e.
 length==0?&quot;[]&quot;:h([&quot;[&quot;,p(MAP(e,function(t,r){return!n&amp;&amp;t[0]==&quot;atom&quot;&amp;&amp;t[1]==&quot;undefined
@@ -938,31 +952,13 @@ e===!0&amp;&amp;(e={});for(var r in t)HOP(t,r)&amp;&amp;(n[r]=e&amp;&amp;HOP(e,r
 
 
     <h2>
-        <a href="#apidoc.element.uglifyjs-lite.serverLog" id="apidoc.element.uglifyjs-lite.serverLog">
-        function <span class="apidocSignatureSpan">uglifyjs-lite.</span>serverLog
-        <span class="apidocSignatureSpan">(options)</span>
-        </a>
-    </h2>
-    <ul>
-    <li>description and source-code<pre class="apidocCodePre">serverLog = function (options) {
-<span class="apidocCodeCommentSpan">/*
- * this function will log server operations
- */
-</span>    console.error(&apos;serverLog - &apos; + JSON.stringify(options));
-}</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
-    </ul>
-
-
-
-    <h2>
         <a href="#apidoc.element.uglifyjs-lite.set_logger" id="apidoc.element.uglifyjs-lite.set_logger">
         function <span class="apidocSignatureSpan">uglifyjs-lite.</span>set_logger
         <span class="apidocSignatureSpan">(e)</span>
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">set_logger = function (e){warn=e}</pre></li>
+    <li>description and source-code<pre class="apidocCodePre">function(e){warn=e}</pre></li>
     <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
@@ -978,21 +974,23 @@ e===!0&amp;&amp;(e={});for(var r in t)HOP(t,r)&amp;&amp;(n[r]=e&amp;&amp;HOP(e,r
     <li>description and source-code<pre class="apidocCodePre">function slice(e, t){return Array.prototype.slice
 .call(e,t||0)}</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-        &apos;&quot;console.log(\&apos;hello world\&apos;)&quot;\n&apos;);
-    result.forEach(function (element, ii) {
-        lengthList.forEach(function (length, jj) {
-            while (element[jj].length &lt; length) {
-                element[jj] += &apos;-&apos;;
-            }
-        });
-        element = element.<span class="apidocCodeKeywordSpan">slice</span>(0, 3).join(&apos;---- &apos;);
-        if (!ii) {
-            element = element.replace((/-/g), &apos; &apos;);
-        }
-        console.log(element);
-    });
-};
-local.cliDict[&apos;--help&apos;] = local.cliDict[&apos;--help&apos;] || local.cliDict._help;
+.test(n)&amp;&amp;(warn(&quot;WARNING: at line &quot;+t.line),warn(&apos;*** Found &quot;conditional comment&quot;: &apos;+
+n),warn(&quot;*** UglifyJS DISCARDS ALL COMMENTS.  This means your code might no longer work properly in Internet Explorer.&quot
+;
+)),u(&quot;comment2&quot;,n,!0)})}function g(){var e=!1,t=&quot;&quot;,i,s=!1,o;while((i=n())!=null)
+if(!e)if(i==&quot;\\&quot;)s=e=!0,r();else{if(!is_identifier_char(i))break;t+=r()}else i!=&quot;u&quot;&amp;&amp;
+l(&quot;Expecting UnicodeEscapeSequence -- uXXXX&quot;),i=h(),is_identifier_char(i)||l(&quot;Unicode char: &quot;+
+i.charCodeAt(0)+&quot; is not valid in identifier&quot;),t+=i,e=!1;return HOP(KEYWORDS,t)&amp;&amp;
+s&amp;&amp;(o=t.charCodeAt(0).toString(16).toUpperCase(),t=&quot;\\u&quot;+&quot;0000&quot;.substr(o.length)+
+o+t.<span class="apidocCodeKeywordSpan">slice</span>(1)),t}function y(e){return x(&quot;Unterminated regular expression&quot;,function
+(
+){var t=!1,n,i=!1;while(n=r(!0))if(t)e+=&quot;\\&quot;+n,t=!1;else if(n==&quot;[&quot;)i=!0,e+=n;else if(
+n==&quot;]&quot;&amp;&amp;i)i=!1,e+=n;else{if(n==&quot;/&quot;&amp;&amp;!i)break;n==&quot;\\&quot;?t=!0:e+=n}var s=g();return u
+(&quot;regexp&quot;,[e,s])})}function b(e){function t(e){if(!n())return e;var i=e+n();return HOP
+(OPERATORS,i)?(r(),t(i)):e}return u(&quot;operator&quot;,t(e||r()))}function w(){r();var e=
+t.regex_allowed;switch(n()){case&quot;/&quot;:return t.comments_before.push(v()),t.regex_allowed=
+e,T();case&quot;*&quot;:return t.comments_before.push(m()),t.regex_allowed=e,T()}return t.
+regex_allowed?y(&quot;&quot;):b(&quot;/&quot;)}function E(){return r(),is_digit(n())?c(&quot;.&quot;):u(&quot;punc&quot;
 ...</pre></li>
     </ul>
 
@@ -1014,7 +1012,7 @@ e}var r=jsp.tokenizer(e),i=0,s;return a.context=function(){return r.context.appl
 )}).join(&quot;\n&quot;)}</pre></li>
     <li>example usage<pre class="apidocCodePre">...
             // comment shebang
-            .replace((/^#!/), &apos;//&apos;));
+            .replace((/^#!\//), &apos;// &apos;));
         // get a new AST with mangled names
         tmp = local.ast_mangle(tmp);
         // get an AST with compression optimizations
@@ -1026,7 +1024,6 @@ e}var r=jsp.tokenizer(e),i=0,s;return a.context=function(){return r.context.appl
         return tmp;
     };
 }());
-switch (local.modeJs) {
 ...</pre></li>
     </ul>
 
@@ -1129,7 +1126,7 @@ prototype.hasOwnProperty.call(e,t)}var jsp=require(&quot;./parse-js&quot;),curry
     tmp = local.parse(code
         .trim()
         // comment shebang
-        .replace((/^#!/), &apos;//&apos;));
+        .replace((/^#!\//), &apos;// &apos;));
     // get a new AST with mangled names
     tmp = local.ast_mangle(tmp);
     // get an AST with compression optimizations
@@ -1193,7 +1190,7 @@ return;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">MAP = function (r, i, s){function f(){var f=i.call(s,r[a],a);f instanceof t?(f=f.v,f instanceof n?u.
+    <li>description and source-code<pre class="apidocCodePre">function(r, i, s){function f(){var f=i.call(s,r[a],a);f instanceof t?(f=f.v,f instanceof n?u.
 push.apply(u,f.v):u.push(f)):f!=e&amp;&amp;(f instanceof n?o.push.apply(o,f.v):o.push(f)
 )}var o=[],u=[],a;if(r instanceof Array)for(a=0;a&lt;r.length;++a)f();else for(a in
 r)HOP(r,a)&amp;&amp;f();return u.concat(o)}</pre></li>
@@ -1209,7 +1206,7 @@ r)HOP(r,a)&amp;&amp;f();return u.concat(o)}</pre></li>
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">at_top = function (e){return new t(e)}</pre></li>
+    <li>description and source-code<pre class="apidocCodePre">function(e){return new t(e)}</pre></li>
     <li>example usage<pre class="apidocCodePre">...
 ){return n=MAP(n,function(e){return s(e)}),MAP(o,r)},f),[this[0],e,n,o]}function a
 (e,t,n){var r=i;i=e;if(n)for(var o in n)HOP(n,o)&amp;&amp;e.set_mangle(o,n[o]);for(var o in
@@ -1239,7 +1236,7 @@ mangle:!0,toplevel:!1,defines:null,except:null,no_functions:!1}),n.with_walkers(
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">splice = function (e){return new n(e)}</pre></li>
+    <li>description and source-code<pre class="apidocCodePre">function(e){return new n(e)}</pre></li>
     <li>example usage<pre class="apidocCodePre">...
 a,&quot;break&quot;:a,&quot;continue&quot;:a,assign:a,call:a,&quot;if&quot;:a,&quot;for&quot;:a,&quot;for-in&quot;:a,&quot;while
 &quot;:a,&quot;do&quot;
