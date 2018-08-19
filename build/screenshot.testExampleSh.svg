@@ -1,0 +1,57 @@
+<svg height="670" width="720" xmlns="http://www.w3.org/2000/svg">
+<rect height="670" fill="#555" width="720"></rect>
+<text fill="#7f7" font-family="Courier New" font-size="12" xml:space="preserve">
+<tspan x="10" y="26">  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current</tspan>
+
+<tspan x="10" y="42">                                 Dload  Upload   Total   Spent    Left  Speed</tspan>
+
+<tspan x="10" y="58"></tspan>
+<tspan x="10" y="74">  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0</tspan>
+<tspan x="10" y="90">100 1813k  100 1813k    0     0  5179k      0 --:--:-- --:--:-- --:--:-- 5182k</tspan>
+
+<tspan x="10" y="106"></tspan>
+
+<tspan x="10" y="122">testExampleSh - merged test-report from file /home/travis/build/kaizhu256/node-uglifyjs-lite/tmp\</tspan>
+<tspan x="10" y="138">/build/test-report.json</tspan>
+
+<tspan x="10" y="154">&gt; server listening on http-port 8081</tspan>
+
+<tspan x="10" y="170">serverLog - {"time":"2018-08-19T15:27:42.761Z","type":"serverResponse","method":"GET","url":"/",\</tspan>
+<tspan x="10" y="186">"statusCode":200,"timeElapsed":12,"requestContentLength":0,"responseContentLength":0,"requestHea\</tspan>
+<tspan x="10" y="202">derXForwardedFor":"","requestHeaderOrigin":"","requestHeaderReferer":"","requestHeaderUserAgent"\</tspan>
+<tspan x="10" y="218">:"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 El\</tspan>
+<tspan x="10" y="234">ectron/1.7.15 Safari/537.36"}</tspan>
+
+<tspan x="10" y="250">serverLog - {"time":"2018-08-19T15:27:42.887Z","type":"serverResponse","method":"GET","url":"/js\</tspan>
+<tspan x="10" y="266">onp.utility2.stateInit?callback=window.utility2.stateInit","statusCode":200,"timeElapsed":2,"req\</tspan>
+<tspan x="10" y="282">uestContentLength":0,"responseContentLength":0,"requestHeaderXForwardedFor":"","requestHeaderOri\</tspan>
+<tspan x="10" y="298">gin":"","requestHeaderReferer":"http://127.0.0.1:8081/","requestHeaderUserAgent":"Mozilla/5.0 (X\</tspan>
+<tspan x="10" y="314">11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Electron/1.7.15 Sa\</tspan>
+<tspan x="10" y="330">fari/537.36"}</tspan>
+
+<tspan x="10" y="346">serverLog - {"time":"2018-08-19T15:27:42.905Z","type":"serverResponse","method":"GET","url":"/as\</tspan>
+<tspan x="10" y="362">sets.example.js","statusCode":200,"timeElapsed":20,"requestContentLength":0,"responseContentLeng\</tspan>
+<tspan x="10" y="378">th":0,"requestHeaderXForwardedFor":"","requestHeaderOrigin":"","requestHeaderReferer":"http://12\</tspan>
+<tspan x="10" y="394">7.0.0.1:8081/","requestHeaderUserAgent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHT\</tspan>
+<tspan x="10" y="410">ML, like Gecko) Chrome/58.0.3029.110 Electron/1.7.15 Safari/537.36"}</tspan>
+
+<tspan x="10" y="426">serverLog - {"time":"2018-08-19T15:27:42.904Z","type":"serverResponse","method":"GET","url":"/as\</tspan>
+<tspan x="10" y="442">sets.uglifyjs.js","statusCode":200,"timeElapsed":35,"requestContentLength":0,"responseContentLen\</tspan>
+<tspan x="10" y="458">gth":0,"requestHeaderXForwardedFor":"","requestHeaderOrigin":"","requestHeaderReferer":"http://1\</tspan>
+<tspan x="10" y="474">27.0.0.1:8081/","requestHeaderUserAgent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KH\</tspan>
+<tspan x="10" y="490">TML, like Gecko) Chrome/58.0.3029.110 Electron/1.7.15 Safari/537.36"}</tspan>
+
+<tspan x="10" y="506">serverLog - {"time":"2018-08-19T15:27:42.906Z","type":"serverResponse","method":"GET","url":"/as\</tspan>
+<tspan x="10" y="522">sets.test.js","statusCode":200,"timeElapsed":35,"requestContentLength":0,"responseContentLength"\</tspan>
+<tspan x="10" y="538">:0,"requestHeaderXForwardedFor":"","requestHeaderOrigin":"","requestHeaderReferer":"http://127.0\</tspan>
+<tspan x="10" y="554">.0.1:8081/","requestHeaderUserAgent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML,\</tspan>
+<tspan x="10" y="570"> like Gecko) Chrome/58.0.3029.110 Electron/1.7.15 Safari/537.36"}</tspan>
+
+<tspan x="10" y="586">serverLog - {"time":"2018-08-19T15:27:42.886Z","type":"serverResponse","method":"GET","url":"/as\</tspan>
+<tspan x="10" y="602">sets.utility2.rollup.js","statusCode":200,"timeElapsed":135,"requestContentLength":0,"responseCo\</tspan>
+<tspan x="10" y="618">ntentLength":0,"requestHeaderXForwardedFor":"","requestHeaderOrigin":"","requestHeaderReferer":"\</tspan>
+<tspan x="10" y="634">http://127.0.0.1:8081/","requestHeaderUserAgent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/53\</tspan>
+<tspan x="10" y="650">7.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Electron/1.7.15 Safari/537.36"}</tspan>
+
+</text>
+</svg>
