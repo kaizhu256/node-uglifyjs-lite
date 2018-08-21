@@ -33,7 +33,7 @@
         local = local.global.local = (local.global.utility2 ||
             require('utility2')).requireReadme();
         // init test
-        local.testRunInit(local);
+        local.testRunDefault(local);
     }());
 
 

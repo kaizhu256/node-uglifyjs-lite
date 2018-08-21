@@ -61,7 +61,7 @@ this zero-dependency package will provide a browser-compatible version of the ug
 
 #### changelog 2018.8.15
 - npm publish 2018.8.15
-- migrate from modeJs -> isBrowser
+- support uglifying files with .htm and .html extensions
 - update build
 - none
 
@@ -191,7 +191,7 @@ instruction
                 if (document.querySelector('#testReportDiv1').style.maxHeight === '0px') {
                     local.uiAnimateSlideDown(document.querySelector('#testReportDiv1'));
                     document.querySelector('#testRunButton1').textContent = 'hide internal test';
-                    local.modeTest = true;
+                    local.modeTest = 1;
                     local.testRunDefault(local);
                 // hide tests
                 } else {
@@ -230,7 +230,7 @@ instruction
         };
         // log stderr and stdout to #outputStdoutTextarea1
         ['error', 'log'].forEach(function (key) {
-            console[key + '_original'] = console[key];
+            console[key + '_original'] = console[key + '_original'] || console[key];
             console[key] = function () {
                 var element;
                 console[key + '_original'].apply(console, arguments);
@@ -243,7 +243,7 @@ instruction
                     return typeof arg === 'string'
                         ? arg
                         : JSON.stringify(arg, null, 4);
-                }).join(' ') + '\n';
+                }).join(' ').replace((/\u001b\[\d*m/g), '') + '\n';
                 // scroll textarea to bottom
                 element.scrollTop = element.scrollHeight;
             };
@@ -447,6 +447,8 @@ textarea {\n\
 <body>\n\
 <div id="ajaxProgressDiv1" style="background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;"></div>\n\
 <div class="uiAnimateSpin" style="animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;"></div>\n\
+<a class="zeroPixel" download="db.persistence.json" href="" id="dbExportA1"></a>\n\
+<input class="zeroPixel" id="dbImportInput1" type="file">\n\
 <script>\n\
 /* jslint-utility2 */\n\
 /*jslint\n\
@@ -517,87 +519,6 @@ textarea {\n\
         ajaxProgressUpdate();\n\
     });\n\
 }());\n\
-// init domOnEventMediaHotkeys\n\
-(function () {\n\
-/*\n\
- * this function will add media-hotkeys to elements with class=".domOnEventMediaHotkeysInit"\n\
- */\n\
-    "use strict";\n\
-    var input, onEvent;\n\
-    if (window.domOnEventMediaHotkeys) {\n\
-        return;\n\
-    }\n\
-    onEvent = window.domOnEventMediaHotkeys = function (event) {\n\
-        var media;\n\
-        if (event === "init") {\n\
-            Array.from(document.querySelectorAll(\n\
-                ".domOnEventMediaHotkeysInit"\n\
-            )).forEach(function (media) {\n\
-                media.classList.remove("domOnEventMediaHotkeysInit");\n\
-                media.classList.add("domOnEventMediaHotkeys");\n\
-                ["play", "pause", "seeking"].forEach(function (event) {\n\
-                    media.addEventListener(event, onEvent);\n\
-                });\n\
-            });\n\
-            return;\n\
-        }\n\
-        if (event.currentTarget.classList.contains("domOnEventMediaHotkeys")) {\n\
-            window.domOnEventMediaHotkeysMedia1 = event.currentTarget;\n\
-            window.domOnEventMediaHotkeysInput.focus();\n\
-            return;\n\
-        }\n\
-        media = window.domOnEventMediaHotkeysMedia1;\n\
-        try {\n\
-            switch (event.key || event.type) {\n\
-            case ",":\n\
-            case ".":\n\
-                media.currentTime += (event.key === "," && -0.03125) || 0.03125;\n\
-                break;\n\
-            case "<":\n\
-            case ">":\n\
-                media.playbackRate *= (event.key === "<" && 0.5) || 2;\n\
-                break;\n\
-            case "ArrowDown":\n\
-            case "ArrowUp":\n\
-                media.volume += (event.key === "ArrowDown" && -0.05) || 0.05;\n\
-                break;\n\
-            case "ArrowLeft":\n\
-            case "ArrowRight":\n\
-                media.currentTime += (event.key === "ArrowLeft" && -5) || 5;\n\
-                break;\n\
-            case "j":\n\
-            case "l":\n\
-                media.currentTime += (event.key === "j" && -10) || 10;\n\
-                break;\n\
-            case "k":\n\
-            case " ":\n\
-                if (media.paused) {\n\
-                    media.play();\n\
-                } else {\n\
-                    media.pause();\n\
-                }\n\
-                break;\n\
-            case "m":\n\
-                media.muted = !media.muted;\n\
-                break;\n\
-            default:\n\
-                if (event.key >= 0) {\n\
-                    media.currentTime = 0.1 * event.key * media.duration;\n\
-                    break;\n\
-                }\n\
-                return;\n\
-            }\n\
-        } catch (ignore) {\n\
-        }\n\
-        event.preventDefault();\n\
-    };\n\
-    input = window.domOnEventMediaHotkeysInput = document.createElement("button");\n\
-    input.style = "border:0;height:0;margin:0;padding:0;position:fixed;width:0;z-index:-1;";\n\
-    input.addEventListener("click", onEvent);\n\
-    input.addEventListener("keydown", onEvent);\n\
-    document.body.appendChild(input);\n\
-    onEvent("init");\n\
-}());\n\
 // init domOnEventSelectAllWithinPre\n\
 (function () {\n\
 /*\n\
@@ -665,12 +586,12 @@ console.log(null);\n\
 {{#unless isRollup}}\n\
 utility2-comment -->\n\
 <script src="assets.utility2.rollup.js"></script>\n\
-<script>window.utility2.onResetBefore.counter += 1;</script>\n\
+<script>window.utility2_onReadyBefore.counter += 1;</script>\n\
 <script src="jsonp.utility2.stateInit?callback=window.utility2.stateInit"></script>\n\
 <script src="assets.uglifyjs.js"></script>\n\
 <script src="assets.example.js"></script>\n\
 <script src="assets.test.js"></script>\n\
-<script>window.utility2.onResetBefore();</script>\n\
+<script>window.utility2_onReadyBefore();</script>\n\
 <!-- utility2-comment\n\
 {{/if isRollup}}\n\
 utility2-comment -->\n\
@@ -694,6 +615,7 @@ utility2-comment -->\n\
         /* validateLineSortedReset */
         local.assetsDict['/'] =
             local.assetsDict['/assets.example.html'] =
+            local.assetsDict['/index.html'] =
             local.assetsDict['/assets.index.template.html']
             .replace((/\{\{env\.(\w+?)\}\}/g), function (match0, match1) {
                 switch (match1) {

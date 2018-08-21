@@ -37,7 +37,7 @@
                 context["_" + key + "Arguments"] = arguments;
                 consoleError("\n\n" + key);
                 consoleError.apply(console, arguments);
-                consoleError("\n");
+                consoleError(new Error().stack + "\n");
                 // return arg0 for inspection
                 return arg0;
             };
@@ -803,13 +803,30 @@ split_lines=split_lines,exports.MAP=MAP,exports.ast_squeeze_more=require("./sque
                     // remove comment /**/
                     .replace((/\/\*[\S\s]*?\*\//g), '')
                     // remove comment //
-                    .replace((/\/\/.*/g), '')
+                    .replace((/\/\/.*?$/gm), '')
                     // remove whitespace
                     .replace((/\t/g), ' ')
                     .replace((/ {2,}/g), ' ')
                     .replace((/ *?([\n,:;{}]) */g), '$1')
                     .replace((/\n\n+/g), '\n')
-                    .trim();
+                    .trim() + '\n';
+            }
+            // uglify html
+            if ((/\.htm$|\.html$/).test(file || '')) {
+                return code
+                    // remove comment /**/
+                    .replace((/\/\*[\S\s]*?\*\//g), '')
+                    // remove comment //
+                    .replace((/\/\/.*?$/gm), '')
+                    // save whitespace in <pre></pre>
+                    .replace((/<pre>[\S\s]*?<\/pre>/g), function (match0) {
+                        return match0.replace((/\n/g), '\x00');
+                    })
+                    // remove whitespace
+                    .replace((/\s*?\n\s*/g), ' ')
+                    // restore whitespace in <pre></pre>
+                    .replace((/\x00/g), '\n')
+                    .trim() + '\n';
             }
             // parse code and get the initial AST
             tmp = local.parse(code
@@ -824,7 +841,7 @@ split_lines=split_lines,exports.MAP=MAP,exports.ast_squeeze_more=require("./sque
             tmp = local.split_lines(local.gen_code(tmp, { ascii_only: true }), 79);
             // escape \r and \t
             tmp = tmp.replace((/\r/g), '\\r').replace((/\t/g), '\\t');
-            return tmp;
+            return tmp.trim() + '\n';
         };
     }());
 
@@ -869,7 +886,7 @@ split_lines=split_lines,exports.MAP=MAP,exports.ast_squeeze_more=require("./sque
                 return;
             }
             // uglify file
-            console.log(local.uglify(local.fs.readFileSync(
+            process.stdout.write(local.uglify(local.fs.readFileSync(
                 local.path.resolve(process.cwd(), process.argv[2]),
                 'utf8'
             ), process.argv[2]));
