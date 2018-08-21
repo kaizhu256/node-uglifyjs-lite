@@ -279,11 +279,11 @@
     </tr>
     </thead>
     <tbody>
-        <td>branches: 1058<br>statements: 750<br>functions: 239</td>
-        <td>100%<br>(1383 / 1383)</td>
-        <td>100%<br>(1370 / 1370)</td>
-        <td>100%<br>(408 / 408)</td>
-        <td>100%<br>(584 / 584)</td>
+        <td>branches: 1059<br>statements: 750<br>functions: 239</td>
+        <td>100%<br>(1386 / 1386)</td>
+        <td>100%<br>(1374 / 1374)</td>
+        <td>100%<br>(409 / 409)</td>
+        <td>100%<br>(587 / 587)</td>
     </tbody>
     </table>
     <div class="path"><a href="../index.html">All files</a> &#187; <a href="index.html">node-uglifyjs-lite/</a> &#187; lib.uglifyjs.js</div>
@@ -1170,7 +1170,24 @@
 878
 879
 880
-881</td><td class="line-coverage"><span class="cline-any cline-neutral">&nbsp;</span>
+881
+882
+883
+884
+885
+886
+887
+888
+889
+890
+891
+892
+893
+894
+895
+896
+897
+898</td><td class="line-coverage"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1968,7 +1985,21 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5</span>
+<span class="cline-any cline-yes">7</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">5</span>
 <span class="cline-any cline-yes">2</span>
@@ -1976,6 +2007,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -2089,7 +2123,7 @@
 <span class="cstat-skip" title="statement not covered" >                context["_" + key + "Arguments"] = arguments;</span>
 <span class="cstat-skip" title="statement not covered" >                consoleError("\n\n" + key);</span>
 <span class="cstat-skip" title="statement not covered" >                consoleError.apply(console, arguments);</span>
-<span class="cstat-skip" title="statement not covered" >                consoleError("\n");</span>
+<span class="cstat-skip" title="statement not covered" >                consoleError(new Error().stack + "\n");</span>
                 // return arg0 for inspection
 <span class="cstat-skip" title="statement not covered" >                return arg0;</span>
             };
@@ -2855,12 +2889,29 @@ split_lines=split_lines,exports.MAP=MAP,exports.ast_squeeze_more=require("./sque
                     // remove comment /**/
                     .replace((/\/\*[\S\s]*?\*\//g), '')
                     // remove comment //
-                    .replace((/\/\/.*/g), '')
+                    .replace((/\/\/.*?$/gm), '')
                     // remove whitespace
                     .replace((/\t/g), ' ')
                     .replace((/ {2,}/g), ' ')
                     .replace((/ *?([\n,:;{}]) */g), '$1')
                     .replace((/\n\n+/g), '\n')
+                    .trim();
+            }
+            // uglify html
+            if ((/\.htm$|\.html$/).test(file || <span class="branch-1 cbranch-skip" title="branch not covered" >'')</span>) {
+                return code
+                    // remove comment /**/
+                    .replace((/\/\*[\S\s]*?\*\//g), '')
+                    // remove comment //
+                    .replace((/\/\/.*?$/gm), '')
+                    // save whitespace in &lt;pre&gt;&lt;/pre&gt;
+                    .replace((/&lt;pre&gt;[\S\s]*?&lt;\/pre&gt;/g), function (match0) {
+                        return match0.replace((/\n/g), '\x00');
+                    })
+                    // remove whitespace
+                    .replace((/\s*?\n\s*/g), ' ')
+                    // restore whitespace in &lt;pre&gt;&lt;/pre&gt;
+                    .replace((/\x00/g), '\n')
                     .trim();
             }
             // parse code and get the initial AST
@@ -2921,7 +2972,7 @@ split_lines=split_lines,exports.MAP=MAP,exports.ast_squeeze_more=require("./sque
 <span class="cstat-skip" title="statement not covered" >                return;</span>
             }
             // uglify file
-<span class="cstat-skip" title="statement not covered" >            console.log(local.uglify(local.fs.readFileSync(</span>
+<span class="cstat-skip" title="statement not covered" >            process.stdout.write(local.uglify(local.fs.readFileSync(</span>
                 local.path.resolve(process.cwd(), process.argv[2]),
                 'utf8'
             ), process.argv[2]));
@@ -2934,7 +2985,7 @@ split_lines=split_lines,exports.MAP=MAP,exports.ast_squeeze_more=require("./sque
 </table></pre>
 </div>
 <div class="footer">
-    <div class="meta">Generated by <a href="https://github.com/kaizhu256/node-utility2" target="_blank">utility2</a> at Sun Aug 19 2018 15:24:16 GMT+0000 (Coordinated Universal Time)</div>
+    <div class="meta">Generated by <a href="https://github.com/kaizhu256/node-utility2" target="_blank">utility2</a> at Tue Aug 21 2018 17:59:46 GMT+0000 (Coordinated Universal Time)</div>
 </div>
 </body>
 </html>

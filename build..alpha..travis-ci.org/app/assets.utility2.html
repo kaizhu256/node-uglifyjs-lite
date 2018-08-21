@@ -245,6 +245,7 @@ textarea {
 <h3>the zero-dependency, swiss-army-knife utility for building, testing, and deploying webapps</h3>
 
 <a class="button" download href="assets.app.js">download standalone app</a><br>
+<button class="zeroPixel" id="testRunButton1"></button>
 <button class="button onclick onreset" id="testRunButton2">run internal test</button><br>
 
 
@@ -262,7 +263,7 @@ textarea {
     "use strict";
     var testCaseDict;
     testCaseDict = {};
-    testCaseDict.modeTest = true;
+    testCaseDict.modeTest = 1;
 
     // comment this testCase to disable the failed assertion demo
     testCaseDict.testCase_failed_assertion_demo = function (options, onError) {
@@ -301,8 +302,8 @@ textarea {
     window.utility2.testRunDefault(testCaseDict);
 }());
 </textarea>
-<pre id="outputPreJsonStringify1" tabindex="0"></pre>
-<pre class= "colorError" id="outputPreJslint1" tabindex="0"></pre>
+<pre id="outputJsonStringifyPre1" tabindex="0"></pre>
+<pre class= "colorError" id="outputJslintPre1" tabindex="0"></pre>
 <label>instrumented-code</label>
 <textarea class="resettable" id="outputTextarea1" readonly></textarea>
 <label>stderr and stdout</label>

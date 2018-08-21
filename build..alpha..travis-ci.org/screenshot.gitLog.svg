@@ -1,11 +1,11 @@
 <svg height="1102" width="720" xmlns="http://www.w3.org/2000/svg">
 <rect height="1102" fill="#555" width="720"></rect>
 <text fill="#7f7" font-family="Courier New" font-size="12" xml:space="preserve">
-<tspan x="10" y="26">2018-08-19 22:12:35 +0700u000a[build clean]</tspan>
+<tspan x="10" y="26">2018-08-22 00:39:50 +0700u000a- support uglifying files with .htm and .html extensions</tspan>
 
 <tspan x="10" y="42"></tspan>
 
-<tspan x="10" y="58">2018-08-17 18:49:46 +0700u000aupdate.build</tspan>
+<tspan x="10" y="58">2018-08-22 00:34:30 +0700u000a- support uglifying files with .htm and .html extensions</tspan>
 
 <tspan x="10" y="74"></tspan>
 

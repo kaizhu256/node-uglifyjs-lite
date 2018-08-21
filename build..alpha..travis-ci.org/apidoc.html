@@ -700,7 +700,7 @@ e){return[this[0],e]}},r={},i=[];return{walk:s,dive:o,with_walkers:u,parent:func
     <li>example usage<pre class="apidocCodePre">...
             }
             // uglify file
-            console.log(local.uglify(local.fs.readFileSync(
+            process.stdout.write(local.uglify(local.fs.readFileSync(
                 local.path.resolve(process.cwd(), process.argv[2]),
                 &apos;utf8&apos;
             ), process.argv[2]));
@@ -1114,12 +1114,29 @@ prototype.hasOwnProperty.call(e,t)}var jsp=require(&quot;./parse-js&quot;),curry
             // remove comment /**/
             .replace((/\/\*[\S\s]*?\*\//g), &apos;&apos;)
             // remove comment //
-            .replace((/\/\/.*/g), &apos;&apos;)
+            .replace((/\/\/.*?$/gm), &apos;&apos;)
             // remove whitespace
             .replace((/\t/g), &apos; &apos;)
             .replace((/ {2,}/g), &apos; &apos;)
             .replace((/ *?([\n,:;{}]) */g), &apos;$1&apos;)
             .replace((/\n\n+/g), &apos;\n&apos;)
+            .trim();
+    }
+    // uglify html
+    if ((/\.htm$|\.html$/).test(file || &apos;&apos;)) {
+        return code
+            // remove comment /**/
+            .replace((/\/\*[\S\s]*?\*\//g), &apos;&apos;)
+            // remove comment //
+            .replace((/\/\/.*?$/gm), &apos;&apos;)
+            // save whitespace in &lt;pre&gt;&lt;/pre&gt;
+            .replace((/&lt;pre&gt;[\S\s]*?&lt;\/pre&gt;/g), function (match0) {
+                return match0.replace((/\n/g), &apos;\x00&apos;);
+            })
+            // remove whitespace
+            .replace((/\s*?\n\s*/g), &apos; &apos;)
+            // restore whitespace in &lt;pre&gt;&lt;/pre&gt;
+            .replace((/\x00/g), &apos;\n&apos;)
             .trim();
     }
     // parse code and get the initial AST

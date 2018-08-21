@@ -76,7 +76,7 @@
                 context["_" + key + "Arguments"] = arguments;
                 consoleError("\n\n" + key);
                 consoleError.apply(console, arguments);
-                consoleError("\n");
+                consoleError(new Error().stack + "\n");
                 // return arg0 for inspection
                 return arg0;
             };
@@ -1193,7 +1193,7 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
                 context["_" + key + "Arguments"] = arguments;
                 consoleError("\n\n" + key);
                 consoleError.apply(console, arguments);
-                consoleError("\n");
+                consoleError(new Error().stack + "\n");
                 // return arg0 for inspection
                 return arg0;
             };
@@ -2471,6 +2471,7 @@ vendor)s{0,1}(\\b|_)\
         /*
          * this function will drop the dbTable
          */
+            console.error('db - dropping dbTable ' + this.name + ' ...');
             // cancel pending save
             this.timerSave = null;
             while (this.onSaveList.length) {
@@ -2480,7 +2481,6 @@ vendor)s{0,1}(\\b|_)\
             local._DbTable.call(this, this);
             // clear persistence
             local.storageRemoveItem('dbTable.' + this.name + '.json', onError);
-            console.error('db - dropped dbTable ' + this.name);
         };
 
         local._DbTable.prototype.export = function (onError) {
@@ -2598,6 +2598,7 @@ vendor)s{0,1}(\\b|_)\
          * this function will drop the db
          */
             var onParallel;
+            console.error('db - dropping database ...');
             onParallel = local.onParallel(function (error) {
                 local.setTimeoutOnError(onError, 0, error);
             });
@@ -2608,7 +2609,6 @@ vendor)s{0,1}(\\b|_)\
                 onParallel.counter += 1;
                 local.dbTableDict[key].drop(onParallel);
             });
-            console.error('db - dropped database');
             onParallel();
         };
 
@@ -2619,9 +2619,9 @@ vendor)s{0,1}(\\b|_)\
             var result;
             result = '';
             Object.keys(local.dbTableDict).forEach(function (key) {
+                console.error('db - exporting dbTable ' + local.dbTableDict[key].name + ' ...');
                 result += local.dbTableDict[key].export();
                 result += '\n\n';
-                console.error('db - exported dbTable ' + local.dbTableDict[key].name);
             });
             return local.setTimeoutOnError(onError, 0, null, result.trim());
         };
@@ -2671,7 +2671,7 @@ vendor)s{0,1}(\\b|_)\
                 }
             });
             Object.keys(dbTableDict).forEach(function (name) {
-                console.error('db - imported dbTable ' + name);
+                console.error('db - importing dbTable ' + name + ' ...');
             });
             local.modeImport = null;
             return local.setTimeoutOnError(onError);
@@ -2704,19 +2704,23 @@ vendor)s{0,1}(\\b|_)\
             });
         };
 
-        local.dbReset = function (options, onError) {
+        local.dbReset = function (dbSeedList, onError) {
         /*
-         * this function will drop and seed the db with options.dbSeedList
+         * this function will drop and seed the db with the given dbSeedList
          */
             var onParallel;
-            options = Object.assign({}, options);
-            // reset db
-            onParallel = options.onResetBefore || local.onParallel(onError);
+            onParallel = local.global.utility2_onReadyBefore || local.onParallel(onError);
             onParallel.counter += 1;
-            local.dbDrop(onParallel);
-            // seed db
-            options.onReadyBefore = options.onReadyBefore || onParallel;
-            local.dbSeed(options);
+            // drop db
+            onParallel.counter += 1;
+            local.dbDrop(function (error) {
+                local.onErrorDefault(error);
+                // seed db
+                local.dbSeed(dbSeedList, !local.global.utility2_onReadyBefore && onParallel);
+                (local.global.utility2_onReadyBefore || local.nop)();
+            });
+            (local.global.utility2_onReadyAfter || local.nop)(onError);
+            onParallel();
         };
 
         local.dbRowGetItem = function (dbRow, key) {
@@ -2960,30 +2964,25 @@ vendor)s{0,1}(\\b|_)\
             onParallel();
         };
 
-        local.dbSeed = function (options, onError) {
+        local.dbSeed = function (dbSeedList, onError) {
         /*
-         * this function will seed the db with options.dbSeedList
+         * this function will seed the db with the given dbSeedList
          */
             var dbTableDict, onParallel;
             dbTableDict = {};
-            options = Object.assign({
-                dbSeedList: [],
-                onReadyBefore: local.onParallel(onError)
-            }, options);
-            // seed db
-            onParallel = options.onReadyBefore;
+            onParallel = local.global.utility2_onReadyBefore || local.onParallel(onError);
             onParallel.counter += 1;
-            (options.onResetAfter || function (onError) {
-                onError();
-            })(function () {
-                local.dbTableCreateMany(options.dbSeedList, onParallel);
-            });
-            options.dbSeedList.forEach(function (options) {
+            // seed db
+            onParallel.counter += 1;
+            local.dbTableCreateMany(dbSeedList, onParallel);
+            (dbSeedList || []).forEach(function (options) {
                 dbTableDict[options.name] = true;
             });
             Object.keys(dbTableDict).forEach(function (name) {
-                console.error('db - seeded dbTable ' + name);
+                console.error('db - seeding dbTable ' + name + ' ...');
             });
+            (local.global.utility2_onReadyAfter || local.nop)(onError);
+            onParallel();
         };
 
         local.dbTableCreateMany = function (optionsList, onError) {
@@ -3043,14 +3042,14 @@ vendor)s{0,1}(\\b|_)\
 
         local.dbTableDict = {};
 
-        local.domOnEventDb = function (event) {
+        local.onEventDomDb = function (event) {
         /*
          * this function will handle db dom-events
          */
             var ajaxProgressUpdate, reader, tmp, utility2;
             utility2 = local.global.utility2 || {};
-            ajaxProgressUpdate = (utility2 && utility2.ajaxProgressUpdate) || local.nop;
-            switch (event.target.dataset.domOnEventDb || event.target.id) {
+            ajaxProgressUpdate = utility2.ajaxProgressUpdate || local.nop;
+            switch (event.target.dataset.onEventDomDb || event.target.id) {
             case 'dbExportButton1':
                 tmp = local.global.URL.createObjectURL(new local.global.Blob([local.dbExport()]));
                 document.querySelector('#dbExportA1').href = tmp;
@@ -3061,9 +3060,9 @@ vendor)s{0,1}(\\b|_)\
                 break;
             case 'dbImportButton1':
                 tmp = document.querySelector('#dbImportInput1');
-                if (!tmp.domOnEventDb) {
-                    tmp.domOnEventDb = local.domOnEventDb;
-                    tmp.addEventListener('change', local.domOnEventDb);
+                if (!tmp.onEventDomDb) {
+                    tmp.onEventDomDb = local.onEventDomDb;
+                    tmp.addEventListener('change', local.onEventDomDb);
                 }
                 tmp.click();
                 break;
@@ -3085,7 +3084,10 @@ vendor)s{0,1}(\\b|_)\
                 break;
             case 'dbResetButton1':
                 ajaxProgressUpdate();
-                local.dbReset(utility2, local.onErrorDefault);
+                local.dbReset(local.global.utility2_dbSeedList, function (error) {
+                    local.onErrorDefault(error);
+                    ((utility2.uiEventListenerDict || {})['.onEventUiReload'] || local.nop)();
+                });
                 break;
             }
         };
@@ -3332,7 +3334,7 @@ vendor)s{0,1}(\\b|_)\
                 context["_" + key + "Arguments"] = arguments;
                 consoleError("\n\n" + key);
                 consoleError.apply(console, arguments);
-                consoleError("\n");
+                consoleError(new Error().stack + "\n");
                 // return arg0 for inspection
                 return arg0;
             };
@@ -3955,16 +3957,6 @@ vendor)s{0,1}(\\b|_)\
             onEach2();
             onParallel();
         };
-
-        local.onReadyAfter = function (onError) {
-        /*
-         * this function will call onError when onReadyBefore.counter === 0
-         */
-            local.onReadyBefore.counter += 1;
-            local.taskCreate({ key: 'utility2.onReadyAfter' }, null, onError);
-            local.onResetAfter(local.onReadyBefore);
-            return onError;
-        };
     }());
 
 
@@ -4507,7 +4499,7 @@ vendor)s{0,1}(\\b|_)\
                 context["_" + key + "Arguments"] = arguments;
                 consoleError("\n\n" + key);
                 consoleError.apply(console, arguments);
-                consoleError("\n");
+                consoleError(new Error().stack + "\n");
                 // return arg0 for inspection
                 return arg0;
             };
@@ -7363,7 +7355,7 @@ local.templateCoverageBadgeSvg =
                 context["_" + key + "Arguments"] = arguments;
                 consoleError("\n\n" + key);
                 consoleError.apply(console, arguments);
-                consoleError("\n");
+                consoleError(new Error().stack + "\n");
                 // return arg0 for inspection
                 return arg0;
             };
@@ -14951,7 +14943,7 @@ f,0,f.length*32-u*8)}}}
                 context["_" + key + "Arguments"] = arguments;
                 consoleError("\n\n" + key);
                 consoleError.apply(console, arguments);
-                consoleError("\n");
+                consoleError(new Error().stack + "\n");
                 // return arg0 for inspection
                 return arg0;
             };
@@ -15717,12 +15709,29 @@ split_lines=split_lines,exports.MAP=MAP,exports.ast_squeeze_more=require("./sque
                     // remove comment /**/
                     .replace((/\/\*[\S\s]*?\*\//g), '')
                     // remove comment //
-                    .replace((/\/\/.*/g), '')
+                    .replace((/\/\/.*?$/gm), '')
                     // remove whitespace
                     .replace((/\t/g), ' ')
                     .replace((/ {2,}/g), ' ')
                     .replace((/ *?([\n,:;{}]) */g), '$1')
                     .replace((/\n\n+/g), '\n')
+                    .trim();
+            }
+            // uglify html
+            if ((/\.htm$|\.html$/).test(file || '')) {
+                return code
+                    // remove comment /**/
+                    .replace((/\/\*[\S\s]*?\*\//g), '')
+                    // remove comment //
+                    .replace((/\/\/.*?$/gm), '')
+                    // save whitespace in <pre></pre>
+                    .replace((/<pre>[\S\s]*?<\/pre>/g), function (match0) {
+                        return match0.replace((/\n/g), '\x00');
+                    })
+                    // remove whitespace
+                    .replace((/\s*?\n\s*/g), ' ')
+                    // restore whitespace in <pre></pre>
+                    .replace((/\x00/g), '\n')
                     .trim();
             }
             // parse code and get the initial AST
@@ -15783,7 +15792,7 @@ split_lines=split_lines,exports.MAP=MAP,exports.ast_squeeze_more=require("./sque
                 return;
             }
             // uglify file
-            console.log(local.uglify(local.fs.readFileSync(
+            process.stdout.write(local.uglify(local.fs.readFileSync(
                 local.path.resolve(process.cwd(), process.argv[2]),
                 'utf8'
             ), process.argv[2]));
@@ -15835,7 +15844,7 @@ split_lines=split_lines,exports.MAP=MAP,exports.ast_squeeze_more=require("./sque
                 context["_" + key + "Arguments"] = arguments;
                 consoleError("\n\n" + key);
                 consoleError.apply(console, arguments);
-                consoleError("\n");
+                consoleError(new Error().stack + "\n");
                 // return arg0 for inspection
                 return arg0;
             };
@@ -16194,12 +16203,12 @@ utility2-comment -->\n\
 {{#unless isRollup}}\n\
 utility2-comment -->\n\
 <script src="assets.utility2.rollup.js"></script>\n\
-<script>window.utility2.onResetBefore.counter += 1;</script>\n\
+<script>window.utility2_onReadyBefore.counter += 1;</script>\n\
 <script src="jsonp.utility2.stateInit?callback=window.utility2.stateInit"></script>\n\
 <script src="assets.{{env.npm_package_nameLib}}.js"></script>\n\
 <script src="assets.example.js"></script>\n\
 <script src="assets.test.js"></script>\n\
-<script>window.utility2.onResetBefore();</script>\n\
+<script>window.utility2_onReadyBefore();</script>\n\
 <!-- utility2-comment\n\
 {{/if isRollup}}\n\
 utility2-comment -->\n\
@@ -16314,7 +16323,7 @@ instruction\n\
                 if (document.querySelector(\'#testReportDiv1\').style.maxHeight === \'0px\') {\n\
                     local.uiAnimateSlideDown(document.querySelector(\'#testReportDiv1\'));\n\
                     document.querySelector(\'#testRunButton1\').textContent = \'hide internal test\';\n\
-                    local.modeTest = true;\n\
+                    local.modeTest = 1;\n\
                     local.testRunDefault(local);\n\
                 // hide tests\n\
                 } else {\n\
@@ -16342,7 +16351,7 @@ instruction\n\
         };\n\
         // log stderr and stdout to #outputStdoutTextarea1\n\
         [\'error\', \'log\'].forEach(function (key) {\n\
-            console[key + \'_original\'] = console[key];\n\
+            console[key + \'_original\'] = console[key + \'_original\'] || console[key];\n\
             console[key] = function () {\n\
                 var element;\n\
                 console[key + \'_original\'].apply(console, arguments);\n\
@@ -16355,7 +16364,7 @@ instruction\n\
                     return typeof arg === \'string\'\n\
                         ? arg\n\
                         : JSON.stringify(arg, null, 4);\n\
-                }).join(\' \') + \'\\n\';\n\
+                }).join(\' \').replace((/\\u001b\\[\\d*m/g), \'\') + \'\\n\';\n\
                 // scroll textarea to bottom\n\
                 element.scrollTop = element.scrollHeight;\n\
             };\n\
@@ -16531,7 +16540,7 @@ local.assetsDict['/assets.lib.template.js'] = '\
                 context["_" + key + "Arguments"] = arguments;\n\
                 consoleError("\\n\\n" + key);\n\
                 consoleError.apply(console, arguments);\n\
-                consoleError("\\n");\n\
+                consoleError(new Error().stack + "\\n");\n\
                 // return arg0 for inspection\n\
                 return arg0;\n\
             };\n\
@@ -17096,7 +17105,7 @@ local.assetsDict['/assets.test.template.js'] = '\
         local = local.global.local = (local.global.utility2 ||\n\
             require(\'utility2\')).requireReadme();\n\
         // init test\n\
-        local.testRunInit(local);\n\
+        local.testRunDefault(local);\n\
     }());\n\
 \n\
 \n\
@@ -18795,14 +18804,14 @@ local.assetsDict['/favicon.ico'] = '';
                     break;
                 // node.electron.browserWindow.webview - print default-test
                 case 33:
-                    if (options.modeBrowserTest !== 'test' || options.window.utility2_modeTestRun) {
+                    if (options.modeBrowserTest !== 'test' || options.window.utility2_modeTest) {
                         return;
                     }
-                    console.error(options.fileElectronHtml + ' global_test_results ' +
-                        JSON.stringify({ global_test_results: {
+                    console.error(options.fileElectronHtml + ' utility2_testReport ' +
+                        JSON.stringify({
                             coverage: options.window.__coverage__,
-                            testReport: { testPlatformList: [{}] }
-                        } }));
+                            testPlatformList: [{}]
+                        }));
                     break;
                 // node.electron.browserWindow - handle event console-message
                 case 22:
@@ -18811,38 +18820,42 @@ local.assetsDict['/favicon.ico'] = '';
                         data.data = data.message.slice(match0.length);
                     });
                     switch (data.type2) {
-                    case 'global_test_results':
-                        if (options.modeBrowserTest !== 'test') {
-                            return;
-                        }
-                        options.global_test_results = JSON.parse(data.data).global_test_results;
-                        if (options.global_test_results.testReport) {
-                            // merge screenshot into test-report
-                            options.global_test_results.testReport.testPlatformList[0].screenshot =
-                                options.fileScreenshot.replace((/.*\//), '');
-                            // save browser test-report
-                            options.fs.writeFileSync(
-                                options.fileTestReport,
-                                JSON.stringify(options.global_test_results.testReport)
-                            );
-                            // save browser coverage
-                            if (options.global_test_results.coverage) {
-                                options.fs.writeFileSync(
-                                    options.fileCoverage,
-                                    JSON.stringify(options.global_test_results.coverage)
-                                );
-                            }
-                            setTimeout(function () {
-                                options.document.title = options.fileElectronHtml +
-                                    ' testReport written';
-                            });
-                        }
-                        break;
                     case 'html':
                         options.fs.writeFile(options.fileScreenshot.replace((
                             /\.\w+$/
                         ), '.html'), data.data, function () {
                             options.document.title = options.fileElectronHtml + ' html written';
+                        });
+                        break;
+                    case 'utility2_testReport':
+                        try {
+                            options.utility2_testReport = JSON.parse(data.data);
+                        } catch (ignore) {
+                        }
+                        if (!(options.modeBrowserTest === 'test' &&
+                                options.utility2_testReport &&
+                                options.utility2_testReport.testPlatformList)) {
+                            return;
+                        }
+                        // save browser-coverage
+                        if (options.utility2_testReport.coverage) {
+                            options.fs.writeFileSync(
+                                options.fileCoverage,
+                                JSON.stringify(options.utility2_testReport.coverage)
+                            );
+                            delete options.utility2_testReport.coverage;
+                        }
+                        // save browser-screenshot
+                        options.utility2_testReport.testPlatformList[0].screenshot =
+                            options.fileScreenshot.replace((/.*\//), '');
+                        // save browser-test-report
+                        options.fs.writeFileSync(
+                            options.fileTestReport,
+                            JSON.stringify(options.utility2_testReport)
+                        );
+                        setTimeout(function () {
+                            options.document.title = options.fileElectronHtml +
+                                ' testReport written';
                         });
                         break;
                     default:
@@ -19097,6 +19110,9 @@ local.assetsDict['/favicon.ico'] = '';
             }, {
                 file: '/index.html',
                 url: '/index.html'
+            }, {
+                file: '/index.rollup.html',
+                url: '/index.rollup.html'
             }, {
                 file: '/jsonp.utility2.stateInit',
                 url: '/jsonp.utility2.stateInit?callback=window.utility2.stateInit'
@@ -20193,13 +20209,13 @@ local.assetsDict['/favicon.ico'] = '';
                 ? 0
                 : Number(exitCode) || 1;
             if (local.isBrowser) {
-                console.error(local.global.fileElectronHtml + ' global_test_results ' +
-                    JSON.stringify({ global_test_results: local.global.global_test_results }));
+                console.error(local.global.fileElectronHtml + ' utility2_testReport ' +
+                    JSON.stringify(local.global.utility2_testReport));
             } else {
                 process.exit(exitCode);
             }
-            // reset modeTest
-            local.modeTest = null;
+            // reset utility2_modeTest
+            local.global.utility2_modeTest = 0;
         };
 
         local.fsReadFileOrEmptyStringSync = function (file, options) {
@@ -20762,16 +20778,16 @@ local.assetsDict['/favicon.ico'] = '';
             }
             // init response.end and response.write to accept Uint8Array instance
             ['end', 'write'].forEach(function (key) {
-                var fnc;
                 if (local.isBrowser) {
                     return;
                 }
-                fnc = response[key].bind(response);
+                response[key + '_original'] = response[key + '_original'] ||
+                    response[key].bind(response);
                 response[key] = function (bff, encoding, callback) {
                     if (bff instanceof Uint8Array && !Buffer.isBuffer(bff)) {
                         Object.setPrototypeOf(bff, Buffer.prototype);
                     }
-                    return fnc(bff, encoding, callback);
+                    return response[key + '_original'](bff, encoding, callback);
                 };
             });
             // default to nextMiddleware
@@ -20797,7 +20813,7 @@ local.assetsDict['/favicon.ico'] = '';
                     '/assets.test.js': local.assetsDict['/assets.test.js'],
                     '/assets.utility2.base.html':
                         local.assetsDict['/assets.utility2.base.rollup.html'],
-                    '/index.html': local.assetsDict['/index.rollup.html']
+                    '/index.rollup.html': local.assetsDict['/index.rollup.html']
                 },
                 env: {
                     NODE_ENV: local.env.NODE_ENV,
@@ -21210,56 +21226,6 @@ local.assetsDict['/favicon.ico'] = '';
             onParallel();
         };
 
-        local.onReadyAfter = function (onError) {
-        /*
-         * this function will call onError when onReadyBefore.counter === 0
-         */
-            local.onReadyBefore.counter += 1;
-            local.taskCreate({ key: 'utility2.onReadyAfter' }, null, onError);
-            local.onResetAfter(local.onReadyBefore);
-            return onError;
-        };
-
-        local.onReadyBefore = local.onParallel(function (error) {
-        /*
-         * this function will keep track of onReadyBefore.counter
-         */
-            local.taskCreate({
-                key: 'utility2.onReadyAfter'
-            }, function (onError) {
-                onError(error);
-            }, function (error) {
-                // validate no error occurred
-                local.assert(!error, error);
-            });
-        });
-
-        local.onResetAfter = function (onError) {
-        /*
-         * this function will call onError when onResetBefore.counter === 0
-         */
-            local.onResetBefore.counter += 1;
-            // visual notification - onResetAfter
-            local.ajaxProgressUpdate();
-            local.taskCreate({ key: 'utility2.onResetAfter' }, null, onError);
-            setTimeout(local.onResetBefore);
-            return onError;
-        };
-
-        local.onResetBefore = local.onParallel(function (error) {
-        /*
-         * this function will keep track of onResetBefore.counter
-         */
-            local.taskCreate({
-                key: 'utility2.onResetAfter'
-            }, function (onError) {
-                onError(error);
-            }, function (error) {
-                // validate no error occurred
-                local.assert(!error, error);
-            });
-        });
-
         local.onTimeout = function (onError, timeout, message) {
         /*
          * this function will create a timeout-error-handler,
@@ -21554,7 +21520,7 @@ vendor)s{0,1}(\\b|_)\
                 // init assets
                 local.assetsDict['/'] = local.assetsDict['/index.html'] =
                     local.fsReadFileOrEmptyStringSync('index.html') ||
-                    local.assetsDict['/index.html'] || '';
+                    local.assetsDict['/index.rollup.html'] || '';
                 local.assetsDict['/assets.app.js'] = local.fs.readFileSync(__filename, 'utf8')
                     .replace((/^#!\//), '// ');
                 // init exports
@@ -21680,8 +21646,9 @@ instruction\n\
                         .split('/* utility2.rollup.js content */');
                     script.splice(1, 0, 'local.assetsDict["' + tmp + '"] = ' +
                         JSON.stringify(local.assetsDict[tmp])
+                        .replace((/\\\\/g), '\x00')
                         .replace((/\\n/g), '\\n\\\n')
-                        .replace((/^\\\\\\n\\\n/gm), ''));
+                        .replace((/\x00/g), '\\\\'));
                     script = script.join('');
                     script += '\n';
                     script += local.assetsDict[tmp];
@@ -21711,7 +21678,42 @@ instruction\n\
                     '\n/* script-end ' + key + ' */\n';
             }).join('\n\n\n');
             local.objectSetDefault(module.exports, local);
+            // init testCase_buildXxx
+            Object.keys(local).forEach(function (key) {
+                if (key.indexOf('_testCase_build') === 0 ||
+                        key === '_testCase_webpage_default') {
+                    module.exports[key.slice(1)] = module.exports[key.slice(1)] || local[key];
+                }
+            });
             return module.exports;
+        };
+
+        local.semverCompare = function (aa, bb) {
+        /*
+         * this function will compare semver versions aa ? bb and return
+         * -1 if aa < bb
+         *  0 if aa = bb
+         *  1 if aa > bb
+         * https://semver.org/
+         */
+            return [aa, bb]
+                .map(function (element) {
+                    return (element || '').split('-').map(function (element, ii) {
+                        return ii
+                            ? element
+                            : element.split('.').concat(['', '', '']).slice(0, 3)
+                                .map(function (element) {
+                                    return ('00000000000' + element).slice(-10);
+                                }).join('.');
+                    }).join('-');
+                })
+                .reduce(function (aa, bb) {
+                    return aa === bb
+                        ? 0
+                        : aa < bb
+                        ? -1
+                        : 1;
+                });
         };
 
         local.serverRespondCors = function (request, response) {
@@ -22669,32 +22671,52 @@ instruction\n\
             );
         };
 
-        local.testRunBefore = local.nop;
-
         local.testRunDefault = function (options) {
         /*
          * this function will run all tests in testPlatform.testCaseList
          */
             var exit, testPlatform, testReport, testReportDiv1, timerInterval;
-            // init modeTest
-            local.modeTest = local.modeTest || local.env.npm_config_mode_test;
-            if (!(local.modeTest || options.modeTest)) {
-                return;
+            // run-server
+            if (!local.isBrowser) {
+                local.testRunServer(options);
             }
-            if (!local.global.utility2_modeTestRun) {
-                local.global.utility2_modeTestRun = 1;
-                setTimeout(function () {
-                    local.testRunBefore();
-                    local.onReadyAfter(function () {
-                        local.testRunDefault(options);
-                    });
+            local.global.utility2_modeTest = Number(local.global.utility2_modeTest ||
+                options.modeTest ||
+                local.modeTest ||
+                local.env.npm_config_mode_test);
+            switch (local.global.utility2_modeTest) {
+            // init-pre
+            case 1:
+                local.global.utility2_modeTest += 1;
+                // click #testRunButton1
+                if (local.isBrowser && document.querySelector('#testRunButton1')) {
+                    document.querySelector('#testRunButton1').click();
+                }
+                local.testRunDefault(options);
+                return;
+            // init-after
+            case 2:
+                local.global.utility2_modeTest += 1;
+                // reset db
+                if (local.db && typeof local.db.dbReset === 'function') {
+                    local.db.dbReset(local.global.utility2_dbSeedList, local.onErrorThrow);
+                }
+                local.global.utility2_onReadyAfter(function () {
+                    local.testRunDefault(options);
                 });
                 return;
+            // test-run
+            default:
+                // test-ignore
+                if (local.global.utility2_onReadyBefore.counter ||
+                        !local.global.utility2_modeTest ||
+                        local.global.utility2_modeTest > 3) {
+                    return;
+                }
+                local.global.utility2_modeTest += 1;
+                // test-run
+                break;
             }
-            if (local.global.utility2_modeTestRun !== 1) {
-                return;
-            }
-            local.global.utility2_modeTestRun = 2;
             // visual notification - testRun
             local.ajaxProgressUpdate();
             // mock serverLog
@@ -22818,7 +22840,7 @@ instruction\n\
             /*
              * this function will create the test-report after all tests isDone
              */
-                local.global.utility2_modeTestRun = 0;
+                local.global.utility2_modeTest = 1;
                 local.ajaxProgressUpdate();
                 // stop testPlatform timer
                 local.timeElapsedPoll(testPlatform);
@@ -22827,11 +22849,8 @@ instruction\n\
                 if (local.isBrowser) {
                     // notify saucelabs of test results
                     // https://docs.saucelabs.com/reference/rest-api/#js-unit-testing
-                    local.global.global_test_results = {
-                        coverage: local.global.__coverage__,
-                        failed: testReport.testsFailed,
-                        testReport: testReport
-                    };
+                    local.global.utility2_testReport = testReport;
+                    local.global.utility2_testReport.coverage = local.global.__coverage__;
                 } else {
                     // create test-report.json
                     local.fs.writeFileSync(
@@ -22867,32 +22886,6 @@ instruction\n\
             });
         };
 
-        local.testRunInit = function (local) {
-        /*
-         * this function will init testRunXxx
-         */
-            // init testCase_buildXxx
-            Object.keys(local).forEach(function (key) {
-                if (key.indexOf('_testCase_build') === 0 || key === '_testCase_webpage_default') {
-                    local[key.slice(1)] = local[key.slice(1)] || local[key];
-                }
-            });
-            // run test
-            setTimeout(function () {
-                if (!local.isBrowser || local.global.utility2_serverHttp1) {
-                    local.testRunServer(local);
-                    return;
-                }
-                if (local.modeTest &&
-                        local.testRunBrowser &&
-                        document.querySelector('#testRunButton1')) {
-                    document.querySelector('#testRunButton1').click();
-                    return;
-                }
-                local.testRunDefault(local);
-            });
-        };
-
         local.testRunServer = function (options) {
         /*
          * this function will
@@ -22903,7 +22896,7 @@ instruction\n\
             if (local.global.utility2_serverHttp1) {
                 return;
             }
-            local.onReadyBefore.counter += 1;
+            local.global.utility2_onReadyBefore.counter += 1;
             // 1. create server from local.middlewareList
             local.middlewareList = local.middlewareList || [
                 local.middlewareInit,
@@ -22931,11 +22924,14 @@ instruction\n\
             );
             // 2. start server on local.env.PORT
             console.error('server listening on http-port ' + local.env.PORT);
-            local.onReadyBefore.counter += 1;
-            local.global.utility2_serverHttp1.listen(local.env.PORT, local.onReadyBefore);
+            local.global.utility2_onReadyBefore.counter += 1;
+            local.global.utility2_serverHttp1.listen(
+                local.env.PORT,
+                local.global.utility2_onReadyBefore
+            );
             // 3. run tests
             local.testRunDefault(options);
-            local.onReadyBefore();
+            local.global.utility2_onReadyBefore();
         };
 
         local.throwError = function () {
@@ -23249,6 +23245,33 @@ instruction\n\
             npm_package_version: '0.0.1'
         });
         local.errorDefault = new Error('default error');
+        local.global.utility2_onReadyAfter = local.global.utility2_onReadyAfter || function (
+            onError
+        ) {
+        /*
+         * this function will call onError when utility2_onReadyBefore.counter === 0
+         */
+            local.global.utility2_onReadyBefore.counter += 1;
+            // visual notification - utility2_onReadyAfter
+            local.ajaxProgressUpdate();
+            local.taskCreate({ key: 'local.global.utility2_onReadyAfter' }, null, onError);
+            setTimeout(local.global.utility2_onReadyBefore);
+            return onError;
+        };
+        local.global.utility2_onReadyBefore = local.global.utility2_onReadyBefore ||
+            local.onParallel(function (error) {
+            /*
+             * this function will keep track of utility2_onReadyBefore.counter
+             */
+                local.taskCreate({ key: 'local.global.utility2_onReadyAfter' }, function (onError) {
+                    onError(error);
+                }, local.onErrorThrow);
+            });
+        //!! deprecated
+        (function () {
+            local.testRunInit = local.testRunDefault;
+            local.onResetBefore = local.global.utility2_onReadyBefore;
+        }());
         local.istanbulCoverageMerge = local.istanbul.coverageMerge || local.echo;
         // cbranch-no cstat-no fstat-no missing-if-branch
         local.istanbulCoverageReportCreate = local.istanbul.coverageReportCreate || local.echo;
@@ -23321,7 +23344,7 @@ instruction\n\
         }
         // re-init timeoutDefault
         local.timeoutDefault = Number(local.timeoutDefault) || 30000;
-        local.onReadyAfter(local.nop);
+        local.global.utility2_onReadyAfter(local.nop);
         // init uglify
         local.uglify = local.uglifyjs.uglify || local.echo;
     }());
@@ -23851,8 +23874,9 @@ instruction\n\
                     .split('/* utility2.rollup.js content */');
                 script.splice(1, 0, 'local.assetsDict["' + key + '"] = ' +
                     JSON.stringify(local.assetsDict[key])
+                    .replace((/\\\\/g), '\x00')
                     .replace((/\\n/g), '\\n\\\n')
-                    .replace((/^\\\\\\n\\\n/gm), ''));
+                    .replace((/\x00/g), '\\\\'));
                 script = script.join('');
                 script += '\n';
                 break;
@@ -23919,7 +23943,7 @@ instruction\n\
                 context["_" + key + "Arguments"] = arguments;
                 consoleError("\n\n" + key);
                 consoleError.apply(console, arguments);
-                consoleError("\n");
+                consoleError(new Error().stack + "\n");
                 // return arg0 for inspection
                 return arg0;
             };
@@ -24804,7 +24828,7 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
 // https://github.com/swagger-api/swagger-ui/blob/v2.1.3/src/main/template/main.handlebars
 local.templateUiMain = '\
 <!-- <div class="swggUiContainer"> -->\n\
-<h2 class="eventDelegateKeyup eventDelegateSubmit hx onEventUiReload thead">\n\
+<h2 class="eventDelegateSubmit hx onEvent onEventUiReload thead">\n\
     <a class="td td1" href="https://github.com/kaizhu256/node-swgg" target="_blank">swgg</a>\n\
     <input\n\
         class="td td2"\n\
@@ -24819,9 +24843,9 @@ local.templateUiMain = '\
         type="text"\n\
         value="{{apiKeyValue}}"\n\
     >\n\
-    <button class="button eventDelegateClick onEventUiReload td td4">explore</button>\n\
+    <button class="button eventDelegateClick onEvent onEventUiReload td td4">explore</button>\n\
     <button\n\
-        class="button eventDelegateClick onEventUiReload td td5"\n\
+        class="button eventDelegateClick onEvent onEventUiReload td td5"\n\
         id="swggApiKeyClearButton1"\n\
     >\n\
         clear api-keys\n\
@@ -24832,7 +24856,7 @@ local.templateUiMain = '\
     id="swggUiReloadErrorDiv1"\n\
     style="background: none; border: 0;"\n\
 ></div>\n\
-<div class="eventDelegateChange eventDelegateClick info reset">\n\
+<div class="eventDelegateClick info reset">\n\
     {{#if info}}\n\
     {{#if info.x-swgg-homepage}}\n\
     <h2 class="hx">\n\
@@ -24852,17 +24876,17 @@ local.templateUiMain = '\
         download standalone app\n\
     </a><br>\n\
     {{/if x-swgg-downloadStandaloneApp}}\n\
-    {{#if x-swgg-domOnEventDb}}\n\
-    <button class="button domOnEventDb" data-dom-on-event-db="dbResetButton1">\n\
+    {{#if x-swgg-onEventDomDb}}\n\
+    <button class="button onEvent onEventDomDb" data-dom-on-event-db="dbResetButton1">\n\
         reset database\n\
     </button><br>\n\
-    <button class="button domOnEventDb" data-dom-on-event-db="dbExportButton1">\n\
+    <button class="button onEvent onEventDomDb" data-dom-on-event-db="dbExportButton1">\n\
         export database -&gt; file\n\
     </button><br>\n\
-    <button class="button domOnEventDb" data-dom-on-event-db="dbImportButton1">\n\
+    <button class="button onEvent onEventDomDb" data-dom-on-event-db="dbImportButton1">\n\
         import database &lt;- file\n\
     </button><br>\n\
-    {{/if x-swgg-domOnEventDb}}\n\
+    {{/if x-swgg-onEventDomDb}}\n\
     <ul>\n\
         {{#if externalDocs.url}}\n\
         <li>\n\
@@ -24941,7 +24965,7 @@ console.log("initialized nodejs swgg-client");\n\
 // https://github.com/swagger-api/swagger-ui/blob/v2.1.3/src/main/template/operation.handlebars
 local.templateUiOperation = '\
 <div class="operation" data-_method-path="{{_methodPath}}" id="{{id}}">\n\
-<div class="onEventInputValidateAndAjax onEventOperationDisplayShow thead" tabindex="0">\n\
+<div class="onEvent onEventOperationDisplayShow thead" tabindex="0">\n\
     <span class="td td1"></span>\n\
     <span class="method{{_method}} td td2">{{_method}}</span>\n\
     <span\n\
@@ -24986,7 +25010,7 @@ local.templateUiOperation = '\
         <span class="markdown td td2">{{value.description markdownToHtml}}</span>\n\
     </div>\n\
     {{/each responseList}}\n\
-    <button class="button onEventOperationAjax">try it out!</button>\n\
+    <button class="button onEvent onEventOperationAjax">try it out!</button>\n\
     <h4 class="label">nodejs request</h4>\n\
     <pre class="requestJavascript" tabIndex="0"></pre>\n\
     <h4 class="label">curl request</h4>\n\
@@ -25021,7 +25045,7 @@ local.templateUiParameter = '\
     <div class="multilinePlaceholderContainer">\n\
         <pre class="multilinePlaceholderPre">{{placeholder}}</pre>\n\
         <textarea\n\
-            class="input multilinePlaceholderTextarea onEventInputTextareaChange"\n\
+            class="input multilinePlaceholderTextarea onEvent onEventInputTextareaChange"\n\
             data-value-text="{{valueText encodeURIComponent notHtmlSafe}}"\n\
         ></textarea>\n\
     </div>\n\
@@ -25084,10 +25108,10 @@ local.templateUiResource = '\
     id="{{id}}"\n\
 >\n\
 <h3 class="thead">\n\
-    <span class="onEventResourceDisplayAction td td1 textOverflowEllipsis" tabindex="0">\n\
+    <span class="onEvent onEventResourceDisplayAction td td1 textOverflowEllipsis" tabindex="0">\n\
         {{name}}:&nbsp;&nbsp;{{summary}}\n\
     </span>\n\
-    <span class="onEventResourceDisplayAction td td2" tabindex="0">\n\
+    <span class="onEvent onEventResourceDisplayAction td td2" tabindex="0">\n\
     expand / collapse operations\n\
     </span>\n\
 </h3>\n\
@@ -27753,6 +27777,7 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
                         swaggerJson: local.swaggerJson
                     });
                 }, function (errorCaught) {
+                    console.error(errorCaught.message);
                     errorList.push(errorCaught);
                     errorCaught.errorList = errorList;
                 });
@@ -28413,7 +28438,7 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
                     local.jslint.jslintAndPrint(data, options.file);
                     local.assert(
                         !local.jslint.errorText,
-                        local.jslint.errorText.replace((/\u001b\[\d+m/g), '')
+                        local.jslint.errorText.replace((/\u001b\[\d*m/g), '')
                     );
                     // validate
                     local.swgg.swaggerValidate(JSON.parse(data));
@@ -28421,7 +28446,8 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
                     break;
                 default:
                     console.error(error
-                        ? 'swagger-validate - failed - ' + options.file + '\n\n' + error.message
+                        ? '\u001b[31mswagger-validate - failed - ' + options.file + '\n' +
+                            error.message + '\u001b[39m'
                         : 'swagger-validate - passed - ' + options.file);
                     onError(error);
                 }
@@ -28473,25 +28499,20 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
         };
 
         local.uiEventDelegate = function (event) {
-            event.target2 = event.target;
+            event.targetOnEvent = event.target.closest('.onEvent');
             // filter non-input keyup-event
-            if (event.type === 'keyup' &&
-                    !event.target2.closest('input, option, select, textarea')) {
+            if ((event.type === 'keyup' &&
+                    !event.target.closest('input, option, select, textarea')) ||
+                    !event.targetOnEvent) {
                 return;
             }
             // delegate event in .operation
-            event.targetOperation = event.target2.closest('.operation');
+            event.targetOperation = event.target.closest('.operation');
             Object.keys(local.uiEventListenerDict).sort().some(function (key) {
-                switch (key) {
-                case '.domOnEventDb':
-                case '.onEventOperationDisplayShow':
-                    event.target2 = event.target2.closest(key) || event.target2;
-                    break;
-                }
-                if (!(event.currentTarget.matches(key) || event.target2.matches(key))) {
+                if (!event.targetOnEvent.matches(key)) {
                     return;
                 }
-                switch (event.target2.tagName) {
+                switch (event.targetOnEvent.tagName) {
                 case 'BUTTON':
                 case 'FORM':
                     event.preventDefault();
@@ -28513,20 +28534,20 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
 
         local.uiEventListenerDict = {};
 
-        local.uiEventListenerDict['.domOnEventDb'] = local.db.domOnEventDb;
+        local.uiEventListenerDict['.onEventDomDb'] = local.db.onEventDomDb;
 
         local.uiEventListenerDict['.onEventInputTextareaChange'] = function (event) {
         /*
          * this function will show/hide the textarea's multiline placeholder
          */
             var isTransparent, value;
-            isTransparent = event.target2.style.background.indexOf('transparent') >= 0;
-            value = event.target2.value;
+            isTransparent = event.targetOnEvent.style.background.indexOf('transparent') >= 0;
+            value = event.targetOnEvent.value;
             if (value && isTransparent) {
-                event.target2.style.background = '';
+                event.targetOnEvent.style.background = '';
             }
             if (!value && !isTransparent) {
-                event.target2.style.background = 'transparent';
+                event.targetOnEvent.style.background = 'transparent';
             }
         };
 
@@ -28747,7 +28768,7 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
          * this function will toggle the display of the operation
          */
             var element;
-            element = event.target2;
+            element = event.targetOnEvent;
             element = element.querySelector('.operation') || element.closest('.operation');
             location.hash = '!' + element.id;
             element.closest('.resource').classList.remove('expanded');
@@ -28776,8 +28797,7 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
          * this function will toggle the display of the resource
          */
             location.hash = '!' + event.currentTarget.id;
-            event.target2 = event.target2.closest('.onEventResourceDisplayAction.td');
-            event.target2.className.split(' ').some(function (className) {
+            event.targetOnEvent.className.split(' ').some(function (className) {
                 switch (className) {
                 case 'td1':
                     // show the resource, but hide all other resources
@@ -28787,7 +28807,7 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
                     );
                     // show at least one operation in the resource
                     local.uiEventListenerDict['.onEventOperationDisplayShow']({
-                        target2: event.currentTarget.querySelector(
+                        targetOnEvent: event.currentTarget.querySelector(
                             '.operation .uiAnimateSlide[style*="max-height: 100%"]'
                         ) || event.currentTarget.querySelector('.operation')
                     });
@@ -28836,7 +28856,8 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
                 case 1:
                     options.inputUrl = document.querySelector('.swggUiContainer > .thead > .td2');
                     // clear all apiKeyValue's from localStorage
-                    if (options.target2 && options.target2.id === 'swggApiKeyClearButton1') {
+                    if (options.targetOnEvent &&
+                            options.targetOnEvent.id === 'swggApiKeyClearButton1') {
                         local.apiKeyValue = '';
                         Object.keys(localStorage).forEach(function (key) {
                             if (key.indexOf('utility2_swgg_apiKeyKey_') === 0) {
@@ -28845,10 +28866,9 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
                         });
                     // restore apiKeyValue
                     } else if (options.swggInit) {
-                        local.apiKeyKey = 'utility2_swgg_apiKeyKey_' +
-                            encodeURIComponent(local.urlParse(
-                                options.inputUrl.value.replace((/^\//), '')
-                            ).href);
+                        local.apiKeyKey = 'utility2_swgg_apiKeyKey_' + encodeURIComponent(
+                            local.urlParse(options.inputUrl.value.replace((/^\//), '')).href
+                        );
                         local.apiKeyValue = localStorage.getItem(local.apiKeyKey) || '';
                     // save apiKeyValue
                     } else {
@@ -28858,7 +28878,9 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
                     // if keyup-event is not return-key, then return
                     if ((options.type === 'keyup' && options.code !== 'Enter') ||
                             // do not reload ui during test
-                            local.global.utility2_modeTestRun >= 2) {
+                            local.global.utility2_modeTest >= 4) {
+                        options.modeNext = Infinity;
+                        options.onNext();
                         return;
                     }
                     // reset ui
@@ -29023,7 +29045,9 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
                 delete element.dataset.valueText;
                 // init textarea's multiline placeholder
                 if (element.tagName === 'TEXTAREA') {
-                    local.uiEventListenerDict['.onEventInputTextareaChange']({ target2: element });
+                    local.uiEventListenerDict['.onEventInputTextareaChange']({
+                        targetOnEvent: element
+                    });
                 }
             });
             // init event-handling
@@ -29036,7 +29060,8 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
             });
             // scrollTo location.hash
             local.uiEventListenerDict['.onEventOperationDisplayShow']({
-                target2: document.querySelector('#' + (location.hash.slice(2) || 'undefined')) ||
+                targetOnEvent:
+                    document.querySelector('#' + (location.hash.slice(2) || 'undefined')) ||
                     document.querySelector('.swggUiContainer .operation')
             });
             local.setTimeoutOnError(onError);
@@ -29310,8 +29335,8 @@ instruction\n\
         // run test-server\n\
         local.testRunServer(local);\n\
         // init assets\n\
-        local.assetsDict['/assets.hello'] = 'hello\\n\
-';\n\
+        /* jslint-ignore-next-line */\n\
+        local.assetsDict['/assets.hello'] = 'hello\\ud83d\\udc4b\\u0020\\n';\n\
         local.assetsDict['/assets.index.template.html'] = '';\n\
     }());\n\
 \n\
@@ -29335,8 +29360,8 @@ instruction\n\
                     local.assert(!error, error);\n\
                     // validate data\n\
                     options.data = xhr.responseText;\n\
-                    local.assert(options.data === 'hello\\n\
-', options.data);\n\
+                    /* jslint-ignore-next-line */\n\
+                    local.assert(options.data === 'hello\\ud83d\\udc4b\\u0020\\n', options.data);\n\
                     onError();\n\
                 }, onError);\n\
             });\n\
@@ -29410,7 +29435,7 @@ instruction\n\
                 if (document.querySelector('#testReportDiv1').style.maxHeight === '0px') {\n\
                     local.uiAnimateSlideDown(document.querySelector('#testReportDiv1'));\n\
                     document.querySelector('#testRunButton1').textContent = 'hide internal test';\n\
-                    local.modeTest = true;\n\
+                    local.modeTest = 1;\n\
                     local.testRunDefault(local);\n\
                 // hide tests\n\
                 } else {\n\
@@ -29421,7 +29446,7 @@ instruction\n\
             // custom-case\n\
             case 'testRunButton2':\n\
                 // run tests\n\
-                local.modeTest = true;\n\
+                local.modeTest = 1;\n\
                 local.testRunDefault(local);\n\
                 break;\n\
             default:\n\
@@ -29430,8 +29455,8 @@ instruction\n\
                 }\n\
                 // try to JSON.stringify #inputTextareaEval1\n\
                 try {\n\
-                    document.querySelector('#outputPreJsonStringify1').textContent = '';\n\
-                    document.querySelector('#outputPreJsonStringify1').textContent =\n\
+                    document.querySelector('#outputJsonStringifyPre1').textContent = '';\n\
+                    document.querySelector('#outputJsonStringifyPre1').textContent =\n\
                         local.jsonStringifyOrdered(\n\
                             JSON.parse(document.querySelector('#inputTextareaEval1').value),\n\
                             null,\n\
@@ -29448,9 +29473,9 @@ instruction\n\
                         'inputTextareaEval1.js'\n\
                     );\n\
                 }\n\
-                document.querySelector('#outputPreJslint1').textContent =\n\
+                document.querySelector('#outputJslintPre1').textContent =\n\
                     local.jslint.errorText\n\
-                    .replace((/\\u001b\\[\\d+m/g), '')\n\
+                    .replace((/\\u001b\\[\\d*m/g), '')\n\
                     .trim();\n\
                 // try to cleanup __coverage__\n\
                 try {\n\
@@ -29490,7 +29515,7 @@ instruction\n\
         };\n\
         // log stderr and stdout to #outputStdoutTextarea1\n\
         ['error', 'log'].forEach(function (key) {\n\
-            console[key + '_original'] = console[key];\n\
+            console[key + '_original'] = console[key + '_original'] || console[key];\n\
             console[key] = function () {\n\
                 var element;\n\
                 console[key + '_original'].apply(console, arguments);\n\
@@ -29503,8 +29528,7 @@ instruction\n\
                     return typeof arg === 'string'\n\
                         ? arg\n\
                         : JSON.stringify(arg, null, 4);\n\
-                }).join(' ') + '\\n\
-';\n\
+                }).join(' ').replace((/\\u001b\\[\\d*m/g), '') + '\\n';\n\
                 // scroll textarea to bottom\n\
                 element.scrollTop = element.scrollHeight;\n\
             };\n\
@@ -29577,344 +29601,345 @@ instruction\n\
         });\n\
         /* jslint-ignore-begin */\n\
         local.assetsDict['/assets.index.template.html'] = '\\\n\
-<!doctype html>\\n\
-<html lang=\"en\">\\n\
-<head>\\n\
-<meta charset=\"utf-8\">\\n\
-<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\\n\
-<!-- \"assets.utility2.template.html\" -->\\n\
-<title>{{env.npm_package_name}} ({{env.npm_package_version}})</title>\\n\
-<style>\\n\
-/* jslint-utility2 */\\n\
-/*csslint\\n\
-*/\\n\
-/* jslint-ignore-begin */\\n\
-*,\\n\
-*:after,\\n\
-*:before {\\n\
-    box-sizing: border-box;\\n\
-}\\n\
-/* jslint-ignore-end */\\n\
-@keyframes uiAnimateShake {\\n\
-    0%, 50% {\\n\
-        transform: translateX(10px);\\n\
-    }\\n\
-    25%, 75% {\\n\
-        transform: translateX(-10px);\\n\
-    }\\n\
-    100% {\\n\
-        transform: translateX(0);\\n\
-    }\\n\
-}\\n\
-@keyframes uiAnimateSpin {\\n\
-    0% {\\n\
-        transform: rotate(0deg);\\n\
-    }\\n\
-    100% {\\n\
-        transform: rotate(360deg);\\n\
-    }\\n\
-}\\n\
-a {\\n\
-    overflow-wrap: break-word;\\n\
-}\\n\
-body {\\n\
-    background: #eef;\\n\
-    font-family: Arial, Helvetica, sans-serif;\\n\
-    margin: 0 40px;\\n\
-}\\n\
-body > div,\\n\
-body > form > div,\\n\
-body > form > input,\\n\
-body > form > pre,\\n\
-body > form > textarea,\\n\
-body > form > .button,\\n\
-body > input,\\n\
-body > pre,\\n\
-body > textarea,\\n\
-body > .button {\\n\
-    margin-bottom: 20px;\\n\
-}\\n\
-body > form > input,\\n\
-body > form > .button,\\n\
-body > input,\\n\
-body > .button {\\n\
-    width: 20rem;\\n\
-}\\n\
-body > form > textarea,\\n\
-body > textarea {\\n\
-    height: 10rem;\\n\
-    width: 100%;\\n\
-}\\n\
-body > textarea[readonly] {\\n\
-    background: #ddd;\\n\
-}\\n\
-code,\\n\
-pre,\\n\
-textarea {\\n\
-    font-family: Consolas, Menlo, monospace;\\n\
-    font-size: small;\\n\
-}\\n\
-pre {\\n\
-    overflow-wrap: break-word;\\n\
-    white-space: pre-wrap;\\n\
-}\\n\
-textarea {\\n\
-    overflow: auto;\\n\
-    white-space: pre;\\n\
-}\\n\
-.button {\\n\
-    background-color: #fff;\\n\
-    border: 1px solid;\\n\
-    border-bottom-color: rgb(186, 186, 186);\\n\
-    border-left-color: rgb(209, 209, 209);\\n\
-    border-radius: 4px;\\n\
-    border-right-color: rgb(209, 209, 209);\\n\
-    border-top-color: rgb(216, 216, 216);\\n\
-    color: #00d;\\n\
-    cursor: pointer;\\n\
-    display: inline-block;\\n\
-    font-family: Arial, Helvetica, sans-serif;\\n\
-    font-size: 12px;\\n\
-    font-style: normal;\\n\
-    font-weight: normal;\\n\
-    margin: 0;\\n\
-    padding: 2px 7px 3px 7px;\\n\
-    text-align: center;\\n\
-    text-decoration: underline;\\n\
-}\\n\
-.colorError {\\n\
-    color: #d00;\\n\
-}\\n\
-.uiAnimateShake {\\n\
-    animation-duration: 500ms;\\n\
-    animation-name: uiAnimateShake;\\n\
-}\\n\
-.uiAnimateSlide {\\n\
-    overflow-y: hidden;\\n\
-    transition: max-height ease-in 250ms, min-height ease-in 250ms, padding-bottom ease-in 250ms, padding-top ease-in 250ms;\\n\
-}\\n\
-.utility2FooterDiv {\\n\
-    text-align: center;\\n\
-}\\n\
-.zeroPixel {\\n\
-    border: 0;\\n\
-    height: 0;\\n\
-    margin: 0;\\n\
-    padding: 0;\\n\
-    width: 0;\\n\
-}\\n\
-</style>\\n\
-</head>\\n\
-<body>\\n\
-<div id=\"ajaxProgressDiv1\" style=\"background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;\"></div>\\n\
-<div class=\"uiAnimateSpin\" style=\"animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;\"></div>\\n\
-<a class=\"zeroPixel\" download=\"db.persistence.json\" href=\"\" id=\"dbExportA1\"></a>\\n\
-<input class=\"zeroPixel\" id=\"dbImportInput1\" type=\"file\">\\n\
-<script>\\n\
-/* jslint-utility2 */\\n\
-/*jslint\\n\
-    bitwise: true,\\n\
-    browser: true,\\n\
-    maxerr: 4,\\n\
-    maxlen: 100,\\n\
-    node: true,\\n\
-    nomen: true,\\n\
-    regexp: true,\\n\
-    stupid: true\\n\
-*/\\n\
-// init domOnEventWindowOnloadTimeElapsed\\n\
-(function () {\\n\
-/*\\n\
- * this function will measure and print the time-elapsed for window.onload\\n\
- */\\n\
-    \"use strict\";\\n\
-    if (window.domOnEventWindowOnloadTimeElapsed) {\\n\
-        return;\\n\
-    }\\n\
-    window.domOnEventWindowOnloadTimeElapsed = Date.now() + 100;\\n\
-    window.addEventListener(\"load\", function () {\\n\
-        setTimeout(function () {\\n\
-            window.domOnEventWindowOnloadTimeElapsed = Date.now() -\\n\
-                window.domOnEventWindowOnloadTimeElapsed;\\n\
-            console.error(\"domOnEventWindowOnloadTimeElapsed = \" +\\n\
-                window.domOnEventWindowOnloadTimeElapsed);\\n\
-        }, 100);\\n\
-    });\\n\
-}());\\n\
-// init timerIntervalAjaxProgressUpdate\\n\
-(function () {\\n\
-/*\\n\
- * this function will increment the ajax-progress-bar until the webpage has loaded\\n\
- */\\n\
-    \"use strict\";\\n\
-    var ajaxProgressDiv1,\\n\
-        ajaxProgressState,\\n\
-        ajaxProgressUpdate;\\n\
-    if (window.timerIntervalAjaxProgressUpdate || !document.querySelector(\"#ajaxProgressDiv1\")) {\\n\
-        return;\\n\
-    }\\n\
-    ajaxProgressDiv1 = document.querySelector(\"#ajaxProgressDiv1\");\\n\
-    setTimeout(function () {\\n\
-        ajaxProgressDiv1.style.width = \"25%\";\\n\
-    });\\n\
-    ajaxProgressState = 0;\\n\
-    ajaxProgressUpdate = (window.local &&\\n\
-        window.local.ajaxProgressUpdate) || function () {\\n\
-        ajaxProgressDiv1.style.width = \"100%\";\\n\
-        setTimeout(function () {\\n\
-            ajaxProgressDiv1.style.background = \"transparent\";\\n\
-            setTimeout(function () {\\n\
-                ajaxProgressDiv1.style.width = \"0%\";\\n\
-            }, 500);\\n\
-        }, 1500);\\n\
-    };\\n\
-    window.timerIntervalAjaxProgressUpdate = setInterval(function () {\\n\
-        ajaxProgressState += 1;\\n\
-        ajaxProgressDiv1.style.width = Math.max(\\n\
-            100 - 75 * Math.exp(-0.125 * ajaxProgressState),\\n\
-            ajaxProgressDiv1.style.width.slice(0, -1) | 0\\n\
-        ) + \"%\";\\n\
-    }, 1000);\\n\
-    window.addEventListener(\"load\", function () {\\n\
-        clearInterval(window.timerIntervalAjaxProgressUpdate);\\n\
-        ajaxProgressUpdate();\\n\
-    });\\n\
-}());\\n\
-// init domOnEventSelectAllWithinPre\\n\
-(function () {\\n\
-/*\\n\
- * this function will limit select-all within <pre tabIndex=\"0\"> elements\\n\
- * https://stackoverflow.com/questions/985272/selecting-text-in-an-element-akin-to-highlighting-with-your-mouse\\n\
- */\\n\
-    \"use strict\";\\n\
-    if (window.domOnEventSelectAllWithinPre) {\\n\
-        return;\\n\
-    }\\n\
-    window.domOnEventSelectAllWithinPre = function (event) {\\n\
-        var range, selection;\\n\
-        if (event &&\\n\
-                event.key === \"a\" &&\\n\
-                (event.ctrlKey || event.metaKey) &&\\n\
-                event.target.closest(\"pre\")) {\\n\
-            range = document.createRange();\\n\
-            range.selectNodeContents(event.target.closest(\"pre\"));\\n\
-            selection = window.getSelection();\\n\
-            selection.removeAllRanges();\\n\
-            selection.addRange(range);\\n\
-            event.preventDefault();\\n\
-        }\\n\
-    };\\n\
-    document.addEventListener(\"keydown\", window.domOnEventSelectAllWithinPre);\\n\
-}());\\n\
-</script>\\n\
-<h1>\\n\
-<!-- utility2-comment\\n\
-    <a\\n\
-        {{#if env.npm_package_homepage}}\\n\
-        href=\"{{env.npm_package_homepage}}\"\\n\
-        {{/if env.npm_package_homepage}}\\n\
-        target=\"_blank\"\\n\
-    >\\n\
-utility2-comment -->\\n\
-        {{env.npm_package_name}} ({{env.npm_package_version}})\\n\
-<!-- utility2-comment\\n\
-    </a>\\n\
-utility2-comment -->\\n\
-</h1>\\n\
-<h3>{{env.npm_package_description}}</h3>\\n\
-<!-- utility2-comment\\n\
-<a class=\"button\" download href=\"assets.app.js\">download standalone app</a><br>\\n\
-<button class=\"button onclick onreset\" id=\"testRunButton2\">run internal test</button><br>\\n\
-utility2-comment -->\\n\
-\\n\
-\\n\
-\\n\
-<label>edit or paste script below to cover and test</label>\\n\
-<textarea class=\"oneval onkeyup onreset\" id=\"inputTextareaEval1\">\\n\
-// remove comment below to disable jslint\\n\
-/*jslint\\n\
-    browser: true,\\n\
-    es6: true\\n\
-*/\\n\
-/*global window*/\\n\
-(function () {\\n\
-    \"use strict\";\\n\
-    var testCaseDict;\\n\
-    testCaseDict = {};\\n\
-    testCaseDict.modeTest = true;\\n\
-\\n\
-    // comment this testCase to disable the failed assertion demo\\n\
-    testCaseDict.testCase_failed_assertion_demo = function (options, onError) {\\n\
-    /*\\n\
-     * this function will demo a failed assertion test\\n\
-     */\\n\
-        // jslint-hack\\n\
-        window.utility2.nop(options);\\n\
-        window.utility2.assert(false, \"this is a failed assertion demo\");\\n\
-        onError();\\n\
-    };\\n\
-\\n\
-    testCaseDict.testCase_passed_ajax_demo = function (options, onError) {\\n\
-    /*\\n\
-     * this function will demo a passed ajax test\\n\
-     */\\n\
-        var data;\\n\
-        options = {url: \"/\"};\\n\
-        // test ajax request for main-page \"/\"\\n\
-        window.utility2.ajax(options, function (error, xhr) {\\n\
-            try {\\n\
-                // validate no error occurred\\n\
-                window.utility2.assert(!error, error);\\n\
-                // validate \"200 ok\" status\\n\
-                window.utility2.assert(xhr.statusCode === 200, xhr.statusCode);\\n\
-                // validate non-empty data\\n\
-                data = xhr.responseText;\\n\
-                window.utility2.assert(data && data.length > 0, data);\\n\
-                onError();\\n\
-            } catch (errorCaught) {\\n\
-                onError(errorCaught);\\n\
-            }\\n\
-        });\\n\
-    };\\n\
-\\n\
-    window.utility2.testRunDefault(testCaseDict);\\n\
-}());\\n\
-</textarea>\\n\
-<pre id=\"outputPreJsonStringify1\" tabindex=\"0\"></pre>\\n\
-<pre class= \"colorError\" id=\"outputPreJslint1\" tabindex=\"0\"></pre>\\n\
-<label>instrumented-code</label>\\n\
-<textarea class=\"resettable\" id=\"outputTextarea1\" readonly></textarea>\\n\
-<label>stderr and stdout</label>\\n\
-<textarea class=\"resettable\" id=\"outputStdoutTextarea1\" readonly></textarea>\\n\
-<div class=\"resettable\" id=\"testReportDiv1\"></div>\\n\
-<div class=\"resettable\" id=\"coverageReportDiv1\"></div>\\n\
-<!-- utility2-comment\\n\
-{{#if isRollup}}\\n\
-<script src=\"assets.app.js\"></script>\\n\
-{{#unless isRollup}}\\n\
-utility2-comment -->\\n\
-<script src=\"assets.utility2.lib.istanbul.js\"></script>\\n\
-<script src=\"assets.utility2.lib.jslint.js\"></script>\\n\
-<script src=\"assets.utility2.lib.db.js\"></script>\\n\
-<script src=\"assets.utility2.lib.marked.js\"></script>\\n\
-<script src=\"assets.utility2.lib.sjcl.js\"></script>\\n\
-<script src=\"assets.utility2.lib.uglifyjs.js\"></script>\\n\
-<script src=\"assets.utility2.js\"></script>\\n\
-<script>window.utility2.onResetBefore.counter += 1;</script>\\n\
-<script src=\"jsonp.utility2.stateInit?callback=window.utility2.stateInit\"></script>\\n\
-<script src=\"assets.example.js\"></script>\\n\
-<script src=\"assets.test.js\"></script>\\n\
-<script>window.utility2.onResetBefore();</script>\\n\
-<!-- utility2-comment\\n\
-{{/if isRollup}}\\n\
-utility2-comment -->\\n\
-<div class=\"utility2FooterDiv\">\\n\
-    [ this app was created with\\n\
-    <a href=\"https://github.com/kaizhu256/node-utility2\" target=\"_blank\">utility2</a>\\n\
-    ]\\n\
-</div>\\n\
-</body>\\n\
-</html>\\n\
+<!doctype html>\\n\\\n\
+<html lang=\"en\">\\n\\\n\
+<head>\\n\\\n\
+<meta charset=\"utf-8\">\\n\\\n\
+<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\\n\\\n\
+<!-- \"assets.utility2.template.html\" -->\\n\\\n\
+<title>{{env.npm_package_name}} ({{env.npm_package_version}})</title>\\n\\\n\
+<style>\\n\\\n\
+/* jslint-utility2 */\\n\\\n\
+/*csslint\\n\\\n\
+*/\\n\\\n\
+/* jslint-ignore-begin */\\n\\\n\
+*,\\n\\\n\
+*:after,\\n\\\n\
+*:before {\\n\\\n\
+    box-sizing: border-box;\\n\\\n\
+}\\n\\\n\
+/* jslint-ignore-end */\\n\\\n\
+@keyframes uiAnimateShake {\\n\\\n\
+    0%, 50% {\\n\\\n\
+        transform: translateX(10px);\\n\\\n\
+    }\\n\\\n\
+    25%, 75% {\\n\\\n\
+        transform: translateX(-10px);\\n\\\n\
+    }\\n\\\n\
+    100% {\\n\\\n\
+        transform: translateX(0);\\n\\\n\
+    }\\n\\\n\
+}\\n\\\n\
+@keyframes uiAnimateSpin {\\n\\\n\
+    0% {\\n\\\n\
+        transform: rotate(0deg);\\n\\\n\
+    }\\n\\\n\
+    100% {\\n\\\n\
+        transform: rotate(360deg);\\n\\\n\
+    }\\n\\\n\
+}\\n\\\n\
+a {\\n\\\n\
+    overflow-wrap: break-word;\\n\\\n\
+}\\n\\\n\
+body {\\n\\\n\
+    background: #eef;\\n\\\n\
+    font-family: Arial, Helvetica, sans-serif;\\n\\\n\
+    margin: 0 40px;\\n\\\n\
+}\\n\\\n\
+body > div,\\n\\\n\
+body > form > div,\\n\\\n\
+body > form > input,\\n\\\n\
+body > form > pre,\\n\\\n\
+body > form > textarea,\\n\\\n\
+body > form > .button,\\n\\\n\
+body > input,\\n\\\n\
+body > pre,\\n\\\n\
+body > textarea,\\n\\\n\
+body > .button {\\n\\\n\
+    margin-bottom: 20px;\\n\\\n\
+}\\n\\\n\
+body > form > input,\\n\\\n\
+body > form > .button,\\n\\\n\
+body > input,\\n\\\n\
+body > .button {\\n\\\n\
+    width: 20rem;\\n\\\n\
+}\\n\\\n\
+body > form > textarea,\\n\\\n\
+body > textarea {\\n\\\n\
+    height: 10rem;\\n\\\n\
+    width: 100%;\\n\\\n\
+}\\n\\\n\
+body > textarea[readonly] {\\n\\\n\
+    background: #ddd;\\n\\\n\
+}\\n\\\n\
+code,\\n\\\n\
+pre,\\n\\\n\
+textarea {\\n\\\n\
+    font-family: Consolas, Menlo, monospace;\\n\\\n\
+    font-size: small;\\n\\\n\
+}\\n\\\n\
+pre {\\n\\\n\
+    overflow-wrap: break-word;\\n\\\n\
+    white-space: pre-wrap;\\n\\\n\
+}\\n\\\n\
+textarea {\\n\\\n\
+    overflow: auto;\\n\\\n\
+    white-space: pre;\\n\\\n\
+}\\n\\\n\
+.button {\\n\\\n\
+    background-color: #fff;\\n\\\n\
+    border: 1px solid;\\n\\\n\
+    border-bottom-color: rgb(186, 186, 186);\\n\\\n\
+    border-left-color: rgb(209, 209, 209);\\n\\\n\
+    border-radius: 4px;\\n\\\n\
+    border-right-color: rgb(209, 209, 209);\\n\\\n\
+    border-top-color: rgb(216, 216, 216);\\n\\\n\
+    color: #00d;\\n\\\n\
+    cursor: pointer;\\n\\\n\
+    display: inline-block;\\n\\\n\
+    font-family: Arial, Helvetica, sans-serif;\\n\\\n\
+    font-size: 12px;\\n\\\n\
+    font-style: normal;\\n\\\n\
+    font-weight: normal;\\n\\\n\
+    margin: 0;\\n\\\n\
+    padding: 2px 7px 3px 7px;\\n\\\n\
+    text-align: center;\\n\\\n\
+    text-decoration: underline;\\n\\\n\
+}\\n\\\n\
+.colorError {\\n\\\n\
+    color: #d00;\\n\\\n\
+}\\n\\\n\
+.uiAnimateShake {\\n\\\n\
+    animation-duration: 500ms;\\n\\\n\
+    animation-name: uiAnimateShake;\\n\\\n\
+}\\n\\\n\
+.uiAnimateSlide {\\n\\\n\
+    overflow-y: hidden;\\n\\\n\
+    transition: max-height ease-in 250ms, min-height ease-in 250ms, padding-bottom ease-in 250ms, padding-top ease-in 250ms;\\n\\\n\
+}\\n\\\n\
+.utility2FooterDiv {\\n\\\n\
+    text-align: center;\\n\\\n\
+}\\n\\\n\
+.zeroPixel {\\n\\\n\
+    border: 0;\\n\\\n\
+    height: 0;\\n\\\n\
+    margin: 0;\\n\\\n\
+    padding: 0;\\n\\\n\
+    width: 0;\\n\\\n\
+}\\n\\\n\
+</style>\\n\\\n\
+</head>\\n\\\n\
+<body>\\n\\\n\
+<div id=\"ajaxProgressDiv1\" style=\"background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;\"></div>\\n\\\n\
+<div class=\"uiAnimateSpin\" style=\"animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;\"></div>\\n\\\n\
+<a class=\"zeroPixel\" download=\"db.persistence.json\" href=\"\" id=\"dbExportA1\"></a>\\n\\\n\
+<input class=\"zeroPixel\" id=\"dbImportInput1\" type=\"file\">\\n\\\n\
+<script>\\n\\\n\
+/* jslint-utility2 */\\n\\\n\
+/*jslint\\n\\\n\
+    bitwise: true,\\n\\\n\
+    browser: true,\\n\\\n\
+    maxerr: 4,\\n\\\n\
+    maxlen: 100,\\n\\\n\
+    node: true,\\n\\\n\
+    nomen: true,\\n\\\n\
+    regexp: true,\\n\\\n\
+    stupid: true\\n\\\n\
+*/\\n\\\n\
+// init domOnEventWindowOnloadTimeElapsed\\n\\\n\
+(function () {\\n\\\n\
+/*\\n\\\n\
+ * this function will measure and print the time-elapsed for window.onload\\n\\\n\
+ */\\n\\\n\
+    \"use strict\";\\n\\\n\
+    if (window.domOnEventWindowOnloadTimeElapsed) {\\n\\\n\
+        return;\\n\\\n\
+    }\\n\\\n\
+    window.domOnEventWindowOnloadTimeElapsed = Date.now() + 100;\\n\\\n\
+    window.addEventListener(\"load\", function () {\\n\\\n\
+        setTimeout(function () {\\n\\\n\
+            window.domOnEventWindowOnloadTimeElapsed = Date.now() -\\n\\\n\
+                window.domOnEventWindowOnloadTimeElapsed;\\n\\\n\
+            console.error(\"domOnEventWindowOnloadTimeElapsed = \" +\\n\\\n\
+                window.domOnEventWindowOnloadTimeElapsed);\\n\\\n\
+        }, 100);\\n\\\n\
+    });\\n\\\n\
+}());\\n\\\n\
+// init timerIntervalAjaxProgressUpdate\\n\\\n\
+(function () {\\n\\\n\
+/*\\n\\\n\
+ * this function will increment the ajax-progress-bar until the webpage has loaded\\n\\\n\
+ */\\n\\\n\
+    \"use strict\";\\n\\\n\
+    var ajaxProgressDiv1,\\n\\\n\
+        ajaxProgressState,\\n\\\n\
+        ajaxProgressUpdate;\\n\\\n\
+    if (window.timerIntervalAjaxProgressUpdate || !document.querySelector(\"#ajaxProgressDiv1\")) {\\n\\\n\
+        return;\\n\\\n\
+    }\\n\\\n\
+    ajaxProgressDiv1 = document.querySelector(\"#ajaxProgressDiv1\");\\n\\\n\
+    setTimeout(function () {\\n\\\n\
+        ajaxProgressDiv1.style.width = \"25%\";\\n\\\n\
+    });\\n\\\n\
+    ajaxProgressState = 0;\\n\\\n\
+    ajaxProgressUpdate = (window.local &&\\n\\\n\
+        window.local.ajaxProgressUpdate) || function () {\\n\\\n\
+        ajaxProgressDiv1.style.width = \"100%\";\\n\\\n\
+        setTimeout(function () {\\n\\\n\
+            ajaxProgressDiv1.style.background = \"transparent\";\\n\\\n\
+            setTimeout(function () {\\n\\\n\
+                ajaxProgressDiv1.style.width = \"0%\";\\n\\\n\
+            }, 500);\\n\\\n\
+        }, 1500);\\n\\\n\
+    };\\n\\\n\
+    window.timerIntervalAjaxProgressUpdate = setInterval(function () {\\n\\\n\
+        ajaxProgressState += 1;\\n\\\n\
+        ajaxProgressDiv1.style.width = Math.max(\\n\\\n\
+            100 - 75 * Math.exp(-0.125 * ajaxProgressState),\\n\\\n\
+            ajaxProgressDiv1.style.width.slice(0, -1) | 0\\n\\\n\
+        ) + \"%\";\\n\\\n\
+    }, 1000);\\n\\\n\
+    window.addEventListener(\"load\", function () {\\n\\\n\
+        clearInterval(window.timerIntervalAjaxProgressUpdate);\\n\\\n\
+        ajaxProgressUpdate();\\n\\\n\
+    });\\n\\\n\
+}());\\n\\\n\
+// init domOnEventSelectAllWithinPre\\n\\\n\
+(function () {\\n\\\n\
+/*\\n\\\n\
+ * this function will limit select-all within <pre tabIndex=\"0\"> elements\\n\\\n\
+ * https://stackoverflow.com/questions/985272/selecting-text-in-an-element-akin-to-highlighting-with-your-mouse\\n\\\n\
+ */\\n\\\n\
+    \"use strict\";\\n\\\n\
+    if (window.domOnEventSelectAllWithinPre) {\\n\\\n\
+        return;\\n\\\n\
+    }\\n\\\n\
+    window.domOnEventSelectAllWithinPre = function (event) {\\n\\\n\
+        var range, selection;\\n\\\n\
+        if (event &&\\n\\\n\
+                event.key === \"a\" &&\\n\\\n\
+                (event.ctrlKey || event.metaKey) &&\\n\\\n\
+                event.target.closest(\"pre\")) {\\n\\\n\
+            range = document.createRange();\\n\\\n\
+            range.selectNodeContents(event.target.closest(\"pre\"));\\n\\\n\
+            selection = window.getSelection();\\n\\\n\
+            selection.removeAllRanges();\\n\\\n\
+            selection.addRange(range);\\n\\\n\
+            event.preventDefault();\\n\\\n\
+        }\\n\\\n\
+    };\\n\\\n\
+    document.addEventListener(\"keydown\", window.domOnEventSelectAllWithinPre);\\n\\\n\
+}());\\n\\\n\
+</script>\\n\\\n\
+<h1>\\n\\\n\
+<!-- utility2-comment\\n\\\n\
+    <a\\n\\\n\
+        {{#if env.npm_package_homepage}}\\n\\\n\
+        href=\"{{env.npm_package_homepage}}\"\\n\\\n\
+        {{/if env.npm_package_homepage}}\\n\\\n\
+        target=\"_blank\"\\n\\\n\
+    >\\n\\\n\
+utility2-comment -->\\n\\\n\
+        {{env.npm_package_name}} ({{env.npm_package_version}})\\n\\\n\
+<!-- utility2-comment\\n\\\n\
+    </a>\\n\\\n\
+utility2-comment -->\\n\\\n\
+</h1>\\n\\\n\
+<h3>{{env.npm_package_description}}</h3>\\n\\\n\
+<!-- utility2-comment\\n\\\n\
+<a class=\"button\" download href=\"assets.app.js\">download standalone app</a><br>\\n\\\n\
+<button class=\"zeroPixel\" id=\"testRunButton1\"></button>\\n\\\n\
+<button class=\"button onclick onreset\" id=\"testRunButton2\">run internal test</button><br>\\n\\\n\
+utility2-comment -->\\n\\\n\
+\\n\\\n\
+\\n\\\n\
+\\n\\\n\
+<label>edit or paste script below to cover and test</label>\\n\\\n\
+<textarea class=\"oneval onkeyup onreset\" id=\"inputTextareaEval1\">\\n\\\n\
+// remove comment below to disable jslint\\n\\\n\
+/*jslint\\n\\\n\
+    browser: true,\\n\\\n\
+    es6: true\\n\\\n\
+*/\\n\\\n\
+/*global window*/\\n\\\n\
+(function () {\\n\\\n\
+    \"use strict\";\\n\\\n\
+    var testCaseDict;\\n\\\n\
+    testCaseDict = {};\\n\\\n\
+    testCaseDict.modeTest = 1;\\n\\\n\
+\\n\\\n\
+    // comment this testCase to disable the failed assertion demo\\n\\\n\
+    testCaseDict.testCase_failed_assertion_demo = function (options, onError) {\\n\\\n\
+    /*\\n\\\n\
+     * this function will demo a failed assertion test\\n\\\n\
+     */\\n\\\n\
+        // jslint-hack\\n\\\n\
+        window.utility2.nop(options);\\n\\\n\
+        window.utility2.assert(false, \"this is a failed assertion demo\");\\n\\\n\
+        onError();\\n\\\n\
+    };\\n\\\n\
+\\n\\\n\
+    testCaseDict.testCase_passed_ajax_demo = function (options, onError) {\\n\\\n\
+    /*\\n\\\n\
+     * this function will demo a passed ajax test\\n\\\n\
+     */\\n\\\n\
+        var data;\\n\\\n\
+        options = {url: \"/\"};\\n\\\n\
+        // test ajax request for main-page \"/\"\\n\\\n\
+        window.utility2.ajax(options, function (error, xhr) {\\n\\\n\
+            try {\\n\\\n\
+                // validate no error occurred\\n\\\n\
+                window.utility2.assert(!error, error);\\n\\\n\
+                // validate \"200 ok\" status\\n\\\n\
+                window.utility2.assert(xhr.statusCode === 200, xhr.statusCode);\\n\\\n\
+                // validate non-empty data\\n\\\n\
+                data = xhr.responseText;\\n\\\n\
+                window.utility2.assert(data && data.length > 0, data);\\n\\\n\
+                onError();\\n\\\n\
+            } catch (errorCaught) {\\n\\\n\
+                onError(errorCaught);\\n\\\n\
+            }\\n\\\n\
+        });\\n\\\n\
+    };\\n\\\n\
+\\n\\\n\
+    window.utility2.testRunDefault(testCaseDict);\\n\\\n\
+}());\\n\\\n\
+</textarea>\\n\\\n\
+<pre id=\"outputJsonStringifyPre1\" tabindex=\"0\"></pre>\\n\\\n\
+<pre class= \"colorError\" id=\"outputJslintPre1\" tabindex=\"0\"></pre>\\n\\\n\
+<label>instrumented-code</label>\\n\\\n\
+<textarea class=\"resettable\" id=\"outputTextarea1\" readonly></textarea>\\n\\\n\
+<label>stderr and stdout</label>\\n\\\n\
+<textarea class=\"resettable\" id=\"outputStdoutTextarea1\" readonly></textarea>\\n\\\n\
+<div class=\"resettable\" id=\"testReportDiv1\"></div>\\n\\\n\
+<div class=\"resettable\" id=\"coverageReportDiv1\"></div>\\n\\\n\
+<!-- utility2-comment\\n\\\n\
+{{#if isRollup}}\\n\\\n\
+<script src=\"assets.app.js\"></script>\\n\\\n\
+{{#unless isRollup}}\\n\\\n\
+utility2-comment -->\\n\\\n\
+<script src=\"assets.utility2.lib.istanbul.js\"></script>\\n\\\n\
+<script src=\"assets.utility2.lib.jslint.js\"></script>\\n\\\n\
+<script src=\"assets.utility2.lib.db.js\"></script>\\n\\\n\
+<script src=\"assets.utility2.lib.marked.js\"></script>\\n\\\n\
+<script src=\"assets.utility2.lib.sjcl.js\"></script>\\n\\\n\
+<script src=\"assets.utility2.lib.uglifyjs.js\"></script>\\n\\\n\
+<script src=\"assets.utility2.js\"></script>\\n\\\n\
+<script>window.utility2_onReadyBefore.counter += 1;</script>\\n\\\n\
+<script src=\"jsonp.utility2.stateInit?callback=window.utility2.stateInit\"></script>\\n\\\n\
+<script src=\"assets.example.js\"></script>\\n\\\n\
+<script src=\"assets.test.js\"></script>\\n\\\n\
+<script>window.utility2_onReadyBefore();</script>\\n\\\n\
+<!-- utility2-comment\\n\\\n\
+{{/if isRollup}}\\n\\\n\
+utility2-comment -->\\n\\\n\
+<div class=\"utility2FooterDiv\">\\n\\\n\
+    [ this app was created with\\n\\\n\
+    <a href=\"https://github.com/kaizhu256/node-utility2\" target=\"_blank\">utility2</a>\\n\\\n\
+    ]\\n\\\n\
+</div>\\n\\\n\
+</body>\\n\\\n\
+</html>\\n\\\n\
 ';\n\
         /* jslint-ignore-end */\n\
         /* validateLineSortedReset */\n\
@@ -30236,6 +30261,7 @@ textarea {\n\
 <h3>the zero-dependency, swiss-army-knife utility for building, testing, and deploying webapps</h3>\n\
 \n\
 <a class=\"button\" download href=\"assets.app.js\">download standalone app</a><br>\n\
+<button class=\"zeroPixel\" id=\"testRunButton1\"></button>\n\
 <button class=\"button onclick onreset\" id=\"testRunButton2\">run internal test</button><br>\n\
 \n\
 \n\
@@ -30253,7 +30279,7 @@ textarea {\n\
     \"use strict\";\n\
     var testCaseDict;\n\
     testCaseDict = {};\n\
-    testCaseDict.modeTest = true;\n\
+    testCaseDict.modeTest = 1;\n\
 \n\
     // comment this testCase to disable the failed assertion demo\n\
     testCaseDict.testCase_failed_assertion_demo = function (options, onError) {\n\
@@ -30292,8 +30318,8 @@ textarea {\n\
     window.utility2.testRunDefault(testCaseDict);\n\
 }());\n\
 </textarea>\n\
-<pre id=\"outputPreJsonStringify1\" tabindex=\"0\"></pre>\n\
-<pre class= \"colorError\" id=\"outputPreJslint1\" tabindex=\"0\"></pre>\n\
+<pre id=\"outputJsonStringifyPre1\" tabindex=\"0\"></pre>\n\
+<pre class= \"colorError\" id=\"outputJslintPre1\" tabindex=\"0\"></pre>\n\
 <label>instrumented-code</label>\n\
 <textarea class=\"resettable\" id=\"outputTextarea1\" readonly></textarea>\n\
 <label>stderr and stdout</label>\n\
@@ -30364,7 +30390,7 @@ local.assetsDict["/assets.utility2.test.js"] = "/* istanbul instrument in packag
         local = local.global.local = (local.global.utility2 ||\n\
             require('./lib.utility2.js')).requireReadme();\n\
         // init test\n\
-        local.testRunInit(local);\n\
+        local.testRunDefault(local);\n\
     }());\n\
 \n\
 \n\
@@ -30407,30 +30433,17 @@ local.assetsDict["/assets.utility2.test.js"] = "/* istanbul instrument in packag
                 local.assert(!error, error);\n\
                 // validate responseText\n\
                 local.assert(xhr.responseText.indexOf(\n\
-                    '\\r\\n\
-Content-Disposition: form-data; ' +\n\
-                        'name=\"text1\"\\r\\n\
-\\r\\n\
-aabb\\u1234 0\\r\\n\
-'\n\
+                    '\\r\\nContent-Disposition: form-data; ' +\n\
+                        'name=\"text1\"\\r\\n\\r\\naabb\\u1234 0\\r\\n'\n\
                 ) >= 0, xhr.responseText);\n\
                 local.assert(xhr.responseText.indexOf(\n\
-                    '\\r\\n\
-Content-Disposition: form-data; ' +\n\
-                        'name=\"file1\"\\r\\n\
-\\r\\n\
-aabb\\u1234 0\\r\\n\
-'\n\
+                    '\\r\\nContent-Disposition: form-data; ' +\n\
+                        'name=\"file1\"\\r\\n\\r\\naabb\\u1234 0\\r\\n'\n\
                 ) >= 0, xhr.responseText);\n\
                 local.assert(xhr.responseText.indexOf(\n\
-                    '\\r\\n\
-Content-Disposition: form-data; name=\"file2\"; ' +\n\
-                        'filename=\"filename2.txt\"\\r\\n\
-Content-Type: text/plain; ' +\n\
-                        'charset=utf-8\\r\\n\
-\\r\\n\
-aabb\\u1234 0\\r\\n\
-'\n\
+                    '\\r\\nContent-Disposition: form-data; name=\"file2\"; ' +\n\
+                        'filename=\"filename2.txt\"\\r\\nContent-Type: text/plain; ' +\n\
+                        'charset=utf-8\\r\\n\\r\\naabb\\u1234 0\\r\\n'\n\
                 ) >= 0, xhr.responseText);\n\
                 onError(null, options);\n\
             });\n\
@@ -30469,9 +30482,7 @@ aabb\\u1234 0\\r\\n\
                 // validate no error occurred\n\
                 local.assert(!error, error);\n\
                 // validate responseText\n\
-                local.assert((/\\r\\n\
-\\r\\n\
-$/).test(xhr.responseText), xhr.responseText);\n\
+                local.assert((/\\r\\n\\r\\n$/).test(xhr.responseText), xhr.responseText);\n\
                 onError(null, options);\n\
             });\n\
         };\n\
@@ -30539,8 +30550,8 @@ $/).test(xhr.responseText), xhr.responseText);\n\
                     break;\n\
                 case 2:\n\
                     // validate responseText\n\
-                    local.assertJsonEqual(data.responseText, 'hello\\n\
-');\n\
+                    /* jslint-ignore-next-line */\n\
+                    local.assertJsonEqual(data.responseText, 'hello\\ud83d\\udc4b\\u0020\\n');\n\
                     // test http GET 304 cache handling-behavior\n\
                     local.ajax({\n\
                         headers: {\n\
@@ -30578,12 +30589,9 @@ $/).test(xhr.responseText), xhr.responseText);\n\
                 // validate statusCode\n\
                 local.assertJsonEqual(xhr.statusCode, 200);\n\
                 // validate response\n\
-                local.assert((/\\r\\n\
-aa$/).test(xhr.responseText), xhr.responseText);\n\
+                local.assert((/\\r\\naa$/).test(xhr.responseText), xhr.responseText);\n\
                 local.assert(\n\
-                    (/\\r\\n\
-x-request-header-test: aa\\r\\n\
-/).test(xhr.responseText),\n\
+                    (/\\r\\nx-request-header-test: aa\\r\\n/).test(xhr.responseText),\n\
                     xhr.responseText\n\
                 );\n\
                 // validate responseHeaders\n\
@@ -30677,6 +30685,53 @@ x-request-header-test: aa\\r\\n\
             }, onError);\n\
         };\n\
 \n\
+        local.testCase_ajax_responseType = function (options, onError) {\n\
+        /*\n\
+         * this function will test ajax's responseType handling-behavior\n\
+         */\n\
+            // test /test.body handling-behavior\n\
+            local.onParallelList({ list: [\n\
+                '',\n\
+                'arraybuffer',\n\
+                'text'\n\
+            ] }, function (responseType, onParallel) {\n\
+                responseType = responseType.element;\n\
+                onParallel.counter += 1;\n\
+                local.ajax({\n\
+                    // test nodejs response handling-behavior\n\
+                    responseType: responseType,\n\
+                    url: 'assets.hello'\n\
+                }, function (error, xhr) {\n\
+                    // validate no error occurred\n\
+                    local.assert(!error, error);\n\
+                    // validate statusCode\n\
+                    local.assertJsonEqual(xhr.statusCode, 200);\n\
+                    // validate responseText\n\
+                    switch (responseType) {\n\
+                    case 'arraybuffer':\n\
+                        local.assertJsonEqual(xhr.responseBuffer.byteLength, 11);\n\
+                        local.assertJsonEqual(xhr.responseBuffer[0], 0x68);\n\
+                        local.assertJsonEqual(xhr.responseBuffer[1], 0x65);\n\
+                        local.assertJsonEqual(xhr.responseBuffer[2], 0x6c);\n\
+                        local.assertJsonEqual(xhr.responseBuffer[3], 0x6c);\n\
+                        local.assertJsonEqual(xhr.responseBuffer[4], 0x6f);\n\
+                        local.assertJsonEqual(xhr.responseBuffer[5], 0xf0);\n\
+                        local.assertJsonEqual(xhr.responseBuffer[6], 0x9f);\n\
+                        local.assertJsonEqual(xhr.responseBuffer[7], 0x91);\n\
+                        local.assertJsonEqual(xhr.responseBuffer[8], 0x8b);\n\
+                        local.assertJsonEqual(xhr.responseBuffer[9], 0x20);\n\
+                        local.assertJsonEqual(xhr.responseBuffer[10], 0x0a);\n\
+                        break;\n\
+                    default:\n\
+                        /* jslint-ignore-next-line */\n\
+                        local.assertJsonEqual(xhr.responseText, 'hello\\ud83d\\udc4b\\u0020\\n');\n\
+                        break;\n\
+                    }\n\
+                    onParallel(null, options);\n\
+                });\n\
+            }, onError);\n\
+        };\n\
+\n\
         local.testCase_ajax_standalone = function (options, onError) {\n\
         /*\n\
          * this function will test ajax's standalone handling-behavior\n\
@@ -30710,7 +30765,7 @@ x-request-header-test: aa\\r\\n\
                 // test error handling-behavior\n\
                 onParallel.counter += 1;\n\
                 local.ajax({\n\
-                    responseType: 'arraybuffer',\n\
+                    responseType: 'undefined',\n\
                     undefined: undefined,\n\
                     url: (local.isBrowser\n\
                         ? location.href.replace((/\\?.*$/), '')\n\
@@ -30940,15 +30995,12 @@ x-request-header-test: aa\\r\\n\
                         case 21:\n\
                             [\n\
                                 '',\n\
-                                'undefined global_test_results {\"global_test_results\":{}}',\n\
-                                'undefined global_test_results {\"global_test_results\":{' +\n\
-                                    '\"testReport\":{\"testPlatformList\":[{}]}' +\n\
-                                    '}}',\n\
-                                'undefined global_test_results {\"global_test_results\":{' +\n\
-                                    '\"coverage\":{},' +\n\
-                                    '\"testReport\":{\"testPlatformList\":[{}]}' +\n\
-                                    '}}',\n\
-                                'undefined html '\n\
+                                'undefined html ',\n\
+                                'undefined utility2_testReport undefined',\n\
+                                'undefined utility2_testReport {}',\n\
+                                'undefined utility2_testReport {\"testPlatformList\":[{}]}',\n\
+                                'undefined utility2_testReport {' +\n\
+                                    '\"coverage\":{},\"testPlatformList\":[{}]}'\n\
                             ].forEach(function (message) {\n\
                                 options.message = message;\n\
                                 options.modeBrowserTest = modeBrowserTest;\n\
@@ -31045,7 +31097,6 @@ x-request-header-test: aa\\r\\n\
                 onError(null, options);\n\
                 return;\n\
             }\n\
-            options = {};\n\
             // test $npm_config_mode_coverage=all handling-behavior\n\
             local.testMock([\n\
                 [local.env, { npm_config_mode_coverage: 'all' }]\n\
@@ -31056,9 +31107,9 @@ x-request-header-test: aa\\r\\n\
             local.testMock([\n\
                 [local.env, { npm_package_buildCustomOrg: 'electron-lite' }]\n\
             ], function (onError) {\n\
-                local.buildApidoc(options, onError);\n\
+                local.buildApidoc({}, onError);\n\
             }, local.onErrorThrow);\n\
-            local.buildApidoc({ blacklistDict: options }, onError);\n\
+            local.buildApidoc({ blacklistDict: {} }, onError);\n\
         };\n\
 \n\
         local.testCase_buildApp_default = function (options, onError) {\n\
@@ -31143,7 +31194,6 @@ x-request-header-test: aa\\r\\n\
                 onError(null, options);\n\
                 return;\n\
             }\n\
-            options = {};\n\
             local.testMock([\n\
                 [local.fs, {\n\
                     // test customize-local handling-behavior\n\
@@ -31153,10 +31203,9 @@ x-request-header-test: aa\\r\\n\
                     writeFileSync: local.nop\n\
                 }]\n\
             ], function (onError) {\n\
-                local.buildLib(options, onError);\n\
+                local.buildLib({}, onError);\n\
             }, local.onErrorThrow);\n\
-            options = {};\n\
-            local.buildLib(options, onError);\n\
+            local.buildLib({}, onError);\n\
         };\n\
 \n\
         local.testCase_buildReadme_default = function (options, onError) {\n\
@@ -31219,8 +31268,7 @@ x-request-header-test: aa\\r\\n\
                     (/# quickstart example.js[\\S\\s]*?istanbul instrument in package/),\n\
                     // customize quickstart-footer\n\
                     (/>download standalone app<[^`]*?\"utility2FooterDiv\"/),\n\
-                    (/```[^`]*?\\n\
-# extra screenshots/),\n\
+                    (/```[^`]*?\\n# extra screenshots/),\n\
                     // customize build-script\n\
                     (/# run shBuildCi[^`]*?```/)\n\
                 ].forEach(function (rgx) {\n\
@@ -31615,8 +31663,7 @@ x-request-header-test: aa\\r\\n\
                 local.assert(!local.jslint.errorText, local.jslint.errorText);\n\
                 // test csslint passed handling-behavior\n\
                 local.jslintAndPrintConditional(\n\
-                    '/*csslint*/\\n\
-body { display: block; }',\n\
+                    '/*csslint*/\\nbody { display: block; }',\n\
                     'passed.css',\n\
                     'force'\n\
                 );\n\
@@ -31628,8 +31675,7 @@ body { display: block; }',\n\
                 local.assert(!local.jslint.errorText, local.jslint.errorText);\n\
                 // test jslint passed handling-behavior\n\
                 local.jslintAndPrintConditional(\n\
-                    '/*jslint node: true*/\\n\
-console.log(\"aa\");',\n\
+                    '/*jslint node: true*/\\nconsole.log(\"aa\");',\n\
                     'passed.js',\n\
                     'force'\n\
                 );\n\
@@ -31654,12 +31700,9 @@ console.log(\"aa\");',\n\
         /*\n\
          * this function will test jsonStringifyOrdered's default handling-behavior\n\
          */\n\
-            options = {};\n\
             // test data-type handling-behavior\n\
             [undefined, null, false, true, 0, 1, 1.5, 'a', {}, []].forEach(function (data) {\n\
-                options.aa = local.jsonStringifyOrdered(data);\n\
-                options.bb = JSON.stringify(data);\n\
-                local.assertJsonEqual(options.aa, options.bb);\n\
+                local.assertJsonEqual(local.jsonStringifyOrdered(data), JSON.stringify(data));\n\
             });\n\
             // test data-ordering handling-behavior\n\
             options = {\n\
@@ -31842,9 +31885,9 @@ console.log(\"aa\");',\n\
                 // validate no error occurred\n\
                 local.assert(!error, error);\n\
                 // validate responseText\n\
-                local.assertJsonEqual(xhr.responseText, 'hello\\n\
-');\n\
-                onParallel(null, options);\n\
+                /* jslint-ignore-next-line */\n\
+                local.assertJsonEqual(xhr.responseText, 'hello\\ud83d\\udc4b\\u0020\\n');\n\
+                onParallel(null, options, xhr);\n\
             });\n\
             // test error handling-behavior\n\
             onParallel.counter += 1;\n\
@@ -31934,12 +31977,7 @@ console.log(\"aa\");',\n\
                 dd: null,\n\
                 ee: '',\n\
                 ff: undefined\n\
-            }), 'boolean aa\\n\
-function bb\\n\
-number cc\\n\
-object dd\\n\
-string ee\\n\
-undefined ff');\n\
+            }), 'boolean aa\\nfunction bb\\nnumber cc\\nobject dd\\nstring ee\\nundefined ff');\n\
             onError(null, options);\n\
         };\n\
 \n\
@@ -32331,26 +32369,19 @@ undefined ff');\n\
                     // test null-case handling-behavior\n\
                     '',\n\
                     // test shell handling-behavior\n\
-                    '$ :\\n\
-',\n\
+                    '$ :\\n',\n\
                     // test git diff handling-behavior\n\
-                    '$ git diff\\n\
-',\n\
+                    '$ git diff\\n',\n\
                     // test git log handling-behavior\n\
-                    '$ git log\\n\
-',\n\
+                    '$ git log\\n',\n\
                     // test grep handling-behavior\n\
-                    'grep \\\\baa\\\\b\\n\
-',\n\
+                    'grep \\\\baa\\\\b\\n',\n\
                     // test keys handling-behavior\n\
-                    'keys {}\\n\
-',\n\
+                    'keys {}\\n',\n\
                     // test print handling-behavior\n\
-                    'print\\n\
-',\n\
+                    'print\\n',\n\
                     // test error handling-behavior\n\
-                    'undefined()\\n\
-'\n\
+                    'undefined()\\n'\n\
                 ].forEach(function (script) {\n\
                     local.global.utility2_serverRepl1.eval(script, null, 'repl', local.nop);\n\
                 });\n\
@@ -32389,11 +32420,9 @@ undefined ff');\n\
                 );\n\
                 onError(null, options);\n\
             });\n\
-            options.socket.write(options.input + '\\n\
-');\n\
+            options.socket.write(options.input + '\\n');\n\
             // test error handling-behavior\n\
-            options.socket.end('undefined()\\n\
-');\n\
+            options.socket.end('undefined()\\n');\n\
         };\n\
 \n\
         local.testCase_requireReadme_start = function (options, onError) {\n\
@@ -32437,6 +32466,62 @@ undefined ff');\n\
             }, onError);\n\
         };\n\
 \n\
+        local.testCase_semverCompare_default = function (options, onError) {\n\
+        /*\n\
+         * this function will test semverCompare's default handling-behavior\n\
+         */\n\
+            // test aa = bb\n\
+            options = [\n\
+                '',\n\
+                0,\n\
+                '0',\n\
+                '0.0',\n\
+                '0.0.0',\n\
+                '0.0.0.1',\n\
+                '00',\n\
+                '00.00',\n\
+                false,\n\
+                null,\n\
+                undefined\n\
+            ];\n\
+            options.forEach(function (aa) {\n\
+                options.forEach(function (bb) {\n\
+                    local.assert(\n\
+                        local.semverCompare(aa, bb) === 0,\n\
+                        [local.semverCompare(aa, bb), aa, bb]\n\
+                    );\n\
+                });\n\
+            });\n\
+            options = [\n\
+                '',\n\
+                '1',\n\
+                '1.1',\n\
+                '1.1.1',\n\
+                '1.1.1.9-',\n\
+                '1.1.1.8-a',\n\
+                '1.1.1.7-b',\n\
+                '1.1.2',\n\
+                '1.1.10'\n\
+            ];\n\
+            // test aa < bb\n\
+            options.reduce(function (aa, bb) {\n\
+                local.assert(\n\
+                    local.semverCompare(aa, bb) === -1,\n\
+                    [local.semverCompare(aa, bb), aa, bb]\n\
+                );\n\
+                return bb;\n\
+            });\n\
+            // test aa > bb\n\
+            options.reverse().reduce(function (aa, bb) {\n\
+                local.assert(\n\
+                    local.semverCompare(aa, bb) === 1,\n\
+                    [local.semverCompare(aa, bb), aa, bb]\n\
+                );\n\
+                return bb;\n\
+            });\n\
+            onError(null, options);\n\
+        };\n\
+\n\
         local.testCase_serverRespondTimeoutDefault_default = function (options, onError) {\n\
         /*\n\
          * this function will test serverRespondTimeoutDefault's default handling-behavior\n\
@@ -32467,11 +32552,10 @@ undefined ff');\n\
         /*\n\
          * this function will test setTimeoutOnError's default handling-behavior\n\
          */\n\
-            options = {};\n\
             // test null-case handling-behavior\n\
             local.assertJsonEqual(local.setTimeoutOnError(), undefined);\n\
             // test onError handling-behavior\n\
-            local.assertJsonEqual(local.setTimeoutOnError(onError, 0, null, options), {});\n\
+            local.assertJsonEqual(local.setTimeoutOnError(onError, 0, null, {}, options), {});\n\
         };\n\
 \n\
         local.testCase_sjclHashScryptXxx_default = function (options, onError) {\n\
@@ -32545,8 +32629,7 @@ undefined ff');\n\
          */\n\
             local.assertJsonEqual(local.stringRegexpEscape(local.stringCharsetAscii), String() +\n\
                 '\\u0000\\u0001\\u0002\\u0003\\u0004\\u0005\\u0006\\u0007' +\n\
-                '\\b\\t\\n\
-\\u000b\\f\\r\\u000e\\u000f' +\n\
+                '\\b\\t\\n\\u000b\\f\\r\\u000e\\u000f' +\n\
                 '\\u0010\\u0011\\u0012\\u0013\\u0014\\u0015\\u0016\\u0017' +\n\
                 '\\u0018\\u0019\\u001a\\u001b\\u001c\\u001d\\u001e\\u001f' +\n\
                 ' !\"#\\\\$%&\\'\\\\(\\\\)\\\\*\\\\+,\\\\-\\\\.\\\\/0123456789:;<=>\\\\?@' +\n\
@@ -32693,16 +32776,13 @@ undefined ff');\n\
             local.assertJsonEqual(local.templateRender('{{aa}}', {}), '{{aa}}');\n\
             // test basic handling-behavior\n\
             local.assertJsonEqual(local.templateRender('{{aa}}', {\n\
-                aa: '```<aa\\n\
-bb>```'\n\
-            }), '```&lt;aa\\n\
-bb&gt;```');\n\
+                aa: '```<aa\\nbb>```'\n\
+            }), '```&lt;aa\\nbb&gt;```');\n\
             // test markdownToHtml handling-behavior\n\
             local.assertJsonEqual(local.templateRender('{{aa markdownToHtml}}', {\n\
                 aa: local.stringCharsetAscii.slice(32, -1)\n\
             }), '<p> !&quot;#$%&amp;&apos;()*+,-./0123456789:;&lt;=&gt;?@' +\n\
-                'ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~</p>\\n\
-');\n\
+                'ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~</p>\\n');\n\
             // test markdownSafe handling-behavior\n\
             local.assertJsonEqual(local.templateRender('{{aa markdownSafe notHtmlSafe}}', {\n\
                 aa: local.stringCharsetAscii.slice(32, -1)\n\
@@ -32710,10 +32790,8 @@ bb&gt;```');\n\
                 'ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_\\'abcdefghijklmnopqrstuvwxyz{|}~');\n\
             // test notHtmlSafe handling-behavior\n\
             local.assertJsonEqual(local.templateRender('{{aa notHtmlSafe}}', {\n\
-                aa: '```<aa\\n\
-bb>```'\n\
-            }), '```<aa\\n\
-bb>```');\n\
+                aa: '```<aa\\nbb>```'\n\
+            }), '```<aa\\nbb>```');\n\
             // test default handling-behavior\n\
             local.assertJsonEqual(local.templateRender('{{aa alphanumeric}} ' +\n\
                 '{{aa truncate 4 truncate 4}} ' +\n\
@@ -32731,42 +32809,24 @@ bb>```');\n\
                     ee: { ff: 'gg' }\n\
                 }), '__aa__ `... %22%5C%22%60%3Caa%3E%60%5C%22%22 1 null {{dd}} gg');\n\
             // test partial handling-behavior\n\
-            local.assertJsonEqual(local.templateRender('{{#undefined aa}}\\n\
-' +\n\
-                'list1{{#each list1}}\\n\
-' +\n\
-                '    aa - {{aa}}\\n\
-' +\n\
-                '    list2{{#eachTrimRightComma list2}}\\n\
-' +\n\
-                '        {{#this/ notHtmlSafe jsonStringify}}\\n\
-' +\n\
-                '        bb - {{bb}}\\n\
-' +\n\
-                '        {{#if bb}}\\n\
-' +\n\
-                '        if\\n\
-' +\n\
-                '        {{#unless bb}}\\n\
-' +\n\
-                '        else\\n\
-' +\n\
-                '        {{/if bb}}\\n\
-' +\n\
-                '        {{#unless bb}}\\n\
-' +\n\
-                '        unless\\n\
-' +\n\
-                '        {{/unless bb}}\\n\
-' +\n\
-                '        ,\\n\
-' +\n\
-                '    {{/eachTrimRightComma list2}}\\n\
-' +\n\
-                '{{/each list1}}\\n\
-' +\n\
-                '{{/undefined aa}}\\n\
-', { list1: [\n\
+            local.assertJsonEqual(local.templateRender('{{#undefined aa}}\\n' +\n\
+                'list1{{#each list1}}\\n' +\n\
+                '    aa - {{aa}}\\n' +\n\
+                '    list2{{#eachTrimRightComma list2}}\\n' +\n\
+                '        {{#this/ notHtmlSafe jsonStringify}}\\n' +\n\
+                '        bb - {{bb}}\\n' +\n\
+                '        {{#if bb}}\\n' +\n\
+                '        if\\n' +\n\
+                '        {{#unless bb}}\\n' +\n\
+                '        else\\n' +\n\
+                '        {{/if bb}}\\n' +\n\
+                '        {{#unless bb}}\\n' +\n\
+                '        unless\\n' +\n\
+                '        {{/unless bb}}\\n' +\n\
+                '        ,\\n' +\n\
+                '    {{/eachTrimRightComma list2}}\\n' +\n\
+                '{{/each list1}}\\n' +\n\
+                '{{/undefined aa}}\\n', { list1: [\n\
                     // test null-value handling-behavior\n\
                     null,\n\
                     {\n\
@@ -32775,58 +32835,32 @@ bb>```');\n\
                         list2: [{ bb: 'bb' }, { bb: null }]\n\
                     }\n\
                 ]\n\
-                    }), '{{#undefined aa}}\\n\
-' +\n\
-                'list1\\n\
-' +\n\
-                '    aa - {{aa}}\\n\
-' +\n\
-                '    list2\\n\
-' +\n\
-                '\\n\
-' +\n\
-                '    aa - aa\\n\
-' +\n\
-                '    list2\\n\
-' +\n\
-                '        {\"bb\":\"bb\"}\\n\
-' +\n\
-                '        bb - bb\\n\
-' +\n\
-                '        \\n\
-' +\n\
-                '        if\\n\
-' +\n\
-                '        \\n\
-' +\n\
-                '        \\n\
-' +\n\
-                '        ,\\n\
-' +\n\
-                '    \\n\
-' +\n\
-                '        {\"bb\":null}\\n\
-' +\n\
-                '        bb - null\\n\
-' +\n\
-                '        \\n\
-' +\n\
-                '        else\\n\
-' +\n\
-                '        \\n\
-' +\n\
-                '        \\n\
-' +\n\
-                '        unless\\n\
-' +\n\
-                '        \\n\
-' +\n\
-                '        \\n\
-' +\n\
-                '\\n\
-' +\n\
-                '{{/undefined aa}}\\n\
-');\n\
+                    }), '{{#undefined aa}}\\n' +\n\
+                'list1\\n' +\n\
+                '    aa - {{aa}}\\n' +\n\
+                '    list2\\n' +\n\
+                '\\n' +\n\
+                '    aa - aa\\n' +\n\
+                '    list2\\n' +\n\
+                '        {\"bb\":\"bb\"}\\n' +\n\
+                '        bb - bb\\n' +\n\
+                '        \\n' +\n\
+                '        if\\n' +\n\
+                '        \\n' +\n\
+                '        \\n' +\n\
+                '        ,\\n' +\n\
+                '    \\n' +\n\
+                '        {\"bb\":null}\\n' +\n\
+                '        bb - null\\n' +\n\
+                '        \\n' +\n\
+                '        else\\n' +\n\
+                '        \\n' +\n\
+                '        \\n' +\n\
+                '        unless\\n' +\n\
+                '        \\n' +\n\
+                '        \\n' +\n\
+                '\\n' +\n\
+                '{{/undefined aa}}\\n');\n\
             // test error handling-behavior\n\
             local.tryCatchOnError(function () {\n\
                 local.templateRender('{{aa bb}}', { aa: 1 });\n\
@@ -32851,55 +32885,6 @@ bb>```');\n\
                 local.testReportCreate({ testPlatformList: [{\n\
                     testCaseList: [{ status: 'failed' }, { status: 'passed' }]\n\
                 }] });\n\
-                onError(null, options);\n\
-            }, onError);\n\
-        };\n\
-\n\
-        local.testCase_testRunDefault_nop = function (options, onError) {\n\
-        /*\n\
-         * this function will test testRunDefault's nop handling-behavior\n\
-         */\n\
-            options = {};\n\
-            local.testRunDefault(options);\n\
-            local.testMock([\n\
-                [local, { env: {}, modeTest: null }]\n\
-            ], function (onError) {\n\
-                local.testRunDefault(options);\n\
-                // validate no options.onReadyAfter\n\
-                local.assert(!options.onReadyAfter, options);\n\
-                onError(null, options);\n\
-            }, onError);\n\
-        };\n\
-\n\
-        local.testCase_testRunInit_testRunButton1 = function (options, onError) {\n\
-        /*\n\
-         * this function will test testRunInit's testRunButton1 handling-behavior\n\
-         */\n\
-            if (!local.isBrowser) {\n\
-                onError(null, options);\n\
-                return;\n\
-            }\n\
-            local.testMock([\n\
-                [document, {\n\
-                    querySelector: function () {\n\
-                        return { click: local.nop };\n\
-                    }\n\
-                }],\n\
-                [local, {\n\
-                    modeTest: true,\n\
-                    testRunBrowser: local.nop,\n\
-                    testRunDefault: local.nop\n\
-                }],\n\
-                [local.global, {\n\
-                    setTimeout: function (fnc) {\n\
-                        fnc();\n\
-                    },\n\
-                    utility2_serverHttp1: null\n\
-                }]\n\
-            ], function (onError) {\n\
-                local.testRunInit(local);\n\
-                local.testRunBrowser = null;\n\
-                local.testRunInit(local);\n\
                 onError(null, options);\n\
             }, onError);\n\
         };\n\
@@ -33199,18 +33184,12 @@ bb>```');\n\
         if (module !== require.main || local.global.utility2_rollup) {\n\
             return;\n\
         }\n\
-        local.assetsDict['/assets.script_only.html'] = '<h1>script_only_test</h1>\\n\
-' +\n\
-            '<script src=\"assets.utility2.js\"></script>\\n\
-' +\n\
-            '<script>window.utility2.onReadyBefore.counter += 1;</script>\\n\
-' +\n\
-            '<script src=\"assets.example.js\"></script>\\n\
-' +\n\
-            '<script src=\"assets.test.js\"></script>\\n\
-' +\n\
-            '<script>window.utility2.onReadyBefore();</script>\\n\
-';\n\
+        local.assetsDict['/assets.script_only.html'] = '<h1>script_only_test</h1>\\n' +\n\
+            '<script src=\"assets.utility2.js\"></script>\\n' +\n\
+            '<script>window.utility2_onReadyBefore.counter += 1;</script>\\n' +\n\
+            '<script src=\"assets.example.js\"></script>\\n' +\n\
+            '<script src=\"assets.test.js\"></script>\\n' +\n\
+            '<script>window.utility2_onReadyBefore();</script>\\n';\n\
         if (process.argv[2]) {\n\
             // start with coverage\n\
             if (local.env.npm_config_mode_coverage) {\n\
