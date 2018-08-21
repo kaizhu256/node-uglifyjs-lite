@@ -49,6 +49,10 @@
             options.data = local.uglify('body { margin: 0; }', 'aa.css');
             // validate data
             local.assertJsonEqual(options.data, 'body{margin:0;}');
+            // test html handling-behavior
+            options.data = local.uglify('<div>\t\n\taa\n<pre>\nbb\n</pre>\n</div>', 'aa.html');
+            // validate data
+            local.assertJsonEqual(options.data, '<div> aa <pre>\nbb\n</pre> </div>');
             // test js handling-behavior
             options.data = local.uglify('aa = 1', 'aa.js');
             // validate data

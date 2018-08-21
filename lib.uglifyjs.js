@@ -809,7 +809,7 @@ split_lines=split_lines,exports.MAP=MAP,exports.ast_squeeze_more=require("./sque
                     .replace((/ {2,}/g), ' ')
                     .replace((/ *?([\n,:;{}]) */g), '$1')
                     .replace((/\n\n+/g), '\n')
-                    .trim() + '\n';
+                    .trim();
             }
             // uglify html
             if ((/\.htm$|\.html$/).test(file || '')) {
@@ -826,7 +826,7 @@ split_lines=split_lines,exports.MAP=MAP,exports.ast_squeeze_more=require("./sque
                     .replace((/\s*?\n\s*/g), ' ')
                     // restore whitespace in <pre></pre>
                     .replace((/\x00/g), '\n')
-                    .trim() + '\n';
+                    .trim();
             }
             // parse code and get the initial AST
             tmp = local.parse(code
@@ -841,7 +841,7 @@ split_lines=split_lines,exports.MAP=MAP,exports.ast_squeeze_more=require("./sque
             tmp = local.split_lines(local.gen_code(tmp, { ascii_only: true }), 79);
             // escape \r and \t
             tmp = tmp.replace((/\r/g), '\\r').replace((/\t/g), '\\t');
-            return tmp.trim() + '\n';
+            return tmp;
         };
     }());
 
