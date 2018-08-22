@@ -133,7 +133,6 @@
             local.tty = require('tty');
             local.url = require('url');
             local.util = require('util');
-            local.v8 = require('v8');
             local.vm = require('vm');
             local.zlib = require('zlib');
             module.exports = local;
@@ -1250,7 +1249,6 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
             local.tty = require('tty');
             local.url = require('url');
             local.util = require('util');
-            local.v8 = require('v8');
             local.vm = require('vm');
             local.zlib = require('zlib');
             module.exports = local;
@@ -3391,7 +3389,6 @@ vendor)s{0,1}(\\b|_)\
             local.tty = require('tty');
             local.url = require('url');
             local.util = require('util');
-            local.v8 = require('v8');
             local.vm = require('vm');
             local.zlib = require('zlib');
             module.exports = local;
@@ -4556,7 +4553,6 @@ vendor)s{0,1}(\\b|_)\
             local.tty = require('tty');
             local.url = require('url');
             local.util = require('util');
-            local.v8 = require('v8');
             local.vm = require('vm');
             local.zlib = require('zlib');
             module.exports = local;
@@ -7412,7 +7408,6 @@ local.templateCoverageBadgeSvg =
             local.tty = require('tty');
             local.url = require('url');
             local.util = require('util');
-            local.v8 = require('v8');
             local.vm = require('vm');
             local.zlib = require('zlib');
             module.exports = local;
@@ -15000,7 +14995,6 @@ f,0,f.length*32-u*8)}}}
             local.tty = require('tty');
             local.url = require('url');
             local.util = require('util');
-            local.v8 = require('v8');
             local.vm = require('vm');
             local.zlib = require('zlib');
             module.exports = local;
@@ -15703,8 +15697,8 @@ split_lines=split_lines,exports.MAP=MAP,exports.ast_squeeze_more=require("./sque
          * this function will uglify the js-code
          */
             var tmp;
-            // uglify css
-            if ((file || '').slice(-4) === '.css') {
+            switch ((/.*?(\.\w+)$|/).exec(file)[1]) {
+            case '.css':
                 return code
                     // remove comment /**/
                     .replace((/\/\*[\S\s]*?\*\//g), '')
@@ -15716,9 +15710,8 @@ split_lines=split_lines,exports.MAP=MAP,exports.ast_squeeze_more=require("./sque
                     .replace((/ *?([\n,:;{}]) */g), '$1')
                     .replace((/\n\n+/g), '\n')
                     .trim();
-            }
-            // uglify html
-            if ((/\.htm$|\.html$/).test(file || '')) {
+            case '.htm':
+            case '.html':
                 return code
                     // remove comment /**/
                     .replace((/\/\*[\S\s]*?\*\//g), '')
@@ -15733,6 +15726,8 @@ split_lines=split_lines,exports.MAP=MAP,exports.ast_squeeze_more=require("./sque
                     // restore whitespace in <pre></pre>
                     .replace((/\x00/g), '\n')
                     .trim();
+            case '.json':
+                return JSON.stringify(JSON.parse(code));
             }
             // parse code and get the initial AST
             tmp = local.parse(code
@@ -15901,7 +15896,6 @@ split_lines=split_lines,exports.MAP=MAP,exports.ast_squeeze_more=require("./sque
             local.tty = require('tty');
             local.url = require('url');
             local.util = require('util');
-            local.v8 = require('v8');
             local.vm = require('vm');
             local.zlib = require('zlib');
             module.exports = local;
@@ -16415,7 +16409,6 @@ instruction\n\
         local.tty = require(\'tty\');\n\
         local.url = require(\'url\');\n\
         local.util = require(\'util\');\n\
-        local.v8 = require(\'v8\');\n\
         local.vm = require(\'vm\');\n\
         local.zlib = require(\'zlib\');\n\
         /* validateLineSortedReset */\n\
@@ -16597,7 +16590,6 @@ local.assetsDict['/assets.lib.template.js'] = '\
             local.tty = require(\'tty\');\n\
             local.url = require(\'url\');\n\
             local.util = require(\'util\');\n\
-            local.v8 = require(\'v8\');\n\
             local.vm = require(\'vm\');\n\
             local.zlib = require(\'zlib\');\n\
             module.exports = local;\n\
@@ -17351,6 +17343,19 @@ local.assetsDict['/favicon.ico'] = '';
 
 
 
+    // run shared js-env code - function-pre
+    /* istanbul ignore next */
+    (function () {
+        Array.from = Array.from || Array.prototype.slice.call;
+        if (typeof Buffer === 'function') {
+            Buffer.from = Buffer.from || function () {
+                return new Buffer(arguments);
+            };
+        }
+    }());
+
+
+
     // run shared js-env code - function
     (function () {
         // init lib Blob
@@ -17833,7 +17838,6 @@ local.assetsDict['/favicon.ico'] = '';
             };
             return self;
         };
-
         local._middlewareError = function (error, request, response) {
         /*
          * this function will run the middleware that will handle errors
@@ -20276,7 +20280,7 @@ local.assetsDict['/favicon.ico'] = '';
             if (!script || script.length >= 0x100000) {
                 return script;
             }
-            switch (file.replace((/^.*\./), '.')) {
+            switch ((/.*?(\.\w+)$|/).exec(file)[1]) {
             case '.css':
                 if ((/^\/\*csslint\b/m).test(script)) {
                     local.jslintAndPrint(script, file);
@@ -21500,7 +21504,7 @@ vendor)s{0,1}(\\b|_)\
                     });
                     break;
                 }
-                switch (local.path.extname(file)) {
+                switch ((/.*?(\.\w+)$|/).exec(file)[1]) {
                 case '.css':
                 case '.html':
                 case '.js':
@@ -24000,7 +24004,6 @@ instruction\n\
             local.tty = require('tty');
             local.url = require('url');
             local.util = require('util');
-            local.v8 = require('v8');
             local.vm = require('vm');
             local.zlib = require('zlib');
             module.exports = local;
@@ -29579,7 +29582,6 @@ instruction\n\
         local.tty = require('tty');\n\
         local.url = require('url');\n\
         local.util = require('util');\n\
-        local.v8 = require('v8');\n\
         local.vm = require('vm');\n\
         local.zlib = require('zlib');\n\
         /* validateLineSortedReset */\n\

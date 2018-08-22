@@ -1101,8 +1101,8 @@ prototype.hasOwnProperty.call(e,t)}var jsp=require("./parse-js"),curry=jsp.curry
  * this function will uglify the js-code
  */
 </span>    var tmp;
-    // uglify css
-    if ((file || '').slice(-4) === '.css') {
+    switch ((/.*?(\.\w+)$|/).exec(file)[1]) {
+    case '.css':
         return code
             // remove comment /**/
             .replace((/\/\*[\S\s]*?\*\//g), '')
@@ -1114,9 +1114,8 @@ prototype.hasOwnProperty.call(e,t)}var jsp=require("./parse-js"),curry=jsp.curry
             .replace((/ *?([\n,:;{}]) */g), '$1')
             .replace((/\n\n+/g), '\n')
             .trim();
-    }
-    // uglify html
-    if ((/\.htm$|\.html$/).test(file || '')) {
+    case '.htm':
+    case '.html':
         return code
             // remove comment /**/
             .replace((/\/\*[\S\s]*?\*\//g), '')
@@ -1131,6 +1130,8 @@ prototype.hasOwnProperty.call(e,t)}var jsp=require("./parse-js"),curry=jsp.curry
             // restore whitespace in &lt;pre&gt;&lt;/pre&gt;
             .replace((/\x00/g), '\n')
             .trim();
+    case '.json':
+        return JSON.stringify(JSON.parse(code));
     }
     // parse code and get the initial AST
     tmp = local.parse(code

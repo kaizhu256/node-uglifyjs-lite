@@ -103,6 +103,7 @@
 
 
 
+
 /*
 example.js
 
@@ -294,7 +295,6 @@ instruction
         local.tty = require('tty');
         local.url = require('url');
         local.util = require('util');
-        local.v8 = require('v8');
         local.vm = require('vm');
         local.zlib = require('zlib');
         /* validateLineSortedReset */
