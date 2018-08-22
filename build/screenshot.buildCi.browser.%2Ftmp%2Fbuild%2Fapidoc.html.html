@@ -1101,7 +1101,7 @@ prototype.hasOwnProperty.call(e,t)}var jsp=require("./parse-js"),curry=jsp.curry
  * this function will uglify the js-code
  */
 </span>    var tmp;
-    switch ((/.*?(\.\w+)$|/).exec(file)[1]) {
+    switch ((/.*?(\.\w+?)$|/).exec(file)[1]) {
     case '.css':
         return code
             // remove comment /**/

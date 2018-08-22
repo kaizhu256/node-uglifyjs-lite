@@ -15697,7 +15697,7 @@ split_lines=split_lines,exports.MAP=MAP,exports.ast_squeeze_more=require("./sque
          * this function will uglify the js-code
          */
             var tmp;
-            switch ((/.*?(\.\w+)$|/).exec(file)[1]) {
+            switch ((/.*?(\.\w+?)$|/).exec(file)[1]) {
             case '.css':
                 return code
                     // remove comment /**/
@@ -20280,7 +20280,7 @@ local.assetsDict['/favicon.ico'] = '';
             if (!script || script.length >= 0x100000) {
                 return script;
             }
-            switch ((/.*?(\.\w+)$|/).exec(file)[1]) {
+            switch ((/.*?(\.\w+?)$|/).exec(file)[1]) {
             case '.css':
                 if ((/^\/\*csslint\b/m).test(script)) {
                     local.jslintAndPrint(script, file);
@@ -21504,7 +21504,7 @@ vendor)s{0,1}(\\b|_)\
                     });
                     break;
                 }
-                switch ((/.*?(\.\w+)$|/).exec(file)[1]) {
+                switch ((/.*?(\.\w+?)$|/).exec(file)[1]) {
                 case '.css':
                 case '.html':
                 case '.js':
