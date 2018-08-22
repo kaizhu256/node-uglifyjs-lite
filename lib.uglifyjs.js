@@ -796,7 +796,7 @@ split_lines=split_lines,exports.MAP=MAP,exports.ast_squeeze_more=require("./sque
          * this function will uglify the js-code
          */
             var tmp;
-            switch ((/\.\w+$|/).exec(file)[0]) {
+            switch ((/.*?(\.\w+)$|/).exec(file)[1]) {
             case '.css':
                 return code
                     // remove comment /**/

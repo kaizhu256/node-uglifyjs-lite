@@ -61,7 +61,7 @@ this zero-dependency package will provide a browser-compatible version of the ug
 
 #### changelog 2018.8.15
 - npm publish 2018.8.15
-- support uglifying files with .htm and .html extensions
+- support uglifying files with .htm/.html/.json extensions
 - revamp bootstrap-mechanism before running tests
 - update build
 - none
