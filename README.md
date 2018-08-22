@@ -62,6 +62,7 @@ this zero-dependency package will provide a browser-compatible version of the ug
 #### changelog 2018.8.15
 - npm publish 2018.8.15
 - support uglifying files with .htm and .html extensions
+- revamp bootstrap-mechanism before running tests
 - update build
 - none
 
@@ -294,7 +295,6 @@ instruction
         local.tty = require('tty');
         local.url = require('url');
         local.util = require('util');
-        local.v8 = require('v8');
         local.vm = require('vm');
         local.zlib = require('zlib');
         /* validateLineSortedReset */
