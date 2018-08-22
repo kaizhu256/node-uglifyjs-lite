@@ -279,11 +279,11 @@
     </tr>
     </thead>
     <tbody>
-        <td>branches: 1059<br>statements: 750<br>functions: 239</td>
-        <td>100%<br>(1386 / 1386)</td>
-        <td>100%<br>(1374 / 1374)</td>
+        <td>branches: 1058<br>statements: 750<br>functions: 239</td>
+        <td>100%<br>(1385 / 1385)</td>
+        <td>100%<br>(1370 / 1370)</td>
         <td>100%<br>(409 / 409)</td>
-        <td>100%<br>(587 / 587)</td>
+        <td>100%<br>(586 / 586)</td>
     </tbody>
     </table>
     <div class="path"><a href="../index.html">All files</a> &#187; <a href="index.html">node-uglifyjs-lite/</a> &#187; lib.uglifyjs.js</div>
@@ -1287,7 +1287,6 @@
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2</span>
@@ -1985,9 +1984,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7</span>
+<span class="cline-any cline-yes">9</span>
+<span class="cline-any cline-yes">9</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7</span>
 <span class="cline-any cline-yes">2</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1995,14 +1994,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5</span>
-<span class="cline-any cline-yes">2</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -2016,6 +2007,15 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3</span>
@@ -2180,7 +2180,6 @@
             local.tty = require('tty');
             local.url = require('url');
             local.util = require('util');
-            local.v8 = require('v8');
             local.vm = require('vm');
             local.zlib = require('zlib');
             module.exports = local;
@@ -2883,8 +2882,8 @@ split_lines=split_lines,exports.MAP=MAP,exports.ast_squeeze_more=require("./sque
          * this function will uglify the js-code
          */
             var tmp;
-            // uglify css
-            if ((file || <span class="branch-1 cbranch-skip" title="branch not covered" >'')</span>.slice(-4) === '.css') {
+            switch ((/.*?(\.\w+)$|/).exec(file)[1]) {
+            case '.css':
                 return code
                     // remove comment /**/
                     .replace((/\/\*[\S\s]*?\*\//g), '')
@@ -2896,9 +2895,8 @@ split_lines=split_lines,exports.MAP=MAP,exports.ast_squeeze_more=require("./sque
                     .replace((/ *?([\n,:;{}]) */g), '$1')
                     .replace((/\n\n+/g), '\n')
                     .trim();
-            }
-            // uglify html
-            if ((/\.htm$|\.html$/).test(file || <span class="branch-1 cbranch-skip" title="branch not covered" >'')</span>) {
+<span class="branch-1 cbranch-skip" title="branch not covered" >            case '.htm':</span>
+            case '.html':
                 return code
                     // remove comment /**/
                     .replace((/\/\*[\S\s]*?\*\//g), '')
@@ -2913,6 +2911,8 @@ split_lines=split_lines,exports.MAP=MAP,exports.ast_squeeze_more=require("./sque
                     // restore whitespace in &lt;pre&gt;&lt;/pre&gt;
                     .replace((/\x00/g), '\n')
                     .trim();
+            case '.json':
+                return JSON.stringify(JSON.parse(code));
             }
             // parse code and get the initial AST
             tmp = local.parse(code
@@ -2985,7 +2985,7 @@ split_lines=split_lines,exports.MAP=MAP,exports.ast_squeeze_more=require("./sque
 </table></pre>
 </div>
 <div class="footer">
-    <div class="meta">Generated by <a href="https://github.com/kaizhu256/node-utility2" target="_blank">utility2</a> at Tue Aug 21 2018 17:59:46 GMT+0000 (Coordinated Universal Time)</div>
+    <div class="meta">Generated by <a href="https://github.com/kaizhu256/node-utility2" target="_blank">utility2</a> at Wed Aug 22 2018 04:15:51 GMT+0000 (Coordinated Universal Time)</div>
 </div>
 </body>
 </html>
