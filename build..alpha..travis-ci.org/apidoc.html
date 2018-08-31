@@ -199,15 +199,6 @@
 
         <li>
 
-            <a class="apidocElementLiA" href="#apidoc.element.uglifyjs-lite.nop">
-            function <span class="apidocSignatureSpan">uglifyjs-lite.</span>nop
-            <span class="apidocSignatureSpan">()</span>
-            </a>
-
-        </li>
-
-        <li>
-
             <a class="apidocElementLiA" href="#apidoc.element.uglifyjs-lite.parse">
             function <span class="apidocSignatureSpan">uglifyjs-lite.</span>parse
             <span class="apidocSignatureSpan">(e, t, n)</span>
@@ -614,7 +605,7 @@ e){return[this[0],e]}},r={},i=[];return{walk:s,dive:o,with_walkers:u,parent:func
     local.cliDict._eval = local.cliDict._eval || function () {
     /*
      * &lt;code&gt;
-     * # eval code
+     * will eval &lt;code&gt;
      */
         local.global.local = local;
         require(&apos;vm&apos;).runInThisContext(process.argv[3]);
@@ -624,13 +615,17 @@ e){return[this[0],e]}},r={},i=[];return{walk:s,dive:o,with_walkers:u,parent:func
     local.cliDict._help = local.cliDict._help || function (options) {
     /*
      *
-     * # print help
+     * will print help
      */
         var commandList, file, packageJson, text, textDict;
         commandList = [{
-            arg: &apos;&lt;arg2&gt; ...&apos;,
+            argList: &apos;&lt;arg2&gt;  ...&apos;,
             description: &apos;usage:&apos;,
             command: [&apos;&lt;arg1&gt;&apos;]
+        }, {
+            argList: &apos;\&apos;console.log(&quot;hello world&quot;)\&apos;&apos;,
+            description: &apos;example:&apos;,
+            command: [&apos;--eval&apos;]
         }];
         file = __filename.replace((/.*\//), &apos;&apos;);
         packageJson = require(&apos;./package.json&apos;);
@@ -641,9 +636,9 @@ e){return[this[0],e]}},r={},i=[];return{walk:s,dive:o,with_walkers:u,parent:func
             }
             text = String(local.cliDict[key]);
             if (key === &apos;_default&apos;) {
-                key = &apos;&lt;&gt;&apos;;
+                key = &apos;&apos;;
             }
-            ii = textDict[text] = textDict[text] || (ii + 1);
+            ii = textDict[text] = textDict[text] || (ii + 2);
             if (commandList[ii]) {
                 commandList[ii].command.push(key);
             } else {
@@ -653,7 +648,7 @@ e){return[this[0],e]}},r={},i=[];return{walk:s,dive:o,with_walkers:u,parent:func
                     commandList[ii] = commandList[ii] || [&apos;&apos;, &apos;&apos;, &apos;&apos;];
                 }()));
                 commandList[ii] = {
-                    arg: commandList[ii][1].trim(),
+                    argList: commandList[ii][1].trim(),
                     command: [key],
                     description: commandList[ii][2].trim()
                 };
@@ -661,42 +656,40 @@ e){return[this[0],e]}},r={},i=[];return{walk:s,dive:o,with_walkers:u,parent:func
         });
         (options &amp;&amp; options.modeError
             ? console.error
-            : console.log)((options &amp;&amp; options.modeError
+            : console.log)(
+            (options &amp;&amp; options.modeError
             ? &apos;\u001b[31merror: missing &lt;arg1&gt;\u001b[39m\n\n&apos;
-            : &apos;&apos;) + packageJson.name + &apos; (&apos; + packageJson.version + &apos;)\n\n&apos; + commandList
-            .filter(function (element) {
-                return element;
-            }).map(function (element) {
-                return (element.description + &apos;\n&apos; +
-                    file + &apos;  &apos; +
-                    element.command.sort().join(&apos;|&apos;) + &apos;  &apos; +
-                    element.arg.replace((/ +/g), &apos;  &apos;))
-                        .replace((/&lt;&gt;\||\|&lt;&gt;|&lt;&gt; {2}/), &apos;&apos;)
-                        .trim();
-            })
-            .join(&apos;\n\n&apos;) + &apos;\n\nexample:\n&apos; + file +
-            &apos;  --eval  \&apos;console.log(&quot;hello world&quot;)\&apos;&apos;);
+            : &apos;&apos;) +
+                packageJson.name + &apos; (&apos; + packageJson.version + &apos;)\n\n&apos; +
+                commandList
+                .filter(function (element) {
+                    return element;
+                })
+                .map(function (element, ii) {
+                    element.command = element.command.filter(function (element) {
+                        return element;
+                    });
+                    switch (ii) {
+                    case 0:
+                    case 1:
+                        element.argList = [element.argList];
+                        break;
+                    default:
+                        element.argList = element.argList.split(&apos; &apos;);
+                        element.description = &apos;# COMMAND &apos; +
+                            (element.command[0] || &apos;&lt;none&gt;&apos;) + &apos;\n# &apos; +
+                            element.description;
+                    }
+                    return element.description + &apos;\n  &apos; + file +
+                        (&apos;  &apos; + element.command.sort().join(&apos;|&apos;) + &apos;  &apos;)
+                        .replace((/^ {4}$/), &apos;  &apos;) +
+                        element.argList.join(&apos;  &apos;);
+                })
+                .join(&apos;\n\n&apos;)
+        );
     };
     local.cliDict[&apos;--help&apos;] = local.cliDict[&apos;--help&apos;] || local.cliDict._help;
-    local.cliDict[&apos;-h&apos;] = local.cliDict[&apos;-h&apos;] || local.cliDict._help;
-    local.cliDict._default = local.cliDict._default || local.cliDict._help;
-    local.cliDict.help = local.cliDict.help || local.cliDict._help;
-    local.cliDict._interactive = local.cliDict._interactive || function () {
-    /*
-     *
-     * # start interactive-mode
-     */
-        local.global.local = local;
-        local.replStart();
-    };
-    if (local.replStart) {
-        local.cliDict[&apos;--interactive&apos;] = local.cliDict[&apos;--interactive&apos;] ||
-            local.cliDict._interactive;
-        local.cliDict[&apos;-i&apos;] = local.cliDict[&apos;-i&apos;] || local.cliDict._interactive;
-    }
-    local.cliDict._version = local.cliDict._version || function () {
-    /*
-     *...</pre></li>
+    loca...</pre></li>
     <li>example usage<pre class="apidocCodePre">...
             }
             // uglify file
@@ -861,24 +854,6 @@ r?&quot;&apos;&quot;+e.replace(/\x27/g,&quot;\\&apos;&quot;)+&quot;&apos;&quot;:
     <ul>
     <li>description and source-code<pre class="apidocCodePre">function member(e, t){for(
 var n=t.length;--n&gt;=0;)if(t[n]==e)return!0;return!1}</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
-    </ul>
-
-
-
-    <h2>
-        <a href="#apidoc.element.uglifyjs-lite.nop" id="apidoc.element.uglifyjs-lite.nop">
-        function <span class="apidocSignatureSpan">uglifyjs-lite.</span>nop
-        <span class="apidocSignatureSpan">()</span>
-        </a>
-    </h2>
-    <ul>
-    <li>description and source-code<pre class="apidocCodePre">nop = function () {
-<span class="apidocCodeCommentSpan">/*
- * this function will do nothing
- */
-</span>    return;
-}</pre></li>
     <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
@@ -1108,7 +1083,7 @@ prototype.hasOwnProperty.call(e,t)}var jsp=require(&quot;./parse-js&quot;),curry
  * this function will uglify the js-code
  */
 </span>    var tmp;
-    switch ((/.*?(\.\w+?)$|/).exec(file)[1]) {
+    switch ((/\.\w+?$|$/).exec(file)[0]) {
     case &apos;.css&apos;:
         return code
             // remove comment /**/

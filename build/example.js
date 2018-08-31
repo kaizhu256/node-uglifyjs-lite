@@ -123,6 +123,7 @@ instruction
                 }
             }
         };
+
         // log stderr and stdout to #outputStdoutTextarea1
         ['error', 'log'].forEach(function (key) {
             console[key + '_original'] = console[key + '_original'] || console[key];

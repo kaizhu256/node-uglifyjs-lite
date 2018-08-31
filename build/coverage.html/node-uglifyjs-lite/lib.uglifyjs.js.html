@@ -279,11 +279,11 @@
     </tr>
     </thead>
     <tbody>
-        <td>branches: 1058<br>statements: 750<br>functions: 239</td>
-        <td>100%<br>(1385 / 1385)</td>
-        <td>100%<br>(1370 / 1370)</td>
+        <td>branches: 1063<br>statements: 754<br>functions: 239</td>
+        <td>100%<br>(1388 / 1388)</td>
+        <td>100%<br>(1375 / 1375)</td>
         <td>100%<br>(409 / 409)</td>
-        <td>100%<br>(586 / 586)</td>
+        <td>100%<br>(589 / 589)</td>
     </tbody>
     </table>
     <div class="path"><a href="../index.html">All files</a> &#187; <a href="index.html">node-uglifyjs-lite/</a> &#187; lib.uglifyjs.js</div>
@@ -1187,7 +1187,17 @@
 895
 896
 897
-898</td><td class="line-coverage"><span class="cline-any cline-neutral">&nbsp;</span>
+898
+899
+900
+901
+902
+903
+904
+905
+906
+907
+908</td><td class="line-coverage"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1217,9 +1227,6 @@
 <span class="cline-any cline-yes">2</span>
 <span class="cline-any cline-yes">2</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1245,13 +1252,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2</span>
@@ -1326,6 +1326,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-yes">1</span>
@@ -1359,11 +1363,27 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -2109,21 +2129,18 @@
         // init debug_inline
         (function () {
             var consoleError, context, key;
-            context = (typeof window === "object" &amp;&amp; window) || global;
-            key = "debug_inline".replace("_i", "I");
-            <span class="skip-if-branch" title="else path not taken" >E</span>if (context[key]) {
-                return;
-            }
-<span class="cstat-skip" title="statement not covered" >            consoleError = console.error;</span>
-<span class="cstat-skip" title="statement not covered" >            context[key] = <span class="fstat-skip" title="function not covered" >function (arg0) {</span></span>
+            consoleError = console.error;
+            context = (typeof window === 'object' &amp;&amp; window) || global;
+            key = 'debug_inline'.replace('_i', 'I');
+            context[key] = context[key] || <span class="fstat-skip" title="function not covered" ><span class="branch-1 cbranch-skip" title="branch not covered" >function (arg0) {</span></span>
             /*
              * this function will both print arg0 to stderr and return it
              */
                 // debug arguments
-<span class="cstat-skip" title="statement not covered" >                context["_" + key + "Arguments"] = arguments;</span>
-<span class="cstat-skip" title="statement not covered" >                consoleError("\n\n" + key);</span>
+<span class="cstat-skip" title="statement not covered" >                context['_' + key + 'Arguments'] = arguments;</span>
+<span class="cstat-skip" title="statement not covered" >                consoleError('\n\n' + key);</span>
 <span class="cstat-skip" title="statement not covered" >                consoleError.apply(console, arguments);</span>
-<span class="cstat-skip" title="statement not covered" >                consoleError(new Error().stack + "\n");</span>
+<span class="cstat-skip" title="statement not covered" >                consoleError(new Error().stack + '\n');</span>
                 // return arg0 for inspection
 <span class="cstat-skip" title="statement not covered" >                return arg0;</span>
             };
@@ -2131,10 +2148,10 @@
         // init local
         local = {};
         // init isBrowser
-        local.isBrowser = typeof window === "object" &amp;&amp;
-            typeof window.XMLHttpRequest === "function" &amp;&amp;
+        local.isBrowser = typeof window === 'object' &amp;&amp;
+            typeof window.XMLHttpRequest === 'function' &amp;&amp;
             window.document &amp;&amp;
-            typeof window.document.querySelectorAll === "function";
+            typeof window.document.querySelectorAll === 'function';
         // init global
         local.global = local.isBrowser
             ? window
@@ -2143,13 +2160,6 @@
         local = local.global.utility2_rollup ||
             // local.global.utility2_rollup_old || require('./assets.utility2.rollup.js') ||
             local;
-        // init nop
-        local.nop = <span class="fstat-skip" title="function not covered" >function () {</span>
-        /*
-         * this function will do nothing
-         */
-<span class="cstat-skip" title="statement not covered" >            return;</span>
-        };
         // init exports
         if (local.isBrowser) {
             local.global.utility2_uglifyjs = local;
@@ -2205,7 +2215,7 @@
 <span class="cstat-skip" title="statement not covered" >            local.cliDict._eval = local.cliDict._eval || <span class="fstat-skip" title="function not covered" >function () {</span></span>
             /*
              * &lt;code&gt;
-             * # eval code
+             * will eval &lt;code&gt;
              */
 <span class="cstat-skip" title="statement not covered" >                local.global.local = local;</span>
 <span class="cstat-skip" title="statement not covered" >                require('vm').runInThisContext(process.argv[3]);</span>
@@ -2215,13 +2225,17 @@
 <span class="cstat-skip" title="statement not covered" >            local.cliDict._help = local.cliDict._help || <span class="fstat-skip" title="function not covered" >function (options) {</span></span>
             /*
              *
-             * # print help
+             * will print help
              */
 <span class="cstat-skip" title="statement not covered" >                var commandList, file, packageJson, text, textDict;</span>
 <span class="cstat-skip" title="statement not covered" >                commandList = [{</span>
-                    arg: '&lt;arg2&gt; ...',
+                    argList: '&lt;arg2&gt;  ...',
                     description: 'usage:',
                     command: ['&lt;arg1&gt;']
+                }, {
+                    argList: '\'console.log("hello world")\'',
+                    description: 'example:',
+                    command: ['--eval']
                 }];
 <span class="cstat-skip" title="statement not covered" >                file = __filename.replace((/.*\//), '');</span>
 <span class="cstat-skip" title="statement not covered" >                packageJson = require('./package.json');</span>
@@ -2232,9 +2246,9 @@
                     }
 <span class="cstat-skip" title="statement not covered" >                    text = String(local.cliDict[key]);</span>
 <span class="cstat-skip" title="statement not covered" >                    if (key === '_default') {</span>
-<span class="cstat-skip" title="statement not covered" >                        key = '&lt;&gt;';</span>
+<span class="cstat-skip" title="statement not covered" >                        key = '';</span>
                     }
-<span class="cstat-skip" title="statement not covered" >                    ii = textDict[text] = textDict[text] || (ii + 1);</span>
+<span class="cstat-skip" title="statement not covered" >                    ii = textDict[text] = textDict[text] || (ii + 2);</span>
 <span class="cstat-skip" title="statement not covered" >                    if (commandList[ii]) {</span>
 <span class="cstat-skip" title="statement not covered" >                        commandList[ii].command.push(key);</span>
                     } else {
@@ -2244,7 +2258,7 @@
 <span class="cstat-skip" title="statement not covered" >                            commandList[ii] = commandList[ii] || ['', '', ''];</span>
                         }()));
 <span class="cstat-skip" title="statement not covered" >                        commandList[ii] = {</span>
-                            arg: commandList[ii][1].trim(),
+                            argList: commandList[ii][1].trim(),
                             command: [key],
                             description: commandList[ii][2].trim()
                         };
@@ -2252,21 +2266,37 @@
                 });
 <span class="cstat-skip" title="statement not covered" >                (options &amp;&amp; options.modeError</span>
                     ? console.error
-                    : console.log)((options &amp;&amp; options.modeError
+                    : console.log)(
+                    (options &amp;&amp; options.modeError
                     ? '\u001b[31merror: missing &lt;arg1&gt;\u001b[39m\n\n'
-                    : '') + packageJson.name + ' (' + packageJson.version + ')\n\n' + commandList
-                    .filter(<span class="fstat-skip" title="function not covered" >function (element) {</span>
-<span class="cstat-skip" title="statement not covered" >                        return element;</span>
-                    }).map(<span class="fstat-skip" title="function not covered" >function (element) {</span>
-<span class="cstat-skip" title="statement not covered" >                        return (element.description + '\n' +</span>
-                            file + '  ' +
-                            element.command.sort().join('|') + '  ' +
-                            element.arg.replace((/ +/g), '  '))
-                                .replace((/&lt;&gt;\||\|&lt;&gt;|&lt;&gt; {2}/), '')
-                                .trim();
-                    })
-                    .join('\n\n') + '\n\nexample:\n' + file +
-                    '  --eval  \'console.log("hello world")\'');
+                    : '') +
+                        packageJson.name + ' (' + packageJson.version + ')\n\n' +
+                        commandList
+                        .filter(<span class="fstat-skip" title="function not covered" >function (element) {</span>
+<span class="cstat-skip" title="statement not covered" >                            return element;</span>
+                        })
+                        .map(<span class="fstat-skip" title="function not covered" >function (element, ii) {</span>
+<span class="cstat-skip" title="statement not covered" >                            element.command = element.command.filter(<span class="fstat-skip" title="function not covered" >function (element) {</span></span>
+<span class="cstat-skip" title="statement not covered" >                                return element;</span>
+                            });
+<span class="cstat-skip" title="statement not covered" >                            switch (ii) {</span>
+                            case 0:
+                            case 1:
+<span class="cstat-skip" title="statement not covered" >                                element.argList = [element.argList];</span>
+<span class="cstat-skip" title="statement not covered" >                                break;</span>
+                            default:
+<span class="cstat-skip" title="statement not covered" >                                element.argList = element.argList.split(' ');</span>
+<span class="cstat-skip" title="statement not covered" >                                element.description = '# COMMAND ' +</span>
+                                    (element.command[0] || '&lt;none&gt;') + '\n# ' +
+                                    element.description;
+                            }
+<span class="cstat-skip" title="statement not covered" >                            return element.description + '\n  ' + file +</span>
+                                ('  ' + element.command.sort().join('|') + '  ')
+                                .replace((/^ {4}$/), '  ') +
+                                element.argList.join('  ');
+                        })
+                        .join('\n\n')
+                );
             };
 <span class="cstat-skip" title="statement not covered" >            local.cliDict['--help'] = local.cliDict['--help'] || local.cliDict._help;</span>
 <span class="cstat-skip" title="statement not covered" >            local.cliDict['-h'] = local.cliDict['-h'] || local.cliDict._help;</span>
@@ -2275,12 +2305,12 @@
 <span class="cstat-skip" title="statement not covered" >            local.cliDict._interactive = local.cliDict._interactive || <span class="fstat-skip" title="function not covered" >function () {</span></span>
             /*
              *
-             * # start interactive-mode
+             * will start interactive-mode
              */
 <span class="cstat-skip" title="statement not covered" >                local.global.local = local;</span>
 <span class="cstat-skip" title="statement not covered" >                local.replStart();</span>
             };
-<span class="cstat-skip" title="statement not covered" >            if (local.replStart) {</span>
+<span class="cstat-skip" title="statement not covered" >            if (typeof local.replStart === 'function') {</span>
 <span class="cstat-skip" title="statement not covered" >                local.cliDict['--interactive'] = local.cliDict['--interactive'] ||</span>
                     local.cliDict._interactive;
 <span class="cstat-skip" title="statement not covered" >                local.cliDict['-i'] = local.cliDict['-i'] || local.cliDict._interactive;</span>
@@ -2288,7 +2318,7 @@
 <span class="cstat-skip" title="statement not covered" >            local.cliDict._version = local.cliDict._version || <span class="fstat-skip" title="function not covered" >function () {</span></span>
             /*
              *
-             * # print version
+             * will print version
              */
 <span class="cstat-skip" title="statement not covered" >                console.log(require(__dirname + '/package.json').version);</span>
             };
@@ -2882,7 +2912,7 @@ split_lines=split_lines,exports.MAP=MAP,exports.ast_squeeze_more=require("./sque
          * this function will uglify the js-code
          */
             var tmp;
-            switch ((/.*?(\.\w+?)$|/).exec(file)[1]) {
+            switch ((/\.\w+?$|$/).exec(file)[0]) {
             case '.css':
                 return code
                     // remove comment /**/
@@ -2985,7 +3015,7 @@ split_lines=split_lines,exports.MAP=MAP,exports.ast_squeeze_more=require("./sque
 </table></pre>
 </div>
 <div class="footer">
-    <div class="meta">Generated by <a href="https://github.com/kaizhu256/node-utility2" target="_blank">utility2</a> at Wed Aug 22 2018 04:20:30 GMT+0000 (Coordinated Universal Time)</div>
+    <div class="meta">Generated by <a href="https://github.com/kaizhu256/node-utility2" target="_blank">utility2</a> at Fri, 31 Aug 2018 07:25:39 GMT</div>
 </div>
 </body>
 </html>

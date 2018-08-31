@@ -192,15 +192,6 @@
 
         <li>
 
-            <a class="apidocElementLiA" href="#apidoc.element.uglifyjs-lite.nop">
-            function <span class="apidocSignatureSpan">uglifyjs-lite.</span>nop
-            <span class="apidocSignatureSpan">()</span>
-            </a>
-
-        </li>
-
-        <li>
-
             <a class="apidocElementLiA" href="#apidoc.element.uglifyjs-lite.parse">
             function <span class="apidocSignatureSpan">uglifyjs-lite.</span>parse
             <span class="apidocSignatureSpan">(e, t, n)</span>
@@ -607,7 +598,7 @@ e){return[this[0],e]}},r={},i=[];return{walk:s,dive:o,with_walkers:u,parent:func
     local.cliDict._eval = local.cliDict._eval || function () {
     /*
      * &lt;code&gt;
-     * # eval code
+     * will eval &lt;code&gt;
      */
         local.global.local = local;
         require('vm').runInThisContext(process.argv[3]);
@@ -617,13 +608,17 @@ e){return[this[0],e]}},r={},i=[];return{walk:s,dive:o,with_walkers:u,parent:func
     local.cliDict._help = local.cliDict._help || function (options) {
     /*
      *
-     * # print help
+     * will print help
      */
         var commandList, file, packageJson, text, textDict;
         commandList = [{
-            arg: '&lt;arg2&gt; ...',
+            argList: '&lt;arg2&gt;  ...',
             description: 'usage:',
             command: ['&lt;arg1&gt;']
+        }, {
+            argList: '\'console.log("hello world")\'',
+            description: 'example:',
+            command: ['--eval']
         }];
         file = __filename.replace((/.*\//), '');
         packageJson = require('./package.json');
@@ -634,9 +629,9 @@ e){return[this[0],e]}},r={},i=[];return{walk:s,dive:o,with_walkers:u,parent:func
             }
             text = String(local.cliDict[key]);
             if (key === '_default') {
-                key = '&lt;&gt;';
+                key = '';
             }
-            ii = textDict[text] = textDict[text] || (ii + 1);
+            ii = textDict[text] = textDict[text] || (ii + 2);
             if (commandList[ii]) {
                 commandList[ii].command.push(key);
             } else {
@@ -646,7 +641,7 @@ e){return[this[0],e]}},r={},i=[];return{walk:s,dive:o,with_walkers:u,parent:func
                     commandList[ii] = commandList[ii] || ['', '', ''];
                 }()));
                 commandList[ii] = {
-                    arg: commandList[ii][1].trim(),
+                    argList: commandList[ii][1].trim(),
                     command: [key],
                     description: commandList[ii][2].trim()
                 };
@@ -654,42 +649,40 @@ e){return[this[0],e]}},r={},i=[];return{walk:s,dive:o,with_walkers:u,parent:func
         });
         (options &amp;&amp; options.modeError
             ? console.error
-            : console.log)((options &amp;&amp; options.modeError
+            : console.log)(
+            (options &amp;&amp; options.modeError
             ? '\u001b[31merror: missing &lt;arg1&gt;\u001b[39m\n\n'
-            : '') + packageJson.name + ' (' + packageJson.version + ')\n\n' + commandList
-            .filter(function (element) {
-                return element;
-            }).map(function (element) {
-                return (element.description + '\n' +
-                    file + '  ' +
-                    element.command.sort().join('|') + '  ' +
-                    element.arg.replace((/ +/g), '  '))
-                        .replace((/&lt;&gt;\||\|&lt;&gt;|&lt;&gt; {2}/), '')
-                        .trim();
-            })
-            .join('\n\n') + '\n\nexample:\n' + file +
-            '  --eval  \'console.log("hello world")\'');
+            : '') +
+                packageJson.name + ' (' + packageJson.version + ')\n\n' +
+                commandList
+                .filter(function (element) {
+                    return element;
+                })
+                .map(function (element, ii) {
+                    element.command = element.command.filter(function (element) {
+                        return element;
+                    });
+                    switch (ii) {
+                    case 0:
+                    case 1:
+                        element.argList = [element.argList];
+                        break;
+                    default:
+                        element.argList = element.argList.split(' ');
+                        element.description = '# COMMAND ' +
+                            (element.command[0] || '&lt;none&gt;') + '\n# ' +
+                            element.description;
+                    }
+                    return element.description + '\n  ' + file +
+                        ('  ' + element.command.sort().join('|') + '  ')
+                        .replace((/^ {4}$/), '  ') +
+                        element.argList.join('  ');
+                })
+                .join('\n\n')
+        );
     };
     local.cliDict['--help'] = local.cliDict['--help'] || local.cliDict._help;
-    local.cliDict['-h'] = local.cliDict['-h'] || local.cliDict._help;
-    local.cliDict._default = local.cliDict._default || local.cliDict._help;
-    local.cliDict.help = local.cliDict.help || local.cliDict._help;
-    local.cliDict._interactive = local.cliDict._interactive || function () {
-    /*
-     *
-     * # start interactive-mode
-     */
-        local.global.local = local;
-        local.replStart();
-    };
-    if (local.replStart) {
-        local.cliDict['--interactive'] = local.cliDict['--interactive'] ||
-            local.cliDict._interactive;
-        local.cliDict['-i'] = local.cliDict['-i'] || local.cliDict._interactive;
-    }
-    local.cliDict._version = local.cliDict._version || function () {
-    /*
-     *...</pre></li>
+    loca...</pre></li>
     <li>example usage<pre class="apidocCodePre">...
             }
             // uglify file
@@ -854,24 +847,6 @@ r?"'"+e.replace(/\x27/g,"\\'")+"'":'"'+e.replace(/\x22/g,'\\"')+'"'}</pre></li>
     <ul>
     <li>description and source-code<pre class="apidocCodePre">function member(e, t){for(
 var n=t.length;--n&gt;=0;)if(t[n]==e)return!0;return!1}</pre></li>
-    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
-    </ul>
-
-
-
-    <h2>
-        <a href="#apidoc.element.uglifyjs-lite.nop" id="apidoc.element.uglifyjs-lite.nop">
-        function <span class="apidocSignatureSpan">uglifyjs-lite.</span>nop
-        <span class="apidocSignatureSpan">()</span>
-        </a>
-    </h2>
-    <ul>
-    <li>description and source-code<pre class="apidocCodePre">nop = function () {
-<span class="apidocCodeCommentSpan">/*
- * this function will do nothing
- */
-</span>    return;
-}</pre></li>
     <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
@@ -1101,7 +1076,7 @@ prototype.hasOwnProperty.call(e,t)}var jsp=require("./parse-js"),curry=jsp.curry
  * this function will uglify the js-code
  */
 </span>    var tmp;
-    switch ((/.*?(\.\w+?)$|/).exec(file)[1]) {
+    switch ((/\.\w+?$|$/).exec(file)[0]) {
     case '.css':
         return code
             // remove comment /**/
