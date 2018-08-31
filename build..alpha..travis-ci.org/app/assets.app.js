@@ -34081,7 +34081,7 @@ split_lines=split_lines,exports.MAP=MAP,exports.ast_squeeze_more=require(\"./squ
         local.cliDict._default = function () {\n\
         /*\n\
          * <file>\n\
-         * # uglify <file> and print result to stdout\n\
+         * will uglify <file> and print result to stdout\n\
          */\n\
             if ((/^(?:http|https):\\/\\//).test(process.argv[2])) {\n\
                 // uglify url\n\
@@ -34991,7 +34991,7 @@ split_lines=split_lines,exports.MAP=MAP,exports.ast_squeeze_more=require("./sque
         local.cliDict._default = function () {
         /*
          * <file>
-         * # uglify <file> and print result to stdout
+         * will uglify <file> and print result to stdout
          */
             if ((/^(?:http|https):\/\//).test(process.argv[2])) {
                 // uglify url

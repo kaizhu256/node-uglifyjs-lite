@@ -43,7 +43,7 @@
 
 <tspan x="10" y="346"># COMMAND &lt;none&gt;</tspan>
 
-<tspan x="10" y="362"># # uglify &lt;file&gt; and print result to stdout</tspan>
+<tspan x="10" y="362"># will uglify &lt;file&gt; and print result to stdout</tspan>
 
 <tspan x="10" y="378">  lib.uglifyjs.js  &lt;file&gt;</tspan>
 
