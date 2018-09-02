@@ -136,7 +136,7 @@
         /* validateLineSortedReset */
         local.assert = function (passed, message, onError) {
         /*
-         * this function will throw the error message if passed is falsey
+         * this function will throw the error message if passed is falsy
          */
             var error;
             if (passed) {
@@ -162,19 +162,12 @@
         /*
          * this function will run the cli
          */
-            var nop;
-            nop = function () {
-            /*
-             * this function will do nothing
-             */
-                return;
-            };
             local.cliDict._eval = local.cliDict._eval || function () {
             /*
              * <code>
              * will eval <code>
              */
-                local.global.local = local;
+                global.local = local;
                 require('vm').runInThisContext(process.argv[3]);
             };
             local.cliDict['--eval'] = local.cliDict['--eval'] || local.cliDict._eval;
@@ -184,7 +177,7 @@
              *
              * will print help
              */
-                var commandList, file, packageJson, text, textDict;
+                var commandList, file, packageJson, rgxComment, text, textDict;
                 commandList = [{
                     argList: '<arg2>  ...',
                     description: 'usage:',
@@ -196,6 +189,13 @@
                 }];
                 file = __filename.replace((/.*\//), '');
                 packageJson = require('./package.json');
+                // validate comment
+                rgxComment = new RegExp('\\) \\{\\n' +
+                    '(?: {8}| {12})\\/\\*\\n' +
+                    '(?: {9}| {13})\\*( (?:<\\S*?>))*\\n' +
+                    '(?: {9}| {13})\\* (will .*?\\S)\\n' +
+                    '(?: {9}| {13})\\*\\/\\n' +
+                    '(?: {12}| {16})\\w');
                 textDict = {};
                 Object.keys(local.cliDict).sort().forEach(function (key, ii) {
                     if (key[0] === '_' && key !== '_default') {
@@ -209,16 +209,21 @@
                     if (commandList[ii]) {
                         commandList[ii].command.push(key);
                     } else {
-                        commandList[ii] = (/\n +?\*(.*?)\n +?\*(.*?)\n/).exec(text);
-                        // coverage-hack - ignore else-statement
-                        nop(local.global.__coverage__ && (function () {
-                            commandList[ii] = commandList[ii] || ['', '', ''];
-                        }()));
-                        commandList[ii] = {
-                            argList: commandList[ii][1].trim(),
-                            command: [key],
-                            description: commandList[ii][2].trim()
-                        };
+                        try {
+                            commandList[ii] = rgxComment.exec(text);
+                            commandList[ii] = {
+                                argList: (commandList[ii][1] || ''),
+                                command: [key],
+                                description: commandList[ii][2]
+                            };
+                        } catch (errorCaught) {
+                            throw new Error('cliRun - cannot parse comment in COMMAND ' +
+                                key + ':\nnew RegExp(' + JSON.stringify(rgxComment.source) +
+                                ').exec(' + JSON.stringify(text)
+                                .replace((/\\\\/g), '\x00')
+                                .replace((/\\n/g), '\\n\\\n')
+                                .replace((/\x00/g), '\\\\') + ');');
+                        }
                     }
                 });
                 (options && options.modeError
@@ -249,7 +254,7 @@
                             }
                             return element.description + '\n  ' + file +
                                 ('  ' + element.command.sort().join('|') + '  ')
-                                .replace((/^ {4}$/), '  ') +
+                                .replace((/^ {4}$/), '') +
                                 element.argList.join('  ');
                         })
                         .join('\n\n')
@@ -264,7 +269,7 @@
              *
              * will start interactive-mode
              */
-                local.global.local = local;
+                global.local = local;
                 local.replStart();
             };
             if (typeof local.replStart === 'function') {
@@ -1126,6 +1131,7 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
                 modulePathList: module.paths
             }));
         };
+
         local.cliRun();
     }());
 }());
@@ -1136,9 +1142,8 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
 /* script-begin /assets.utility2.lib.db.js */
 // usr/bin/env node
 /*
- * assets.db-lite.js
- *
- * this zero-dependency package will provide a persistent, in-browser database
+ * assets.db.js
+ * this zero-dependency package will provide a persistent, in-browser database, with a working web-demo
  *
  * browser example:
  *     <script src="assets.db-lite.js"></script>
@@ -1269,7 +1274,7 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
         /* validateLineSortedReset */
         local.assert = function (passed, message, onError) {
         /*
-         * this function will throw the error message if passed is falsey
+         * this function will throw the error message if passed is falsy
          */
             var error;
             if (passed) {
@@ -1295,19 +1300,12 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
         /*
          * this function will run the cli
          */
-            var nop;
-            nop = function () {
-            /*
-             * this function will do nothing
-             */
-                return;
-            };
             local.cliDict._eval = local.cliDict._eval || function () {
             /*
              * <code>
              * will eval <code>
              */
-                local.global.local = local;
+                global.local = local;
                 require('vm').runInThisContext(process.argv[3]);
             };
             local.cliDict['--eval'] = local.cliDict['--eval'] || local.cliDict._eval;
@@ -1317,7 +1315,7 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
              *
              * will print help
              */
-                var commandList, file, packageJson, text, textDict;
+                var commandList, file, packageJson, rgxComment, text, textDict;
                 commandList = [{
                     argList: '<arg2>  ...',
                     description: 'usage:',
@@ -1329,6 +1327,13 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
                 }];
                 file = __filename.replace((/.*\//), '');
                 packageJson = require('./package.json');
+                // validate comment
+                rgxComment = new RegExp('\\) \\{\\n' +
+                    '(?: {8}| {12})\\/\\*\\n' +
+                    '(?: {9}| {13})\\*( (?:<\\S*?>))*\\n' +
+                    '(?: {9}| {13})\\* (will .*?\\S)\\n' +
+                    '(?: {9}| {13})\\*\\/\\n' +
+                    '(?: {12}| {16})\\w');
                 textDict = {};
                 Object.keys(local.cliDict).sort().forEach(function (key, ii) {
                     if (key[0] === '_' && key !== '_default') {
@@ -1342,16 +1347,21 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
                     if (commandList[ii]) {
                         commandList[ii].command.push(key);
                     } else {
-                        commandList[ii] = (/\n +?\*(.*?)\n +?\*(.*?)\n/).exec(text);
-                        // coverage-hack - ignore else-statement
-                        nop(local.global.__coverage__ && (function () {
-                            commandList[ii] = commandList[ii] || ['', '', ''];
-                        }()));
-                        commandList[ii] = {
-                            argList: commandList[ii][1].trim(),
-                            command: [key],
-                            description: commandList[ii][2].trim()
-                        };
+                        try {
+                            commandList[ii] = rgxComment.exec(text);
+                            commandList[ii] = {
+                                argList: (commandList[ii][1] || ''),
+                                command: [key],
+                                description: commandList[ii][2]
+                            };
+                        } catch (errorCaught) {
+                            throw new Error('cliRun - cannot parse comment in COMMAND ' +
+                                key + ':\nnew RegExp(' + JSON.stringify(rgxComment.source) +
+                                ').exec(' + JSON.stringify(text)
+                                .replace((/\\\\/g), '\x00')
+                                .replace((/\\n/g), '\\n\\\n')
+                                .replace((/\x00/g), '\\\\') + ');');
+                        }
                     }
                 });
                 (options && options.modeError
@@ -1382,7 +1392,7 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
                             }
                             return element.description + '\n  ' + file +
                                 ('  ' + element.command.sort().join('|') + '  ')
-                                .replace((/^ {4}$/), '  ') +
+                                .replace((/^ {4}$/), '') +
                                 element.argList.join('  ');
                         })
                         .join('\n\n')
@@ -1397,7 +1407,7 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
              *
              * will start interactive-mode
              */
-                local.global.local = local;
+                global.local = local;
                 local.replStart();
             };
             if (typeof local.replStart === 'function') {
@@ -1551,7 +1561,7 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
                 }
                 // else set dict[key] with overrides[key]
                 dict[key] = dict === env
-                    // if dict is env, then overrides falsey value with empty string
+                    // if dict is env, then overrides falsy-value with empty-string
                     ? overrides2 || ''
                     : overrides2;
             });
@@ -1562,7 +1572,7 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
         /*
          * this function will if error exists, then print it to stderr
          */
-            if (error && !local.global.__coverage__) {
+            if (error) {
                 console.error(error);
             }
             return error;
@@ -3190,7 +3200,7 @@ vendor)s{0,1}(\\b|_)\
         local.cliDict.dbTableCrudGetManyByQuery = function () {
         /*
          * <dbTable> <query>
-         * will get json-formatted <dbRowList> from <dbTable> with json-formatted <query>
+         * will get from <dbTable> with json <query>, <dbRowList>
          */
             local.dbTableCreateOne({ name: process.argv[3] }, function (error, self) {
                 // validate no error occurred
@@ -3200,10 +3210,11 @@ vendor)s{0,1}(\\b|_)\
                 ), null, 4));
             });
         };
+
         local.cliDict.dbTableCrudRemoveManyByQuery = function () {
         /*
          * <dbTable> <query>
-         * will remove json-formatted <dbRowList> from <dbTable> with json-formatted <query>
+         * will remove from <dbTable> with json <query>, <dbRowList>
          */
             local.dbTableCreateOne({ name: process.argv[3] }, function (error, self) {
                 // validate no error occurred
@@ -3213,10 +3224,11 @@ vendor)s{0,1}(\\b|_)\
                 ), null, 4));
             });
         };
+
         local.cliDict.dbTableCrudSetManyById = function () {
         /*
          * <dbTable> <dbRowList>
-         * will set json-formatted <dbRowList> to <dbTable>
+         * will set in <dbTable>, <dbRowList>
          */
             local.dbTableCreateOne({ name: process.argv[3] }, function (error, self) {
                 // validate no error occurred
@@ -3224,10 +3236,11 @@ vendor)s{0,1}(\\b|_)\
                 self.crudSetManyById(JSON.parse(process.argv[4]));
             });
         };
+
         local.cliDict.dbTableHeaderDictGet = function () {
         /*
          * <dbTable>
-         * will get json-formatted <headerDict> from <dbTable>
+         * will get from <dbTable>, <headerDict>
          */
             local.dbTableCreateOne({ name: process.argv[3] }, function (error, self) {
                 // validate no error occurred
@@ -3244,10 +3257,11 @@ vendor)s{0,1}(\\b|_)\
                 }, null, 4));
             });
         };
+
         local.cliDict.dbTableHeaderDictSet = function () {
         /*
          * <dbTable> <headerDict>
-         * will set json-formatted <headerDict> to <dbTable>
+         * will set in <dbTable>, <headerDict>
          */
             local.dbTableCreateOne({ name: process.argv[3] }, function (error, self) {
                 // validate no error occurred
@@ -3263,10 +3277,11 @@ vendor)s{0,1}(\\b|_)\
                 local.cliDict.dbTableHeaderDictGet();
             });
         };
+
         local.cliDict.dbTableIdIndexCreate = function () {
         /*
          * <dbTable> <idIndex>
-         * will create json-formatted <idIndex> in <dbTable>
+         * will create in <dbTable>, <idIndex>
          */
             local.dbTableCreateOne({ name: process.argv[3] }, function (error, self) {
                 // validate no error occurred
@@ -3280,10 +3295,11 @@ vendor)s{0,1}(\\b|_)\
                 local.cliDict.dbTableHeaderDictGet();
             });
         };
+
         local.cliDict.dbTableIdIndexRemove = function () {
         /*
          * <dbTable> <idIndex>
-         * will remove json-formatted <idIndex> from <dbTable>
+         * will remove from <dbTable>, <idIndex>
          */
             local.dbTableCreateOne({ name: process.argv[3] }, function (error, self) {
                 // validate no error occurred
@@ -3293,10 +3309,11 @@ vendor)s{0,1}(\\b|_)\
                 local.cliDict.dbTableHeaderDictGet();
             });
         };
+
         local.cliDict.dbTableList = function () {
         /*
          *
-         * will get json-formmatted <dbTableList> from db
+         * will get from db, <dbTableList>
          */
             local.storageKeys(function (error, data) {
                 // validate no error occurred
@@ -3306,10 +3323,11 @@ vendor)s{0,1}(\\b|_)\
                 }), null, 4));
             });
         };
+
         local.cliDict.dbTableRemove = function () {
         /*
          * <dbTable>
-         * will remove <dbTable> from db
+         * will remove from db, <dbTable>
          */
             local.storageRemoveItem('dbTable.' + process.argv[3] + '.json', function (error) {
                 // validate no error occurred
@@ -3317,6 +3335,7 @@ vendor)s{0,1}(\\b|_)\
                 local.cliDict.dbTableList();
             });
         };
+
         local.cliRun();
     }());
 }());
@@ -3424,7 +3443,8 @@ vendor)s{0,1}(\\b|_)\
         /* validateLineSortedReset */
         local.ajax = function (options, onError) {
         /*
-         * this function will send an ajax-request with error-handling and timeout
+         * this function will send an ajax-request with the given options.url,
+         * with error-handling and timeout
          * example usage:
             local.ajax({
                 data: 'hello world',
@@ -3437,28 +3457,147 @@ vendor)s{0,1}(\\b|_)\
             });
          */
             var ajaxProgressUpdate,
-                bufferToString,
+                bufferValidateAndCoerce,
                 isBrowser,
                 isDone,
+                onEvent,
                 nop,
-                self,
+                local2,
                 streamCleanup,
-                xhr;
-            // init local
-            self = local.utility2 || {};
-            // init standalone handling-behavior
+                xhr,
+                xhrInit;
+            // init local2
+            local2 = local.utility2 || {};
+            // init function
             nop = function () {
             /*
              * this function will do nothing
              */
                 return;
             };
-            ajaxProgressUpdate = self.ajaxProgressUpdate || nop;
-            // init onError
-            if (self.onErrorWithStack) {
-                onError = self.onErrorWithStack(onError);
-            }
-            bufferToString = self.bufferToString || String;
+            ajaxProgressUpdate = local2.ajaxProgressUpdate || nop;
+            bufferValidateAndCoerce = local2.bufferValidateAndCoerce || function (bff, mode) {
+            /*
+             * this function will validate and coerce/convert
+             * ArrayBuffer, String, or Uint8Array -> Buffer or String
+             */
+                // validate instanceof ArrayBuffer, String, or Uint8Array
+                if (!((isBrowser && (typeof bff === 'string' || bff instanceof ArrayBuffer)) ||
+                        (!isBrowser && Buffer.isBuffer(bff)))) {
+                    throw new Error(
+                        'ajax - xhr.response is not instanceof ArrayBuffer, String, or Buffer'
+                    );
+                }
+                // coerce to ArrayBuffer -> Buffer
+                if (bff instanceof ArrayBuffer) {
+                    return new Uint8Array(bff);
+                }
+                // coerce/convert String -> Buffer or String
+                if (typeof bff === 'string') {
+                    return mode === 'string'
+                        ? bff
+                        : isBrowser
+                        ? new window.TextEncoder().encode(bff)
+                        : Buffer.from(bff);
+                }
+                // coerce/convert Buffer -> Buffer or String
+                return mode === 'string'
+                    ? String(bff)
+                    : bff;
+            };
+            onEvent = function (event) {
+            /*
+             * this function will handle events
+             */
+                if (event instanceof Error) {
+                    xhr.error = xhr.error || event;
+                    xhr.onEvent({ type: 'error' });
+                    return;
+                }
+                // init statusCode
+                xhr.statusCode = (xhr.statusCode || xhr.status) | 0;
+                switch (event.type) {
+                case 'abort':
+                case 'error':
+                case 'load':
+                    if (isDone) {
+                        return;
+                    }
+                    isDone = true;
+                    // decrement ajaxProgressCounter
+                    local2.ajaxProgressCounter = Math.max(local2.ajaxProgressCounter - 1, 0);
+                    ajaxProgressUpdate();
+                    // handle abort or error event
+                    switch (!xhr.error && event.type) {
+                    case 'abort':
+                    case 'error':
+                        xhr.error = new Error('ajax - event ' + event.type);
+                        break;
+                    case 'load':
+                        if (xhr.statusCode >= 400) {
+                            xhr.error = new Error('ajax - statusCode ' + xhr.statusCode);
+                        }
+                        break;
+                    }
+                    // debug statusCode / method / url
+                    if (xhr.error) {
+                        xhr.error.statusCode = xhr.statusCode;
+                        (local2.errorMessagePrepend || nop)(xhr.error, (isBrowser
+                            ? 'browser'
+                            : 'node') + ' - ' +
+                            xhr.statusCode + ' ' + xhr.method + ' ' + xhr.url + '\n');
+                    }
+                    // update responseHeaders
+                    // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/getAllResponseHeaders
+                    if (xhr.getAllResponseHeaders) {
+                        xhr.getAllResponseHeaders().replace((
+                            /(.*?): *(.*?)\r\n/g
+                        ), function (match0, match1, match2) {
+                            match0 = match1;
+                            xhr.responseHeaders[match0.toLowerCase()] = match2;
+                        });
+                    }
+                    // debug ajaxResponse
+                    xhr.responseContentLength =
+                        (xhr.response && (xhr.response.byteLength || xhr.response.length)) | 0;
+                    xhr.timeElapsed = Date.now() - xhr.timeStart;
+                    if (xhr.modeDebug) {
+                        console.error('serverLog - ' + JSON.stringify({
+                            time: new Date(xhr.timeStart).toISOString(),
+                            type: 'ajaxResponse',
+                            method: xhr.method,
+                            url: xhr.url,
+                            statusCode: xhr.statusCode,
+                            timeElapsed: xhr.timeElapsed,
+                            // extra
+                            responseContentLength: xhr.responseContentLength
+                        }));
+                    }
+                    // init responseType
+                    // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseType
+                    switch (xhr.response && xhr.responseType) {
+                    // init responseText
+                    // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseText
+                    case '':
+                    case 'text':
+                        if (typeof xhr.responseText === 'string') {
+                            break;
+                        }
+                        xhr.responseText = bufferValidateAndCoerce(xhr.response, 'string');
+                        break;
+                    case 'arraybuffer':
+                        xhr.responseBuffer = bufferValidateAndCoerce(xhr.response);
+                        break;
+                    }
+                    // cleanup timerTimeout
+                    clearTimeout(xhr.timerTimeout);
+                    // cleanup requestStream and responseStream
+                    streamCleanup(xhr.requestStream);
+                    streamCleanup(xhr.responseStream);
+                    onError(xhr.error, xhr);
+                    break;
+                }
+            };
             streamCleanup = function (stream) {
             /*
              * this function will try to end or destroy the stream
@@ -3474,65 +3613,95 @@ vendor)s{0,1}(\\b|_)\
                     }
                 }
             };
+            xhrInit = function () {
+            /*
+             * this function will init xhr
+             */
+                // init options
+                Object.keys(options).forEach(function (key) {
+                    if (key[0] !== '_') {
+                        xhr[key] = options[key];
+                    }
+                });
+                Object.assign(xhr, {
+                    corsForwardProxyHost: xhr.corsForwardProxyHost || local2.corsForwardProxyHost,
+                    headers: xhr.headers || {},
+                    location: xhr.location || (isBrowser && location) || {},
+                    method: xhr.method || 'GET',
+                    responseType: xhr.responseType || '',
+                    timeout: xhr.timeout || local2.timeoutDefault || 30000
+                });
+                Object.keys(xhr.headers).forEach(function (key) {
+                    xhr.headers[key.toLowerCase()] = xhr.headers[key];
+                });
+                // init misc
+                local2._debugXhr = xhr;
+                xhr.onEvent = onEvent;
+                xhr.responseHeaders = {};
+                xhr.timeStart = xhr.timeStart || Date.now();
+            };
             // init isBrowser
             isBrowser = typeof window === 'object' &&
                 typeof window.XMLHttpRequest === 'function' &&
                 window.document &&
                 typeof window.document.querySelectorAll === 'function';
-            // init xhr
-            xhr = !options.httpRequest &&
-                (!isBrowser || (self.serverLocalUrlTest && self.serverLocalUrlTest(options.url)))
-                ? self._http && self._http.XMLHttpRequest && new self._http.XMLHttpRequest()
-                : isBrowser && new window.XMLHttpRequest();
+            // init onError
+            if (local2.onErrorWithStack) {
+                onError = local2.onErrorWithStack(onError);
+            }
+            // init xhr - XMLHttpRequest
+            xhr = isBrowser &&
+                !options.httpRequest &&
+                !(local2.serverLocalUrlTest && local2.serverLocalUrlTest(options.url)) &&
+                new XMLHttpRequest();
+            // init xhr - http.request
             if (!xhr) {
-                xhr = require('url').parse(options.url);
-                xhr.headers = options.headers;
-                xhr.method = options.method;
-                xhr.timeout = xhr.timeout || self.timeoutDefault || 30000;
+                xhr = (local2.urlParse || require('url').parse)(options.url);
+                // init xhr
+                xhrInit();
+                // init xhr - http.request
                 xhr = (
-                    options.httpRequest || require(xhr.protocol.slice(0, -1)).request
-                )(xhr, function (response) {
+                    options.httpRequest ||
+                        (isBrowser && local2.http.request) ||
+                        require(xhr.protocol.slice(0, -1)).request
+                )(xhr, function (responseStream) {
+                /*
+                 * this function will read the responseStream
+                 */
                     var chunkList;
                     chunkList = [];
-                    xhr.responseStream = response;
-                    xhr.responseHeaders = xhr.responseStream.headers;
-                    xhr.status = xhr.responseStream.statusCode;
-                    xhr.responseStream
-                        .on('data', function (chunk) {
-                            chunkList.push(chunk);
-                        })
-                        .on('end', function () {
-                            xhr.response = Buffer.concat(chunkList);
-                            xhr.onEvent({ type: 'load' });
-                        })
-                        .on('error', xhr.onEvent);
+                    xhr.responseHeaders = responseStream.responseHeaders || responseStream.headers;
+                    xhr.responseStream = responseStream;
+                    xhr.statusCode = responseStream.statusCode;
+                    responseStream.dataLength = 0;
+                    responseStream.on('data', function (chunk) {
+                        chunkList.push(chunk);
+                    });
+                    responseStream.on('end', function () {
+                        xhr.response = isBrowser
+                            ? chunkList[0]
+                            : Buffer.concat(chunkList);
+                        responseStream.dataLength = xhr.response.byteLength || xhr.response.length;
+                        xhr.onEvent({ type: 'load' });
+                    });
+                    responseStream.on('error', xhr.onEvent);
                 });
+                xhr.abort = function () {
+                /*
+                 * this function will abort the xhr-request
+                 * https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/abort
+                 */
+                    xhr.onEvent({ type: 'abort' });
+                };
                 xhr.addEventListener = nop;
                 xhr.open = nop;
                 xhr.requestStream = xhr;
                 xhr.send = xhr.end;
                 xhr.setRequestHeader = nop;
-                setTimeout(function () {
-                    xhr.on('error', xhr.onEvent);
-                });
+                xhr.on('error', onEvent);
             }
-            // debug xhr
-            self._debugXhr = xhr;
-            // init options
-            Object.keys(options).forEach(function (key) {
-                if (options[key] !== undefined) {
-                    xhr[key] = options[key];
-                }
-            });
-            // init properties
-            xhr.headers = {};
-            Object.keys(options.headers || {}).forEach(function (key) {
-                xhr.headers[key.toLowerCase()] = options.headers[key];
-            });
-            xhr.method = xhr.method || 'GET';
-            xhr.responseHeaders = {};
-            xhr.timeStart = Date.now();
-            xhr.timeout = xhr.timeout || self.timeoutDefault || 30000;
+            // init xhr
+            xhrInit();
             // init timerTimeout
             xhr.timerTimeout = setTimeout(function () {
                 xhr.error = xhr.error || new Error('onTimeout - timeout-error - ' +
@@ -3542,135 +3711,35 @@ vendor)s{0,1}(\\b|_)\
                 streamCleanup(xhr.requestStream);
                 streamCleanup(xhr.responseStream);
             }, xhr.timeout);
-            // init event-handling
-            xhr.onEvent = function (event) {
-                if (event instanceof Error) {
-                    xhr.error = xhr.error || event;
-                    xhr.onEvent({ type: 'error' });
-                    return;
-                }
-                // init statusCode
-                xhr.statusCode = xhr.status || xhr.statusCode || 0;
-                switch (event.type) {
-                case 'abort':
-                case 'error':
-                case 'load':
-                    // do not run more than once
-                    if (isDone) {
-                        return;
-                    }
-                    isDone = xhr._isDone = true;
-                    // update responseHeaders
-                    if (xhr.getAllResponseHeaders) {
-                        xhr.getAllResponseHeaders().replace((
-                            /(.*?): *(.*?)\r\n/g
-                        ), function (match0, match1, match2) {
-                            match0 = match1;
-                            xhr.responseHeaders[match0.toLowerCase()] = match2;
-                        });
-                    }
-                    // init responseText
-                    if (!(isBrowser && (xhr instanceof XMLHttpRequest)) &&
-                            (xhr.responseType === 'text' || !xhr.responseType)) {
-                        xhr.response = xhr.responseText = bufferToString(xhr.response || '');
-                    }
-                    // init responseBuffer
-                    xhr.responseBuffer = xhr.response;
-                    if (xhr.responseBuffer instanceof ArrayBuffer) {
-                        xhr.responseBuffer = new Uint8Array(xhr.responseBuffer);
-                    }
-                    xhr.responseContentLength =
-                        (xhr.response && (xhr.response.byteLength || xhr.response.length)) || 0;
-                    xhr.timeElapsed = Date.now() - xhr.timeStart;
-                    // debug ajaxResponse
-                    if (xhr.modeDebug) {
-                        console.error('serverLog - ' + JSON.stringify({
-                            time: new Date(xhr.timeStart).toISOString(),
-                            type: 'ajaxResponse',
-                            method: xhr.method,
-                            url: xhr.url,
-                            statusCode: xhr.statusCode,
-                            timeElapsed: xhr.timeElapsed,
-                            // extra
-                            responseContentLength: xhr.responseContentLength,
-                            data: (function () {
-                                try {
-                                    return String(xhr.data.slice(0, 256));
-                                } catch (ignore) {
-                                }
-                            }()),
-                            responseText: (function () {
-                                try {
-                                    return String(xhr.responseText.slice(0, 256));
-                                } catch (ignore) {
-                                }
-                            }())
-                        }));
-                    }
-                    // cleanup timerTimeout
-                    clearTimeout(xhr.timerTimeout);
-                    // cleanup requestStream and responseStream
-                    setTimeout(function () {
-                        streamCleanup(xhr.requestStream);
-                        streamCleanup(xhr.responseStream);
-                    });
-                    // decrement ajaxProgressCounter
-                    self.ajaxProgressCounter = Math.max(self.ajaxProgressCounter - 1, 0);
-                    // handle abort or error event
-                    if (!xhr.error &&
-                            (event.type === 'abort' ||
-                            event.type === 'error' ||
-                            xhr.statusCode >= 400)) {
-                        xhr.error = new Error('ajax - event ' + event.type);
-                    }
-                    // debug statusCode
-                    (xhr.error || {}).statusCode = xhr.statusCode;
-                    // debug statusCode / method / url
-                    if (self.errorMessagePrepend && xhr.error) {
-                        self.errorMessagePrepend(xhr.error, (isBrowser
-                            ? 'browser'
-                            : 'node') + ' - ' +
-                            xhr.statusCode + ' ' + xhr.method + ' ' + xhr.url + '\n' +
-                            // try to debug responseText
-                            (function () {
-                                try {
-                                    return '    ' + JSON.stringify(xhr.responseText.slice(0, 256) +
-                                        '...') + '\n';
-                                } catch (ignore) {
-                                }
-                            }()));
-                    }
-                    onError(xhr.error, xhr);
-                    break;
-                }
-                ajaxProgressUpdate();
-            };
             // increment ajaxProgressCounter
-            self.ajaxProgressCounter = self.ajaxProgressCounter || 0;
-            self.ajaxProgressCounter += 1;
+            local2.ajaxProgressCounter = local2.ajaxProgressCounter || 0;
+            local2.ajaxProgressCounter += 1;
+            // init event-handling
             xhr.addEventListener('abort', xhr.onEvent);
             xhr.addEventListener('error', xhr.onEvent);
             xhr.addEventListener('load', xhr.onEvent);
             xhr.addEventListener('loadstart', ajaxProgressUpdate);
             xhr.addEventListener('progress', ajaxProgressUpdate);
+            // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/upload
             if (xhr.upload && xhr.upload.addEventListener) {
                 xhr.upload.addEventListener('progress', ajaxProgressUpdate);
             }
-            // open url through corsForwardProxyHost
-            xhr.corsForwardProxyHost = xhr.corsForwardProxyHost || self.corsForwardProxyHost;
-            xhr.location = xhr.location || (self.global && self.global.location) || {};
-            if (self.corsForwardProxyHostIfNeeded && self.corsForwardProxyHostIfNeeded(xhr)) {
-                xhr.open(xhr.method, self.corsForwardProxyHostIfNeeded(xhr));
+            // open url - corsForwardProxyHost
+            if (local2.corsForwardProxyHostIfNeeded && local2.corsForwardProxyHostIfNeeded(xhr)) {
+                xhr.open(xhr.method, local2.corsForwardProxyHostIfNeeded(xhr));
                 xhr.setRequestHeader('forward-proxy-headers', JSON.stringify(xhr.headers));
                 xhr.setRequestHeader('forward-proxy-url', xhr.url);
-            // open url
+            // open url - default
             } else {
                 xhr.open(xhr.method, xhr.url);
             }
+            // send headers
             Object.keys(xhr.headers).forEach(function (key) {
                 xhr.setRequestHeader(key, xhr.headers[key]);
             });
-            if (self.FormData && xhr.data instanceof self.FormData) {
+            // send data - FormData
+            // https://developer.mozilla.org/en-US/docs/Web/API/FormData
+            if (local2.FormData && xhr.data instanceof local2.FormData) {
                 // handle formData
                 xhr.data.read(function (error, data) {
                     if (error) {
@@ -3680,6 +3749,7 @@ vendor)s{0,1}(\\b|_)\
                     // send data
                     xhr.send(data);
                 });
+            // send data - default
             } else {
                 // send data
                 xhr.send(xhr.data);
@@ -3691,19 +3761,12 @@ vendor)s{0,1}(\\b|_)\
         /*
          * this function will run the cli
          */
-            var nop;
-            nop = function () {
-            /*
-             * this function will do nothing
-             */
-                return;
-            };
             local.cliDict._eval = local.cliDict._eval || function () {
             /*
              * <code>
              * will eval <code>
              */
-                local.global.local = local;
+                global.local = local;
                 require('vm').runInThisContext(process.argv[3]);
             };
             local.cliDict['--eval'] = local.cliDict['--eval'] || local.cliDict._eval;
@@ -3713,7 +3776,7 @@ vendor)s{0,1}(\\b|_)\
              *
              * will print help
              */
-                var commandList, file, packageJson, text, textDict;
+                var commandList, file, packageJson, rgxComment, text, textDict;
                 commandList = [{
                     argList: '<arg2>  ...',
                     description: 'usage:',
@@ -3725,6 +3788,13 @@ vendor)s{0,1}(\\b|_)\
                 }];
                 file = __filename.replace((/.*\//), '');
                 packageJson = require('./package.json');
+                // validate comment
+                rgxComment = new RegExp('\\) \\{\\n' +
+                    '(?: {8}| {12})\\/\\*\\n' +
+                    '(?: {9}| {13})\\*( (?:<\\S*?>))*\\n' +
+                    '(?: {9}| {13})\\* (will .*?\\S)\\n' +
+                    '(?: {9}| {13})\\*\\/\\n' +
+                    '(?: {12}| {16})\\w');
                 textDict = {};
                 Object.keys(local.cliDict).sort().forEach(function (key, ii) {
                     if (key[0] === '_' && key !== '_default') {
@@ -3738,16 +3808,21 @@ vendor)s{0,1}(\\b|_)\
                     if (commandList[ii]) {
                         commandList[ii].command.push(key);
                     } else {
-                        commandList[ii] = (/\n +?\*(.*?)\n +?\*(.*?)\n/).exec(text);
-                        // coverage-hack - ignore else-statement
-                        nop(local.global.__coverage__ && (function () {
-                            commandList[ii] = commandList[ii] || ['', '', ''];
-                        }()));
-                        commandList[ii] = {
-                            argList: commandList[ii][1].trim(),
-                            command: [key],
-                            description: commandList[ii][2].trim()
-                        };
+                        try {
+                            commandList[ii] = rgxComment.exec(text);
+                            commandList[ii] = {
+                                argList: (commandList[ii][1] || ''),
+                                command: [key],
+                                description: commandList[ii][2]
+                            };
+                        } catch (errorCaught) {
+                            throw new Error('cliRun - cannot parse comment in COMMAND ' +
+                                key + ':\nnew RegExp(' + JSON.stringify(rgxComment.source) +
+                                ').exec(' + JSON.stringify(text)
+                                .replace((/\\\\/g), '\x00')
+                                .replace((/\\n/g), '\\n\\\n')
+                                .replace((/\x00/g), '\\\\') + ');');
+                        }
                     }
                 });
                 (options && options.modeError
@@ -3778,7 +3853,7 @@ vendor)s{0,1}(\\b|_)\
                             }
                             return element.description + '\n  ' + file +
                                 ('  ' + element.command.sort().join('|') + '  ')
-                                .replace((/^ {4}$/), '  ') +
+                                .replace((/^ {4}$/), '') +
                                 element.argList.join('  ');
                         })
                         .join('\n\n')
@@ -3793,7 +3868,7 @@ vendor)s{0,1}(\\b|_)\
              *
              * will start interactive-mode
              */
-                local.global.local = local;
+                global.local = local;
                 local.replStart();
             };
             if (typeof local.replStart === 'function') {
@@ -3845,7 +3920,7 @@ vendor)s{0,1}(\\b|_)\
         /*
          * this function will if error exists, then print it to stderr
          */
-            if (error && !local.global.__coverage__) {
+            if (error) {
                 console.error(error);
             }
             return error;
@@ -4428,6 +4503,7 @@ vendor)s{0,1}(\\b|_)\
                 process.exit(!!error);
             });
         };
+
         local.cliDict.get = function () {
         /*
          * <fileRemote>
@@ -4443,10 +4519,11 @@ vendor)s{0,1}(\\b|_)\
                 process.exit(!!error);
             });
         };
+
         local.cliDict.put = function () {
         /*
          * <fileRemote> <fileLocal> <commitMessage>
-         * will put on github <fileLocal> -> <fileRemote>
+         * will put on github <fileRemote>, <fileLocal>
          */
             local.github_crud.githubCrudContentPutFile({
                 message: process.argv[5],
@@ -4456,6 +4533,7 @@ vendor)s{0,1}(\\b|_)\
                 process.exit(!!error);
             });
         };
+
         local.cliDict.repo_create = function () {
         /*
          * <repoList>
@@ -4467,6 +4545,7 @@ vendor)s{0,1}(\\b|_)\
                 process.exit(!!error);
             });
         };
+
         local.cliDict.repo_delete = function () {
         /*
          * <repoList>
@@ -4478,6 +4557,7 @@ vendor)s{0,1}(\\b|_)\
                 process.exit(!!error);
             });
         };
+
         local.cliDict.touch = function () {
         /*
          * <fileRemoteList> <commitMessage>
@@ -4490,6 +4570,7 @@ vendor)s{0,1}(\\b|_)\
                 process.exit(!!error);
             });
         };
+
         local.cliRun();
     }());
 }());
@@ -4606,19 +4687,12 @@ vendor)s{0,1}(\\b|_)\
         /*
          * this function will run the cli
          */
-            var nop;
-            nop = function () {
-            /*
-             * this function will do nothing
-             */
-                return;
-            };
             local.cliDict._eval = local.cliDict._eval || function () {
             /*
              * <code>
              * will eval <code>
              */
-                local.global.local = local;
+                global.local = local;
                 require('vm').runInThisContext(process.argv[3]);
             };
             local.cliDict['--eval'] = local.cliDict['--eval'] || local.cliDict._eval;
@@ -4628,7 +4702,7 @@ vendor)s{0,1}(\\b|_)\
              *
              * will print help
              */
-                var commandList, file, packageJson, text, textDict;
+                var commandList, file, packageJson, rgxComment, text, textDict;
                 commandList = [{
                     argList: '<arg2>  ...',
                     description: 'usage:',
@@ -4640,6 +4714,13 @@ vendor)s{0,1}(\\b|_)\
                 }];
                 file = __filename.replace((/.*\//), '');
                 packageJson = require('./package.json');
+                // validate comment
+                rgxComment = new RegExp('\\) \\{\\n' +
+                    '(?: {8}| {12})\\/\\*\\n' +
+                    '(?: {9}| {13})\\*( (?:<\\S*?>))*\\n' +
+                    '(?: {9}| {13})\\* (will .*?\\S)\\n' +
+                    '(?: {9}| {13})\\*\\/\\n' +
+                    '(?: {12}| {16})\\w');
                 textDict = {};
                 Object.keys(local.cliDict).sort().forEach(function (key, ii) {
                     if (key[0] === '_' && key !== '_default') {
@@ -4653,16 +4734,21 @@ vendor)s{0,1}(\\b|_)\
                     if (commandList[ii]) {
                         commandList[ii].command.push(key);
                     } else {
-                        commandList[ii] = (/\n +?\*(.*?)\n +?\*(.*?)\n/).exec(text);
-                        // coverage-hack - ignore else-statement
-                        nop(local.global.__coverage__ && (function () {
-                            commandList[ii] = commandList[ii] || ['', '', ''];
-                        }()));
-                        commandList[ii] = {
-                            argList: commandList[ii][1].trim(),
-                            command: [key],
-                            description: commandList[ii][2].trim()
-                        };
+                        try {
+                            commandList[ii] = rgxComment.exec(text);
+                            commandList[ii] = {
+                                argList: (commandList[ii][1] || ''),
+                                command: [key],
+                                description: commandList[ii][2]
+                            };
+                        } catch (errorCaught) {
+                            throw new Error('cliRun - cannot parse comment in COMMAND ' +
+                                key + ':\nnew RegExp(' + JSON.stringify(rgxComment.source) +
+                                ').exec(' + JSON.stringify(text)
+                                .replace((/\\\\/g), '\x00')
+                                .replace((/\\n/g), '\\n\\\n')
+                                .replace((/\x00/g), '\\\\') + ');');
+                        }
                     }
                 });
                 (options && options.modeError
@@ -4693,7 +4779,7 @@ vendor)s{0,1}(\\b|_)\
                             }
                             return element.description + '\n  ' + file +
                                 ('  ' + element.command.sort().join('|') + '  ')
-                                .replace((/^ {4}$/), '  ') +
+                                .replace((/^ {4}$/), '') +
                                 element.argList.join('  ');
                         })
                         .join('\n\n')
@@ -4708,7 +4794,7 @@ vendor)s{0,1}(\\b|_)\
              *
              * will start interactive-mode
              */
-                local.global.local = local;
+                global.local = local;
                 local.replStart();
             };
             if (typeof local.replStart === 'function') {
@@ -4817,9 +4903,11 @@ vendor)s{0,1}(\\b|_)\
             }
             return file;
         };
+
         local._istanbul_fs.readdirSync = function () {
             return [];
         };
+
         // mock module path
         local._istanbul_path = local.path || {
             dirname: function (file) {
@@ -6331,6 +6419,7 @@ G({},t),exports.browser=!1,exports.FORMAT_MINIFY=N,exports.FORMAT_DEFAULTS=C})()
                 return result;
             };
         };
+
         local.handlebars.registerHelper = function (key, helper) {
         /*
          * this function will register the helper-function
@@ -6342,6 +6431,7 @@ G({},t),exports.browser=!1,exports.FORMAT_MINIFY=N,exports.FORMAT_DEFAULTS=C})()
                 }
             };
         };
+
         local.handlebars.replace = function (template, dict, withPrefix) {
         /*
          * this function will replace the keys in the template with the dict's key / value
@@ -6359,8 +6449,6 @@ G({},t),exports.browser=!1,exports.FORMAT_MINIFY=N,exports.FORMAT_DEFAULTS=C})()
                     : String(value);
             });
         };
-
-
 
 // init lib istanbul.collector
 // 2013-12-17T03:00:58Z
@@ -7339,6 +7427,7 @@ local.templateCoverageBadgeSvg =
             // re-init cli
             local._istanbul_module.runMain();
         };
+
         local.cliDict.instrument = function () {
         /*
          * <script>
@@ -7350,6 +7439,7 @@ local.templateCoverageBadgeSvg =
                 process.argv[3]
             ));
         };
+
         //
         local.cliDict.test = function () {
         /*
@@ -7368,6 +7458,7 @@ local.templateCoverageBadgeSvg =
             // re-init cli
             local._istanbul_module.runMain();
         };
+
         local.cliRun();
     }());
 }());
@@ -7477,19 +7568,12 @@ local.templateCoverageBadgeSvg =
         /*
          * this function will run the cli
          */
-            var nop;
-            nop = function () {
-            /*
-             * this function will do nothing
-             */
-                return;
-            };
             local.cliDict._eval = local.cliDict._eval || function () {
             /*
              * <code>
              * will eval <code>
              */
-                local.global.local = local;
+                global.local = local;
                 require('vm').runInThisContext(process.argv[3]);
             };
             local.cliDict['--eval'] = local.cliDict['--eval'] || local.cliDict._eval;
@@ -7499,7 +7583,7 @@ local.templateCoverageBadgeSvg =
              *
              * will print help
              */
-                var commandList, file, packageJson, text, textDict;
+                var commandList, file, packageJson, rgxComment, text, textDict;
                 commandList = [{
                     argList: '<arg2>  ...',
                     description: 'usage:',
@@ -7511,6 +7595,13 @@ local.templateCoverageBadgeSvg =
                 }];
                 file = __filename.replace((/.*\//), '');
                 packageJson = require('./package.json');
+                // validate comment
+                rgxComment = new RegExp('\\) \\{\\n' +
+                    '(?: {8}| {12})\\/\\*\\n' +
+                    '(?: {9}| {13})\\*( (?:<\\S*?>))*\\n' +
+                    '(?: {9}| {13})\\* (will .*?\\S)\\n' +
+                    '(?: {9}| {13})\\*\\/\\n' +
+                    '(?: {12}| {16})\\w');
                 textDict = {};
                 Object.keys(local.cliDict).sort().forEach(function (key, ii) {
                     if (key[0] === '_' && key !== '_default') {
@@ -7524,16 +7615,21 @@ local.templateCoverageBadgeSvg =
                     if (commandList[ii]) {
                         commandList[ii].command.push(key);
                     } else {
-                        commandList[ii] = (/\n +?\*(.*?)\n +?\*(.*?)\n/).exec(text);
-                        // coverage-hack - ignore else-statement
-                        nop(local.global.__coverage__ && (function () {
-                            commandList[ii] = commandList[ii] || ['', '', ''];
-                        }()));
-                        commandList[ii] = {
-                            argList: commandList[ii][1].trim(),
-                            command: [key],
-                            description: commandList[ii][2].trim()
-                        };
+                        try {
+                            commandList[ii] = rgxComment.exec(text);
+                            commandList[ii] = {
+                                argList: (commandList[ii][1] || ''),
+                                command: [key],
+                                description: commandList[ii][2]
+                            };
+                        } catch (errorCaught) {
+                            throw new Error('cliRun - cannot parse comment in COMMAND ' +
+                                key + ':\nnew RegExp(' + JSON.stringify(rgxComment.source) +
+                                ').exec(' + JSON.stringify(text)
+                                .replace((/\\\\/g), '\x00')
+                                .replace((/\\n/g), '\\n\\\n')
+                                .replace((/\x00/g), '\\\\') + ');');
+                        }
                     }
                 });
                 (options && options.modeError
@@ -7564,7 +7660,7 @@ local.templateCoverageBadgeSvg =
                             }
                             return element.description + '\n  ' + file +
                                 ('  ' + element.command.sort().join('|') + '  ')
-                                .replace((/^ {4}$/), '  ') +
+                                .replace((/^ {4}$/), '') +
                                 element.argList.join('  ');
                         })
                         .join('\n\n')
@@ -7579,7 +7675,7 @@ local.templateCoverageBadgeSvg =
              *
              * will start interactive-mode
              */
-                local.global.local = local;
+                global.local = local;
                 local.replStart();
             };
             if (typeof local.replStart === 'function') {
@@ -14248,6 +14344,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT, local.jslintEs6 = jslint; }());
             // if error occurred, then exit with non-zero code
             process.exit(!!local.errorList.length);
         };
+
         local.cliRun();
     }());
 }());
@@ -14973,6 +15070,14 @@ f,0,f.length*32-u*8)}}}
 
 /* script-begin /assets.utility2.lib.uglifyjs.js */
 // usr/bin/env node
+/*
+ * assets.uglifyjs.js
+ * this zero-dependency package will provide a browser-compatible version of the uglifyjs (v1.3.5) javascript-minifier, with a working web-demo
+ *
+ */
+
+
+
 /* istanbul instrument in package uglifyjs */
 /* jslint-utility2 */
 /*jslint
@@ -15073,19 +15178,12 @@ f,0,f.length*32-u*8)}}}
         /*
          * this function will run the cli
          */
-            var nop;
-            nop = function () {
-            /*
-             * this function will do nothing
-             */
-                return;
-            };
             local.cliDict._eval = local.cliDict._eval || function () {
             /*
              * <code>
              * will eval <code>
              */
-                local.global.local = local;
+                global.local = local;
                 require('vm').runInThisContext(process.argv[3]);
             };
             local.cliDict['--eval'] = local.cliDict['--eval'] || local.cliDict._eval;
@@ -15095,7 +15193,7 @@ f,0,f.length*32-u*8)}}}
              *
              * will print help
              */
-                var commandList, file, packageJson, text, textDict;
+                var commandList, file, packageJson, rgxComment, text, textDict;
                 commandList = [{
                     argList: '<arg2>  ...',
                     description: 'usage:',
@@ -15107,6 +15205,13 @@ f,0,f.length*32-u*8)}}}
                 }];
                 file = __filename.replace((/.*\//), '');
                 packageJson = require('./package.json');
+                // validate comment
+                rgxComment = new RegExp('\\) \\{\\n' +
+                    '(?: {8}| {12})\\/\\*\\n' +
+                    '(?: {9}| {13})\\*( (?:<\\S*?>))*\\n' +
+                    '(?: {9}| {13})\\* (will .*?\\S)\\n' +
+                    '(?: {9}| {13})\\*\\/\\n' +
+                    '(?: {12}| {16})\\w');
                 textDict = {};
                 Object.keys(local.cliDict).sort().forEach(function (key, ii) {
                     if (key[0] === '_' && key !== '_default') {
@@ -15120,16 +15225,21 @@ f,0,f.length*32-u*8)}}}
                     if (commandList[ii]) {
                         commandList[ii].command.push(key);
                     } else {
-                        commandList[ii] = (/\n +?\*(.*?)\n +?\*(.*?)\n/).exec(text);
-                        // coverage-hack - ignore else-statement
-                        nop(local.global.__coverage__ && (function () {
-                            commandList[ii] = commandList[ii] || ['', '', ''];
-                        }()));
-                        commandList[ii] = {
-                            argList: commandList[ii][1].trim(),
-                            command: [key],
-                            description: commandList[ii][2].trim()
-                        };
+                        try {
+                            commandList[ii] = rgxComment.exec(text);
+                            commandList[ii] = {
+                                argList: (commandList[ii][1] || ''),
+                                command: [key],
+                                description: commandList[ii][2]
+                            };
+                        } catch (errorCaught) {
+                            throw new Error('cliRun - cannot parse comment in COMMAND ' +
+                                key + ':\nnew RegExp(' + JSON.stringify(rgxComment.source) +
+                                ').exec(' + JSON.stringify(text)
+                                .replace((/\\\\/g), '\x00')
+                                .replace((/\\n/g), '\\n\\\n')
+                                .replace((/\x00/g), '\\\\') + ');');
+                        }
                     }
                 });
                 (options && options.modeError
@@ -15160,7 +15270,7 @@ f,0,f.length*32-u*8)}}}
                             }
                             return element.description + '\n  ' + file +
                                 ('  ' + element.command.sort().join('|') + '  ')
-                                .replace((/^ {4}$/), '  ') +
+                                .replace((/^ {4}$/), '') +
                                 element.argList.join('  ');
                         })
                         .join('\n\n')
@@ -15175,7 +15285,7 @@ f,0,f.length*32-u*8)}}}
              *
              * will start interactive-mode
              */
-                local.global.local = local;
+                global.local = local;
                 local.replStart();
             };
             if (typeof local.replStart === 'function') {
@@ -15845,7 +15955,7 @@ split_lines=split_lines,exports.MAP=MAP,exports.ast_squeeze_more=require("./sque
         local.cliDict._default = function () {
         /*
          * <file>
-         * # uglify <file> and print result to stdout
+         * will uglify <file> and print result to stdout
          */
             if ((/^(?:http|https):\/\//).test(process.argv[2])) {
                 // uglify url
@@ -15875,6 +15985,7 @@ split_lines=split_lines,exports.MAP=MAP,exports.ast_squeeze_more=require("./sque
                 'utf8'
             ), process.argv[2]));
         };
+
         local.cliRun();
     }());
 }());
@@ -15884,6 +15995,14 @@ split_lines=split_lines,exports.MAP=MAP,exports.ast_squeeze_more=require("./sque
 
 /* script-begin /assets.utility2.js */
 // usr/bin/env node
+/*
+ * assets.utility2.js
+ * the zero-dependency, swiss-army-knife utility for building, testing, and deploying webapps
+ *
+ */
+
+
+
 /* istanbul instrument in package utility2 */
 /* jslint-utility2 */
 /*jslint
@@ -16272,7 +16391,7 @@ utility2-comment -->\n\
 <script src="assets.utility2.rollup.js"></script>\n\
 <script>window.utility2_onReadyBefore.counter += 1;</script>\n\
 <script src="jsonp.utility2.stateInit?callback=window.utility2.stateInit"></script>\n\
-<script src="assets.{{env.npm_package_nameLib}}.js"></script>\n\
+<script src="assets.{{packageJson.nameLib}}.js"></script>\n\
 <script src="assets.example.js"></script>\n\
 <script src="assets.test.js"></script>\n\
 <script>window.utility2_onReadyBefore();</script>\n\
@@ -16567,8 +16686,16 @@ instruction\n\
 
 
 
-local.assetsDict['/assets.lib.template.js'] = '\
+local.assetsDict['/assets.my_app.template.js'] = '\
 #!/usr/bin/env node\n\
+/*\n\
+ * assets.my_app.js\n\
+ * {{packageJson.description}}\n\
+ *\n\
+ */\n\
+\n\
+\n\
+\n\
 /* istanbul instrument in package my_app */\n\
 /* jslint-utility2 */\n\
 /*jslint\n\
@@ -17406,6 +17533,320 @@ local.assetsDict['/assets.utility2.rollup.end.js'] = '\
 
 local.assetsDict['/favicon.ico'] = '';
 /* jslint-ignore-end */
+
+
+
+        local.cliDict = {};
+
+        local.cliDict['utility2.ajaxCrawl'] = function () {
+        /*
+         * <urlList>
+         * will web-crawl in parallel, comma-separated <urlList>
+         */
+            local.ajaxCrawl({
+                urlList: process.argv[3].split(/[,\s]/g).filter(local.echo)
+            }, local.onErrorThrow);
+        };
+
+        local.cliDict['utility2.browserTest'] = function () {
+        /*
+         * <urlList> <mode>
+         * will browser-test in parallel, comma-separated <urlList> with the given <mode>
+         */
+            process.argv[3].split(process.argv[3].indexOf('?') >= 0
+                ? (/\s/g)
+                : (/[,\s]/g)).filter(local.echo).forEach(function (url) {
+                local.browserTest({ url: url }, local.onErrorDefault);
+            });
+        };
+
+        local.cliDict['utility2.customOrgRepoCreate'] = function () {
+        /*
+         * <repoList>
+         * will create in parallel, comma-separated <repoList> of travis-ci-enabled github-repos
+         */
+            process.env.TRAVIS_DOMAIN = process.env.TRAVIS_DOMAIN || 'travis-ci.org';
+            process.chdir('/tmp');
+            local.child_process.spawnSync([
+                'if [ ! -d /tmp/githubRepo/kaizhu256/base ]; then (',
+                'git clone https://github.com/kaizhu256/base /tmp/githubRepo/kaizhu256/base',
+                'cd /tmp/githubRepo/kaizhu256/base',
+                'git checkout -b alpha origin/alpha',
+                'git checkout -b beta origin/beta',
+                'git checkout -b gh-pages origin/gh-pages',
+                'git checkout -b master origin/master',
+                'git checkout -b publish origin/publish',
+                'git checkout alpha',
+                ') fi'
+            ].join('\n'), { shell: true, stdio: ['ignore', 1, 2] });
+            local.onParallelList({
+                list: process.argv[3].split(/[,\s]/g).filter(local.echo)
+            }, function (options2, onParallel) {
+                var options;
+                onParallel.counter += 1;
+                options = {};
+                local.onNext(options, function (error, data) {
+                    switch (options.modeNext) {
+                    case 1:
+                        options2.onParallel2 = local.onParallel(options.onNext);
+                        options2.shBuildPrintPrefix =
+                            '\n\u001b[35m[MODE_BUILD=shCustomOrgRepoCreate]\u001b[0m - ';
+                        console.error(options2.shBuildPrintPrefix + new Date().toISOString() +
+                            options2.element + ' - creating ...');
+                        local.childProcessSpawnWithUtility2(
+                            'shGithubRepoBaseCreate ' + options2.element,
+                            options.onNext
+                        );
+                        break;
+                    case 2:
+                        local.ajax({
+                            headers: {
+                                Authorization: 'token ' + process.env.TRAVIS_ACCESS_TOKEN
+                            },
+                            url: 'https://api.' + process.env.TRAVIS_DOMAIN + '/repos/' +
+                                options2.element
+                        }, options.onNext);
+                        break;
+                    case 3:
+                        options2.id = JSON.parse(data.responseText).id;
+                        setTimeout(options.onNext, 5000);
+                        break;
+                    case 4:
+                        local.ajax({
+                            data: '{"hook":{"active":true}}',
+                            headers: {
+                                Authorization: 'token ' + process.env.TRAVIS_ACCESS_TOKEN,
+                                'Content-Type': 'application/json; charset=utf-8'
+                            },
+                            method: 'PUT',
+                            url: 'https://api.' + process.env.TRAVIS_DOMAIN + '/hooks/' +
+                                options2.id
+                        }, options.onNext);
+                        break;
+                    case 5:
+                        setTimeout(options.onNext, 5000);
+                        break;
+                    case 6:
+                        options2.onParallel2.counter += 1;
+                        options2.onParallel2.counter += 1;
+                        local.ajax({
+                            data: '{"setting.value":true}',
+                            headers: {
+                                Authorization: 'token ' + process.env.TRAVIS_ACCESS_TOKEN,
+                                'Content-Type': 'application/json; charset=utf-8',
+                                'Travis-API-Version': 3
+                            },
+                            method: 'PATCH',
+                            url: 'https://api.' + process.env.TRAVIS_DOMAIN + '/repo/' +
+                                options2.id + '/setting/builds_only_with_travis_yml'
+                        }, options2.onParallel2);
+                        options2.onParallel2.counter += 1;
+                        local.ajax({
+                            data: '{"setting.value":true}',
+                            headers: {
+                                Authorization: 'token ' + process.env.TRAVIS_ACCESS_TOKEN,
+                                'Content-Type': 'application/json; charset=utf-8',
+                                'Travis-API-Version': 3
+                            },
+                            method: 'PATCH',
+                            url: 'https://api.' + process.env.TRAVIS_DOMAIN + '/repo/' +
+                                options2.id + '/setting/auto_cancel_pushes'
+                        }, options2.onParallel2);
+                        options2.onParallel2();
+                        break;
+                    case 7:
+                        options2.onParallel2.counter += 1;
+                        options2.onParallel2.counter += 1;
+                        local.ajax({
+                            url: 'https://raw.githubusercontent.com' +
+                                '/kaizhu256/node-utility2/alpha/.gitignore'
+                        }, function (error, xhr) {
+                            local.assert(!error, error);
+                            local.fs.writeFile(
+                                '/tmp/githubRepo/' + options2.element + '/.gitignore',
+                                xhr.responseText,
+                                options2.onParallel2
+                            );
+                        });
+                        options2.onParallel2.counter += 1;
+                        local.ajax({
+                            url: 'https://raw.githubusercontent.com' +
+                                '/kaizhu256/node-utility2/alpha/.travis.yml'
+                        }, function (error, xhr) {
+                            local.assert(!error, error);
+                            local.fs.writeFile(
+                                '/tmp/githubRepo/' + options2.element + '/.travis.yml',
+                                xhr.responseText,
+                                options2.onParallel2
+                            );
+                        });
+                        options2.onParallel2.counter += 1;
+                        local.fs.open('README.md', 'w', function (error, fd) {
+                            local.assert(!error, error);
+                            local.fs.close(fd, options2.onParallel2);
+                        });
+                        options2.onParallel2.counter += 1;
+                        local.fs.writeFile(
+                            '/tmp/githubRepo/' + options2.element + '/package.json',
+                            JSON.stringify({
+                                devDependencies: {
+                                    'electron-lite': 'kaizhu256/node-electron-lite#alpha',
+                                    utility2: 'kaizhu256/node-utility2#alpha'
+                                },
+                                name: options2.element.replace((/.+?\/node-|.+?\//), ''),
+                                homepage: 'https://github.com/' + options2.element,
+                                repository: {
+                                    type: 'git',
+                                    url: 'https://github.com/' + options2.element + '.git'
+                                },
+                                scripts: {
+                                    'build-ci': 'utility2 shBuildCi'
+                                },
+                                version: '0.0.1'
+                            }, null, 4),
+                            options2.onParallel2
+                        );
+                        options2.onParallel2();
+                        break;
+                    case 8:
+                        local.childProcessSpawnWithUtility2([
+                            'cd /tmp/githubRepo/' + options2.element,
+                            'unset GITHUB_ORG',
+                            'unset GITHUB_REPO',
+                            'shBuildInit',
+                            'shCryptoTravisEncrypt > /dev/null',
+                            'git add -f . .gitignore .travis.yml',
+                            'git commit -am "[npm publishAfterCommitAfterBuild]"',
+                            'shGitCommandWithGithubToken push https://github.com/' +
+                                options2.element + ' -f' + ' alpha'
+                        ].join(' &&\n'), options.onNext);
+                        break;
+                    default:
+                        console.error(options2.shBuildPrintPrefix + new Date().toISOString() +
+                            options2.element + (error
+                                ? ' - ... failed to create - modeNext = ' + options.modeNext
+                                : ' - ... created'));
+                        onParallel(local.onErrorDefault(options.modeNext !== 1002 && error));
+                    }
+                });
+                options.modeNext = 0;
+                options.onNext();
+            }, local.onErrorThrow);
+        };
+
+        local.cliDict['utility2.githubCrudContentDelete'] = function () {
+        /*
+         * <fileRemote|dirRemote> <commitMessage>
+         * will delete from github <fileRemote|dirRemote>
+         */
+            local.github_crud.githubCrudContentDelete({
+                message: process.argv[4],
+                url: process.argv[3]
+            }, function (error) {
+                process.exit(!!error);
+            });
+        };
+
+        local.cliDict['utility2.githubCrudContentGet'] = function () {
+        /*
+         * <fileRemote>
+         * will get from github <fileRemote>
+         */
+            local.github_crud.githubCrudContentGet({
+                url: process.argv[3]
+            }, function (error, data) {
+                try {
+                    process.stdout.write(data);
+                } catch (ignore) {
+                }
+                process.exit(!!error);
+            });
+        };
+
+        local.cliDict['utility2.githubCrudContentPut'] = function () {
+        /*
+         * <fileRemote> <fileLocal> <commitMessage>
+         * will put on github <fileRemote>, <fileLocal>
+         */
+            local.github_crud.githubCrudContentPutFile({
+                message: process.argv[5],
+                url: process.argv[3],
+                file: process.argv[4]
+            }, function (error) {
+                process.exit(!!error);
+            });
+        };
+
+        local.cliDict['utility2.githubCrudContentTouch'] = function () {
+        /*
+         * <fileRemoteList> <commitMessage>
+         * will touch on github in parallel, comma-separated <fileRemoteList>
+         */
+            local.github_crud.githubCrudContentTouchList({
+                message: process.argv[4],
+                urlList: process.argv[3].split(/[,\s]/g).filter(local.echo)
+            }, function (error) {
+                process.exit(!!error);
+            });
+        };
+
+        local.cliDict['utility2.githubCrudRepoCreate'] = function () {
+        /*
+         * <repoList>
+         * will create on github in parallel, comma-separated <repoList>
+         */
+            local.github_crud.githubCrudRepoCreateList({
+                urlList: process.argv[3].split(/[,\s]/g).filter(local.echo)
+            }, function (error) {
+                process.exit(!!error);
+            });
+        };
+
+        local.cliDict['utility2.githubCrudRepoDelete'] = function () {
+        /*
+         * <repoList>
+         * will delete from github in parallel, comma-separated <repoList>
+         */
+            local.github_crud.githubCrudRepoDeleteList({
+                urlList: process.argv[3].split(/[,\s]/g).filter(local.echo)
+            }, function (error) {
+                process.exit(!!error);
+            });
+        };
+
+        local.cliDict['utility2.start'] = function () {
+        /*
+         * <port>
+         * will start utility2 http-server on the given port (default 8081)
+         */
+            local.env.PORT = process.argv[3] || local.env.PORT;
+            local.global.local = local;
+            local.replStart();
+            local.testRunServer({});
+        };
+
+        local.cliDict['utility2.swaggerValidateFile'] = function () {
+        /*
+         * <file/url>
+         * will swagger-validate file/url
+         */
+            setTimeout(function () {
+                local.swgg.swaggerValidateFile({ file: process.argv[3] }, function (error, data) {
+                    console.error(data);
+                    process.exit(error);
+                });
+            });
+        };
+
+        local.cliDict['utility2.testReportCreate'] = function () {
+        /*
+         *
+         * will create test-report
+         */
+            local.exit(local.testReportCreate(local.tryCatchOnError(function () {
+                return require(local.env.npm_config_dir_build + '/test-report.json');
+            }, local.onErrorDefault)).testsFailed);
+        };
     }());
 
 
@@ -17418,8 +17859,13 @@ local.assetsDict['/favicon.ico'] = '';
             : function (array, options) {
             /*
              * this function will create a node-compatible Blob instance
+             * https://developer.mozilla.org/en-US/docs/Web/API/Blob/Blob
              */
-                this.bff = local.bufferConcat(array);
+                this.bff = local.bufferConcat(array.map(function (element) {
+                    return typeof element === 'string' || element instanceof Uint8Array
+                        ? element
+                        : String(element);
+                }));
                 this.type = options && options.type;
             };
 
@@ -17539,7 +17985,7 @@ local.assetsDict['/favicon.ico'] = '';
          * It may be used to access response status, headers and data.
          * https://nodejs.org/dist/v0.12.18/docs/api/all.html#all_http_incomingmessage
          */
-            this.headers = {};
+            this.headers = xhr.headers;
             this.httpVersion = '1.1';
             this.method = xhr.method;
             this.onEvent = document.createDocumentFragment();
@@ -17675,7 +18121,7 @@ local.assetsDict['/favicon.ico'] = '';
          * https://nodejs.org/dist/v0.12.18/docs/api/all.html#all_class_http_serverresponse
          */
             this.chunkList = [];
-            this.headers = {};
+            this.responseHeaders = {};
             this.onEvent = document.createDocumentFragment();
             this.onResponse = onResponse;
             this.statusCode = 200;
@@ -17703,13 +18149,21 @@ local.assetsDict['/favicon.ico'] = '';
          * The method, response.end(), MUST be called on each response.
          * https://nodejs.org/dist/v0.12.18/docs/api/all.html#all_response_end_data_encoding_callback
          */
-            // emit writable events
-            this.chunkList.push(data || '');
-            this.emit('finish');
-            // emit readable events
-            this.onResponse(this);
-            this.emit('data', local.bufferConcat(this.chunkList));
-            this.emit('end');
+            var self;
+            self = this;
+            if (self._isDone) {
+                return;
+            }
+            self._isDone = true;
+            self.chunkList.push(data);
+            // notify server response is finished
+            self.emit('finish');
+            // asynchronously send response from server -> client
+            setTimeout(function () {
+                self.onResponse(self);
+                self.emit('data', local.bufferConcat(self.chunkList));
+                self.emit('end');
+            });
         };
 
         /*
@@ -17721,14 +18175,14 @@ local.assetsDict['/favicon.ico'] = '';
          */
         local._http.ServerResponse.prototype.on = local._http.IncomingMessage.prototype.addListener;
 
+        local._http.ServerResponse.prototype.setHeader = function (key, value) {
         /*
          * Sets a single header value for implicit headers. If this header already exists
          * in the to-be-sent headers, its value will be replaced. Use an array of strings here
          * if you need to send multiple headers with the same name.
          * https://nodejs.org/dist/v0.12.18/docs/api/all.html#all_response_setheader_name_value
          */
-        local._http.ServerResponse.prototype.setHeader = function (key, value) {
-            this.headers[key.toLowerCase()] = value;
+            this.responseHeaders[key.toLowerCase()] = value;
         };
 
         local._http.ServerResponse.prototype.write = function (data) {
@@ -17740,125 +18194,11 @@ local.assetsDict['/favicon.ico'] = '';
             this.chunkList.push(data);
         };
 
-        // init _http.XMLHttpRequest
-        local._http.XMLHttpRequest = function () {
-        /*
-         * The constructor initializes an XMLHttpRequest.
-         * It must be called before any other method calls.
-         * https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest#XMLHttpRequest()
-         */
-            this.headers = {};
-            this.onError = this.onError.bind(this);
-            this.onLoadList = [];
-            this.onResponse = this.onResponse.bind(this);
-        };
-
-        local._http.XMLHttpRequest.prototype.abort = function () {
-        /*
-         * Aborts the request if it has already been sent.
-         * https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest#abort()
-         */
-            this.onError(new Error('abort'));
-        };
-
-        local._http.XMLHttpRequest.prototype.addEventListener = function (event, onError) {
-        /*
-         * this function will add event listeners to the xhr-connection
-         */
-            switch (event) {
-            case 'abort':
-            case 'error':
-            case 'load':
-                this.onLoadList.push(onError);
-                break;
-            }
-        };
-
-        local._http.XMLHttpRequest.prototype.onError = function (error, data) {
-        /*
-         * this function will handle the error and data passed back to the xhr-connection
-         */
-            if (this._isDone) {
-                return;
-            }
-            this.error = error;
-            this.response = data;
-            // handle data
-            this.onLoadList.forEach(function (onError) {
-                onError({ type: error
-                    ? 'error'
-                    : 'load' });
-            });
-        };
-
-        local._http.XMLHttpRequest.prototype.onResponse = function (responseStream) {
-        /*
-         * this function will handle the responseStream from the xhr-connection
-         */
-            this.responseHeaders = responseStream.headers;
-            this.responseStream = responseStream;
-            this.status = this.statusCode = responseStream.statusCode;
-            local.streamReadAll(responseStream, this.onError);
-        };
-
-        local._http.XMLHttpRequest.prototype.open = function (method, url) {
-        /*
-         * Initializes a request. This method is to be used from JavaScript code;
-         * to initialize a request from native code, use openRequest() instead.
-         * https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest#open()
-         */
-            this.method = method;
-            this.url = url;
-            // parse url
-            this.urlParsed = local.urlParse(String(this.url));
-            this.hostname = this.urlParsed.hostname;
-            this.path = this.urlParsed.pathname + this.urlParsed.search;
-            this.port = this.urlParsed.port;
-            // init requestStream
-            this.requestStream = (this.urlParsed.protocol === 'https:'
-                ? local.https
-                : local.http).request(this, this.onResponse)
-                // handle request-error
-                .on('error', this.onError);
-        };
-
-        local._http.XMLHttpRequest.prototype.send = function (data) {
-        /*
-         * Sends the request. If the request is asynchronous (which is the default),
-         * this method returns as soon as the request is sent.
-         * https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest#send()
-         */
-            var xhr;
-            xhr = this;
-            if (data instanceof Uint8Array &&
-                    typeof Buffer === 'function' &&
-                    typeof Buffer.isBuffer === 'function' &&
-                    !Buffer.isBuffer(data)) {
-                Object.setPrototypeOf(data, Buffer.prototype);
-            }
-            xhr.data = data;
-            // asynchronously send data
-            setTimeout(function () {
-                xhr.requestStream.end(xhr.data);
-            });
-        };
-
-        local._http.XMLHttpRequest.prototype.setRequestHeader = function (key, value) {
-        /*
-         * Sets the value of an HTTP request header.
-         * You must call setRequestHeader()after open(), but before send().
-         * https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest#setRequestHeader()
-         */
-            key = key.toLowerCase();
-            this.headers[key] = value;
-            this.requestStream.setHeader(key, value);
-        };
-
         local._http.createServer = function () {
-            /*
-             * Returns a new instance of http.Server.
-             * https://nodejs.org/dist/v0.12.18/docs/api/all.html#all_http_createserver_requestlistener
-             */
+        /*
+         * Returns a new instance of http.Server.
+         * https://nodejs.org/dist/v0.12.18/docs/api/all.html#all_http_createserver_requestlistener
+         */
             return { listen: function (port, onError) {
             /*
              * This will cause the server to accept connections on the specified handle,
@@ -17871,26 +18211,30 @@ local.assetsDict['/favicon.ico'] = '';
         };
 
         local._http.request = function (xhr, onResponse) {
-            var self;
-            self = {};
-            self.end = function (data) {
-                // do not run more than once
-                if (self.ended) {
+            var isDone;
+            xhr = {
+                headers: xhr.headers,
+                method: xhr.method,
+                timeout: xhr.timeout,
+                url: xhr.href
+            };
+            xhr.end = function (data) {
+                if (isDone) {
                     return;
                 }
-                self.ended = true;
-                self.serverRequest.data = data;
-                local.serverLocalRequestHandler(self.serverRequest, self.serverResponse);
+                isDone = true;
+                xhr.serverRequest.data = data;
+                // asynchronously send request from client -> server
+                setTimeout(function () {
+                    local.serverLocalRequestHandler(xhr.serverRequest, xhr.serverResponse);
+                });
             };
-            self.on = function () {
-                return self;
+            xhr.on = function () {
+                return xhr;
             };
-            self.serverRequest = new local._http.IncomingMessage(xhr);
-            self.serverResponse = new local._http.ServerResponse(onResponse);
-            self.setHeader = function (key, value) {
-                self.serverRequest.headers[key.toLowerCase()] = value;
-            };
-            return self;
+            xhr.serverRequest = new local._http.IncomingMessage(xhr);
+            xhr.serverResponse = new local._http.ServerResponse(onResponse);
+            return xhr;
         };
 
         local._testCase_buildApidoc_default = function (options, onError) {
@@ -17901,7 +18245,7 @@ local.assetsDict['/favicon.ico'] = '';
                 onError(null, options);
                 return;
             }
-            local.buildApidoc(options, onError);
+            return local.buildApidoc(options, onError);
         };
 
         local._testCase_buildApp_default = function (options, onError) {
@@ -17938,7 +18282,7 @@ local.assetsDict['/favicon.ico'] = '';
                 onError(null, options);
                 return;
             }
-            local.buildLib({}, onError);
+            return local.buildLib({}, onError);
         };
 
         local._testCase_buildReadme_default = function (options, onError) {
@@ -17949,7 +18293,7 @@ local.assetsDict['/favicon.ico'] = '';
                 onError(null, options);
                 return;
             }
-            local.buildReadme({}, onError);
+            return local.buildReadme({}, onError);
         };
 
         local._testCase_buildTest_default = function (options, onError) {
@@ -17960,7 +18304,7 @@ local.assetsDict['/favicon.ico'] = '';
                 onError(null, options);
                 return;
             }
-            local.buildTest({}, onError);
+            return local.buildTest({}, onError);
         };
 
         local._testCase_webpage_default = function (options, onError) {
@@ -17988,7 +18332,8 @@ local.assetsDict['/favicon.ico'] = '';
 
         local.ajax = function (options, onError) {
         /*
-         * this function will send an ajax-request with error-handling and timeout
+         * this function will send an ajax-request with the given options.url,
+         * with error-handling and timeout
          * example usage:
             local.ajax({
                 data: 'hello world',
@@ -18001,28 +18346,147 @@ local.assetsDict['/favicon.ico'] = '';
             });
          */
             var ajaxProgressUpdate,
-                bufferToString,
+                bufferValidateAndCoerce,
                 isBrowser,
                 isDone,
+                onEvent,
                 nop,
-                self,
+                local2,
                 streamCleanup,
-                xhr;
-            // init local
-            self = local.utility2 || {};
-            // init standalone handling-behavior
+                xhr,
+                xhrInit;
+            // init local2
+            local2 = local.utility2 || {};
+            // init function
             nop = function () {
             /*
              * this function will do nothing
              */
                 return;
             };
-            ajaxProgressUpdate = self.ajaxProgressUpdate || nop;
-            // init onError
-            if (self.onErrorWithStack) {
-                onError = self.onErrorWithStack(onError);
-            }
-            bufferToString = self.bufferToString || String;
+            ajaxProgressUpdate = local2.ajaxProgressUpdate || nop;
+            bufferValidateAndCoerce = local2.bufferValidateAndCoerce || function (bff, mode) {
+            /*
+             * this function will validate and coerce/convert
+             * ArrayBuffer, String, or Uint8Array -> Buffer or String
+             */
+                // validate instanceof ArrayBuffer, String, or Uint8Array
+                if (!((isBrowser && (typeof bff === 'string' || bff instanceof ArrayBuffer)) ||
+                        (!isBrowser && Buffer.isBuffer(bff)))) {
+                    throw new Error(
+                        'ajax - xhr.response is not instanceof ArrayBuffer, String, or Buffer'
+                    );
+                }
+                // coerce to ArrayBuffer -> Buffer
+                if (bff instanceof ArrayBuffer) {
+                    return new Uint8Array(bff);
+                }
+                // coerce/convert String -> Buffer or String
+                if (typeof bff === 'string') {
+                    return mode === 'string'
+                        ? bff
+                        : isBrowser
+                        ? new window.TextEncoder().encode(bff)
+                        : Buffer.from(bff);
+                }
+                // coerce/convert Buffer -> Buffer or String
+                return mode === 'string'
+                    ? String(bff)
+                    : bff;
+            };
+            onEvent = function (event) {
+            /*
+             * this function will handle events
+             */
+                if (event instanceof Error) {
+                    xhr.error = xhr.error || event;
+                    xhr.onEvent({ type: 'error' });
+                    return;
+                }
+                // init statusCode
+                xhr.statusCode = (xhr.statusCode || xhr.status) | 0;
+                switch (event.type) {
+                case 'abort':
+                case 'error':
+                case 'load':
+                    if (isDone) {
+                        return;
+                    }
+                    isDone = true;
+                    // decrement ajaxProgressCounter
+                    local2.ajaxProgressCounter = Math.max(local2.ajaxProgressCounter - 1, 0);
+                    ajaxProgressUpdate();
+                    // handle abort or error event
+                    switch (!xhr.error && event.type) {
+                    case 'abort':
+                    case 'error':
+                        xhr.error = new Error('ajax - event ' + event.type);
+                        break;
+                    case 'load':
+                        if (xhr.statusCode >= 400) {
+                            xhr.error = new Error('ajax - statusCode ' + xhr.statusCode);
+                        }
+                        break;
+                    }
+                    // debug statusCode / method / url
+                    if (xhr.error) {
+                        xhr.error.statusCode = xhr.statusCode;
+                        (local2.errorMessagePrepend || nop)(xhr.error, (isBrowser
+                            ? 'browser'
+                            : 'node') + ' - ' +
+                            xhr.statusCode + ' ' + xhr.method + ' ' + xhr.url + '\n');
+                    }
+                    // update responseHeaders
+                    // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/getAllResponseHeaders
+                    if (xhr.getAllResponseHeaders) {
+                        xhr.getAllResponseHeaders().replace((
+                            /(.*?): *(.*?)\r\n/g
+                        ), function (match0, match1, match2) {
+                            match0 = match1;
+                            xhr.responseHeaders[match0.toLowerCase()] = match2;
+                        });
+                    }
+                    // debug ajaxResponse
+                    xhr.responseContentLength =
+                        (xhr.response && (xhr.response.byteLength || xhr.response.length)) | 0;
+                    xhr.timeElapsed = Date.now() - xhr.timeStart;
+                    if (xhr.modeDebug) {
+                        console.error('serverLog - ' + JSON.stringify({
+                            time: new Date(xhr.timeStart).toISOString(),
+                            type: 'ajaxResponse',
+                            method: xhr.method,
+                            url: xhr.url,
+                            statusCode: xhr.statusCode,
+                            timeElapsed: xhr.timeElapsed,
+                            // extra
+                            responseContentLength: xhr.responseContentLength
+                        }));
+                    }
+                    // init responseType
+                    // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseType
+                    switch (xhr.response && xhr.responseType) {
+                    // init responseText
+                    // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseText
+                    case '':
+                    case 'text':
+                        if (typeof xhr.responseText === 'string') {
+                            break;
+                        }
+                        xhr.responseText = bufferValidateAndCoerce(xhr.response, 'string');
+                        break;
+                    case 'arraybuffer':
+                        xhr.responseBuffer = bufferValidateAndCoerce(xhr.response);
+                        break;
+                    }
+                    // cleanup timerTimeout
+                    clearTimeout(xhr.timerTimeout);
+                    // cleanup requestStream and responseStream
+                    streamCleanup(xhr.requestStream);
+                    streamCleanup(xhr.responseStream);
+                    onError(xhr.error, xhr);
+                    break;
+                }
+            };
             streamCleanup = function (stream) {
             /*
              * this function will try to end or destroy the stream
@@ -18038,65 +18502,95 @@ local.assetsDict['/favicon.ico'] = '';
                     }
                 }
             };
+            xhrInit = function () {
+            /*
+             * this function will init xhr
+             */
+                // init options
+                Object.keys(options).forEach(function (key) {
+                    if (key[0] !== '_') {
+                        xhr[key] = options[key];
+                    }
+                });
+                Object.assign(xhr, {
+                    corsForwardProxyHost: xhr.corsForwardProxyHost || local2.corsForwardProxyHost,
+                    headers: xhr.headers || {},
+                    location: xhr.location || (isBrowser && location) || {},
+                    method: xhr.method || 'GET',
+                    responseType: xhr.responseType || '',
+                    timeout: xhr.timeout || local2.timeoutDefault || 30000
+                });
+                Object.keys(xhr.headers).forEach(function (key) {
+                    xhr.headers[key.toLowerCase()] = xhr.headers[key];
+                });
+                // init misc
+                local2._debugXhr = xhr;
+                xhr.onEvent = onEvent;
+                xhr.responseHeaders = {};
+                xhr.timeStart = xhr.timeStart || Date.now();
+            };
             // init isBrowser
             isBrowser = typeof window === 'object' &&
                 typeof window.XMLHttpRequest === 'function' &&
                 window.document &&
                 typeof window.document.querySelectorAll === 'function';
-            // init xhr
-            xhr = !options.httpRequest &&
-                (!isBrowser || (self.serverLocalUrlTest && self.serverLocalUrlTest(options.url)))
-                ? self._http && self._http.XMLHttpRequest && new self._http.XMLHttpRequest()
-                : isBrowser && new window.XMLHttpRequest();
+            // init onError
+            if (local2.onErrorWithStack) {
+                onError = local2.onErrorWithStack(onError);
+            }
+            // init xhr - XMLHttpRequest
+            xhr = isBrowser &&
+                !options.httpRequest &&
+                !(local2.serverLocalUrlTest && local2.serverLocalUrlTest(options.url)) &&
+                new XMLHttpRequest();
+            // init xhr - http.request
             if (!xhr) {
-                xhr = require('url').parse(options.url);
-                xhr.headers = options.headers;
-                xhr.method = options.method;
-                xhr.timeout = xhr.timeout || self.timeoutDefault || 30000;
+                xhr = (local2.urlParse || require('url').parse)(options.url);
+                // init xhr
+                xhrInit();
+                // init xhr - http.request
                 xhr = (
-                    options.httpRequest || require(xhr.protocol.slice(0, -1)).request
-                )(xhr, function (response) {
+                    options.httpRequest ||
+                        (isBrowser && local2.http.request) ||
+                        require(xhr.protocol.slice(0, -1)).request
+                )(xhr, function (responseStream) {
+                /*
+                 * this function will read the responseStream
+                 */
                     var chunkList;
                     chunkList = [];
-                    xhr.responseStream = response;
-                    xhr.responseHeaders = xhr.responseStream.headers;
-                    xhr.status = xhr.responseStream.statusCode;
-                    xhr.responseStream
-                        .on('data', function (chunk) {
-                            chunkList.push(chunk);
-                        })
-                        .on('end', function () {
-                            xhr.response = Buffer.concat(chunkList);
-                            xhr.onEvent({ type: 'load' });
-                        })
-                        .on('error', xhr.onEvent);
+                    xhr.responseHeaders = responseStream.responseHeaders || responseStream.headers;
+                    xhr.responseStream = responseStream;
+                    xhr.statusCode = responseStream.statusCode;
+                    responseStream.dataLength = 0;
+                    responseStream.on('data', function (chunk) {
+                        chunkList.push(chunk);
+                    });
+                    responseStream.on('end', function () {
+                        xhr.response = isBrowser
+                            ? chunkList[0]
+                            : Buffer.concat(chunkList);
+                        responseStream.dataLength = xhr.response.byteLength || xhr.response.length;
+                        xhr.onEvent({ type: 'load' });
+                    });
+                    responseStream.on('error', xhr.onEvent);
                 });
+                xhr.abort = function () {
+                /*
+                 * this function will abort the xhr-request
+                 * https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/abort
+                 */
+                    xhr.onEvent({ type: 'abort' });
+                };
                 xhr.addEventListener = nop;
                 xhr.open = nop;
                 xhr.requestStream = xhr;
                 xhr.send = xhr.end;
                 xhr.setRequestHeader = nop;
-                setTimeout(function () {
-                    xhr.on('error', xhr.onEvent);
-                });
+                xhr.on('error', onEvent);
             }
-            // debug xhr
-            self._debugXhr = xhr;
-            // init options
-            Object.keys(options).forEach(function (key) {
-                if (options[key] !== undefined) {
-                    xhr[key] = options[key];
-                }
-            });
-            // init properties
-            xhr.headers = {};
-            Object.keys(options.headers || {}).forEach(function (key) {
-                xhr.headers[key.toLowerCase()] = options.headers[key];
-            });
-            xhr.method = xhr.method || 'GET';
-            xhr.responseHeaders = {};
-            xhr.timeStart = Date.now();
-            xhr.timeout = xhr.timeout || self.timeoutDefault || 30000;
+            // init xhr
+            xhrInit();
             // init timerTimeout
             xhr.timerTimeout = setTimeout(function () {
                 xhr.error = xhr.error || new Error('onTimeout - timeout-error - ' +
@@ -18106,135 +18600,35 @@ local.assetsDict['/favicon.ico'] = '';
                 streamCleanup(xhr.requestStream);
                 streamCleanup(xhr.responseStream);
             }, xhr.timeout);
-            // init event-handling
-            xhr.onEvent = function (event) {
-                if (event instanceof Error) {
-                    xhr.error = xhr.error || event;
-                    xhr.onEvent({ type: 'error' });
-                    return;
-                }
-                // init statusCode
-                xhr.statusCode = xhr.status || xhr.statusCode || 0;
-                switch (event.type) {
-                case 'abort':
-                case 'error':
-                case 'load':
-                    // do not run more than once
-                    if (isDone) {
-                        return;
-                    }
-                    isDone = xhr._isDone = true;
-                    // update responseHeaders
-                    if (xhr.getAllResponseHeaders) {
-                        xhr.getAllResponseHeaders().replace((
-                            /(.*?): *(.*?)\r\n/g
-                        ), function (match0, match1, match2) {
-                            match0 = match1;
-                            xhr.responseHeaders[match0.toLowerCase()] = match2;
-                        });
-                    }
-                    // init responseText
-                    if (!(isBrowser && (xhr instanceof XMLHttpRequest)) &&
-                            (xhr.responseType === 'text' || !xhr.responseType)) {
-                        xhr.response = xhr.responseText = bufferToString(xhr.response || '');
-                    }
-                    // init responseBuffer
-                    xhr.responseBuffer = xhr.response;
-                    if (xhr.responseBuffer instanceof ArrayBuffer) {
-                        xhr.responseBuffer = new Uint8Array(xhr.responseBuffer);
-                    }
-                    xhr.responseContentLength =
-                        (xhr.response && (xhr.response.byteLength || xhr.response.length)) || 0;
-                    xhr.timeElapsed = Date.now() - xhr.timeStart;
-                    // debug ajaxResponse
-                    if (xhr.modeDebug) {
-                        console.error('serverLog - ' + JSON.stringify({
-                            time: new Date(xhr.timeStart).toISOString(),
-                            type: 'ajaxResponse',
-                            method: xhr.method,
-                            url: xhr.url,
-                            statusCode: xhr.statusCode,
-                            timeElapsed: xhr.timeElapsed,
-                            // extra
-                            responseContentLength: xhr.responseContentLength,
-                            data: (function () {
-                                try {
-                                    return String(xhr.data.slice(0, 256));
-                                } catch (ignore) {
-                                }
-                            }()),
-                            responseText: (function () {
-                                try {
-                                    return String(xhr.responseText.slice(0, 256));
-                                } catch (ignore) {
-                                }
-                            }())
-                        }));
-                    }
-                    // cleanup timerTimeout
-                    clearTimeout(xhr.timerTimeout);
-                    // cleanup requestStream and responseStream
-                    setTimeout(function () {
-                        streamCleanup(xhr.requestStream);
-                        streamCleanup(xhr.responseStream);
-                    });
-                    // decrement ajaxProgressCounter
-                    self.ajaxProgressCounter = Math.max(self.ajaxProgressCounter - 1, 0);
-                    // handle abort or error event
-                    if (!xhr.error &&
-                            (event.type === 'abort' ||
-                            event.type === 'error' ||
-                            xhr.statusCode >= 400)) {
-                        xhr.error = new Error('ajax - event ' + event.type);
-                    }
-                    // debug statusCode
-                    (xhr.error || {}).statusCode = xhr.statusCode;
-                    // debug statusCode / method / url
-                    if (self.errorMessagePrepend && xhr.error) {
-                        self.errorMessagePrepend(xhr.error, (isBrowser
-                            ? 'browser'
-                            : 'node') + ' - ' +
-                            xhr.statusCode + ' ' + xhr.method + ' ' + xhr.url + '\n' +
-                            // try to debug responseText
-                            (function () {
-                                try {
-                                    return '    ' + JSON.stringify(xhr.responseText.slice(0, 256) +
-                                        '...') + '\n';
-                                } catch (ignore) {
-                                }
-                            }()));
-                    }
-                    onError(xhr.error, xhr);
-                    break;
-                }
-                ajaxProgressUpdate();
-            };
             // increment ajaxProgressCounter
-            self.ajaxProgressCounter = self.ajaxProgressCounter || 0;
-            self.ajaxProgressCounter += 1;
+            local2.ajaxProgressCounter = local2.ajaxProgressCounter || 0;
+            local2.ajaxProgressCounter += 1;
+            // init event-handling
             xhr.addEventListener('abort', xhr.onEvent);
             xhr.addEventListener('error', xhr.onEvent);
             xhr.addEventListener('load', xhr.onEvent);
             xhr.addEventListener('loadstart', ajaxProgressUpdate);
             xhr.addEventListener('progress', ajaxProgressUpdate);
+            // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/upload
             if (xhr.upload && xhr.upload.addEventListener) {
                 xhr.upload.addEventListener('progress', ajaxProgressUpdate);
             }
-            // open url through corsForwardProxyHost
-            xhr.corsForwardProxyHost = xhr.corsForwardProxyHost || self.corsForwardProxyHost;
-            xhr.location = xhr.location || (self.global && self.global.location) || {};
-            if (self.corsForwardProxyHostIfNeeded && self.corsForwardProxyHostIfNeeded(xhr)) {
-                xhr.open(xhr.method, self.corsForwardProxyHostIfNeeded(xhr));
+            // open url - corsForwardProxyHost
+            if (local2.corsForwardProxyHostIfNeeded && local2.corsForwardProxyHostIfNeeded(xhr)) {
+                xhr.open(xhr.method, local2.corsForwardProxyHostIfNeeded(xhr));
                 xhr.setRequestHeader('forward-proxy-headers', JSON.stringify(xhr.headers));
                 xhr.setRequestHeader('forward-proxy-url', xhr.url);
-            // open url
+            // open url - default
             } else {
                 xhr.open(xhr.method, xhr.url);
             }
+            // send headers
             Object.keys(xhr.headers).forEach(function (key) {
                 xhr.setRequestHeader(key, xhr.headers[key]);
             });
-            if (self.FormData && xhr.data instanceof self.FormData) {
+            // send data - FormData
+            // https://developer.mozilla.org/en-US/docs/Web/API/FormData
+            if (local2.FormData && xhr.data instanceof local2.FormData) {
                 // handle formData
                 xhr.data.read(function (error, data) {
                     if (error) {
@@ -18244,6 +18638,7 @@ local.assetsDict['/favicon.ico'] = '';
                     // send data
                     xhr.send(data);
                 });
+            // send data - default
             } else {
                 // send data
                 xhr.send(xhr.data);
@@ -18438,7 +18833,7 @@ local.assetsDict['/favicon.ico'] = '';
 
         local.assert = function (passed, message, onError) {
         /*
-         * this function will throw the error message if passed is falsey
+         * this function will throw the error message if passed is falsy
          */
             var error;
             if (passed) {
@@ -18550,13 +18945,7 @@ local.assetsDict['/favicon.ico'] = '';
             }
             // optimization - create resized-view of bff
             bff = bff.subarray(0, jj);
-            return mode !== 'string'
-                // return Uint8Array
-                ? bff
-                // return utf8-string
-                : typeof Buffer === 'function' && typeof Buffer.isBuffer === 'function'
-                ? String(Object.setPrototypeOf(bff, Buffer.prototype))
-                : new window.TextDecoder().decode(bff);
+            return local.bufferValidateAndCoerce(bff, mode);
         };
 
         local.base64ToString = function (b64) {
@@ -18746,7 +19135,7 @@ local.assetsDict['/favicon.ico'] = '';
                         '</body>' +
                         '<textarea disabled style="display:none;">\n' +
                         '(function(){"use strict";\n' +
-                            'var local={global:window,isBrowser:true},\n' +
+                            'var local={env:{},global:window,isBrowser:true},\n' +
                             'options=' + JSON.stringify(data) + ';\n' +
                         ['browserTest', 'nop', 'onErrorWithStack', 'onNext'].map(function (key) {
                             return 'local.' + key + '=' + String(local[key])
@@ -18971,30 +19360,42 @@ local.assetsDict['/favicon.ico'] = '';
         /*
          * this function will emulate node's Buffer.concat for Uint8Array in the browser
          */
-            var ii, jj, length, result;
-            length = 0;
-            bffList = bffList
-                .filter(function (bff) {
-                    return bff || bff === 0;
-                })
-                .map(function (bff) {
-                    // coerce bff to Uint8Array
-                    if (!(bff instanceof Uint8Array)) {
-                        bff = typeof bff === 'number'
-                            ? local.bufferCreate(String(bff))
-                            : local.bufferCreate(bff);
-                    }
-                    length += bff.length;
-                    return bff;
-                });
-            result = local.bufferCreate(length);
+            var byteLength, ii, isBuffer, jj, result;
+            result = [''];
+            byteLength = 0;
+            bffList.forEach(function (bff) {
+                // validate data
+                local.assert(typeof bff !== 'number', bff);
+                if (!(bff && bff.length)) {
+                    return;
+                }
+                // validate data
+                local.assert(typeof bff === 'string' || bff instanceof Uint8Array, bff);
+                isBuffer = isBuffer || typeof bff !== 'string';
+                if (!isBuffer) {
+                    result[0] += bff;
+                    return;
+                }
+                if (typeof bff === 'string') {
+                    bff = local.bufferValidateAndCoerce(bff);
+                }
+                byteLength += bff.byteLength;
+                result.push(bff);
+            });
+            // optimization - return string
+            if (!isBuffer) {
+                return result[0];
+            }
+            bffList = result;
+            bffList[0] = local.bufferValidateAndCoerce(bffList[0]);
+            result = new Uint8Array(bffList[0].byteLength + byteLength);
             ii = 0;
             bffList.forEach(function (bff) {
-                for (jj = 0; jj < bff.length; ii += 1, jj += 1) {
+                for (jj = 0; jj < bff.byteLength; ii += 1, jj += 1) {
                     result[ii] = bff[jj];
                 }
             });
-            return result;
+            return local.bufferValidateAndCoerce(result);
         };
 
         local.bufferCreate = function (text) {
@@ -19002,13 +19403,13 @@ local.assetsDict['/favicon.ico'] = '';
          * this function will create a Uint8Array from text,
          * with either 'utf8' (default) or 'base64' encoding
          */
-            if (typeof text !== 'string') {
-                return new Uint8Array(text);
-            }
-            if (typeof Buffer === 'function' && typeof Buffer.isBuffer === 'function') {
-                return Buffer.from(text);
-            }
-            return new window.TextEncoder().encode(text);
+            return typeof Buffer === 'function' && typeof Buffer.isBuffer === 'function'
+                ? (typeof text === 'number' || !text
+                    ? Buffer.alloc(text | 0)
+                    : Buffer.from(text))
+                : (typeof text === 'string'
+                    ? new window.TextEncoder().encode(text)
+                    : new Uint8Array(text));
         };
 
         local.bufferIndexOfSubBuffer = function (bff, subBff, fromIndex) {
@@ -19031,8 +19432,8 @@ local.assetsDict['/favicon.ico'] = '';
 
         local.bufferRandomBytes = function (length) {
         /*
-         * this function will create create a Uint8Array with the given length,
-         * filled with cryptographically-strong random bytes
+         * this function will return a Buffer with the given length,
+         * filled with cryptographically-strong random-values
          */
             return typeof window === 'object' &&
                 window.crypto &&
@@ -19043,27 +19444,57 @@ local.assetsDict['/favicon.ico'] = '';
 
         local.bufferToString = function (bff) {
         /*
-         * this function will convert Uint8Array bff to utf8 string
+         * this function will convert Uint8Array -> String
          */
-            // null-case
+            return local.bufferValidateAndCoerce(bff, 'string');
+        };
+
+        local.bufferValidateAndCoerce = function (bff, mode) {
+        /*
+         * this function will validate and coerce/convert
+         * ArrayBuffer, String, or Uint8Array -> Buffer or String
+         */
+            var isBuffer;
+            // validate not typeof number
+            if (typeof bff === 'number') {
+                throw new Error('bufferValidateAndCoerce - value cannot be typeof number');
+            }
             bff = bff || '';
+            isBuffer = typeof Buffer === 'function' && typeof Buffer.isBuffer === 'function';
+            // convert String -> Buffer
             if (typeof bff === 'string') {
+                return mode === 'string'
+                    ? bff
+                    : isBuffer
+                    ? Buffer.from(bff)
+                    : new window.TextEncoder().encode(bff);
+            }
+            if (bff instanceof ArrayBuffer) {
+                bff = new Uint8Array(bff);
+            }
+            // validate instanceof Uint8Array
+            if (!(bff instanceof Uint8Array)) {
+                throw new Error('bufferValidateAndCoerce - value is not instanceof ' +
+                    'ArrayBuffer, String, or Uint8Array');
+            }
+            // coerce Uint8Array -> Buffer
+            if (isBuffer) {
+                Object.setPrototypeOf(bff, Buffer.prototype);
+            }
+            if (mode !== 'string') {
                 return bff;
             }
-            // use Buffer api
-            if (typeof Buffer === 'function' && typeof Buffer.isBuffer === 'function') {
-                return String(bff instanceof Uint8Array && !Buffer.isBuffer(bff)
-                    ? Object.setPrototypeOf(bff, Buffer.prototype)
-                    : Buffer.from(bff));
-            }
-            // use TextDecoder api
-            return new window.TextDecoder().decode(bff);
+            // convert Buffer -> String
+            return isBuffer
+                ? String(bff)
+                : new window.TextDecoder().decode(bff);
         };
 
         local.buildApidoc = function (options, onError) {
         /*
          * this function will build the apidoc
          */
+            var result;
             // optimization - do not run if $npm_config_mode_coverage = all
             if (local.env.npm_config_mode_coverage === 'all') {
                 onError();
@@ -19077,11 +19508,12 @@ local.assetsDict['/favicon.ico'] = '';
                 onError();
                 return;
             }
-            // create apidoc.html
+            // save apidoc.html
+            result = local.fsReadFileOrEmptyStringSync('apidoc.html', 'utf8') ||
+                local.apidocCreate(options);
             local.fsWriteFileWithMkdirpSync(
                 local.env.npm_config_dir_build + '/apidoc.html',
-                local.fsReadFileOrEmptyStringSync('apidoc.html', 'utf8') ||
-                    local.apidocCreate(options)
+                result
             );
             console.error('created apidoc file ' + local.env.npm_config_dir_build +
                 '/apidoc.html\n');
@@ -19266,7 +19698,7 @@ local.assetsDict['/favicon.ico'] = '';
         /*
          * this function will build the lib
          */
-            var dataLib, dictFnc, dictFncAll, dictFncBase, dictProp;
+            var dataLib, dictFnc, dictFncAll, dictFncBase, dictProp, result;
             local.objectSetDefault(options, {
                 customize: local.nop,
                 dataFrom: local.fsReadFileOrEmptyStringSync(
@@ -19274,14 +19706,14 @@ local.assetsDict['/favicon.ico'] = '';
                     'utf8'
                 ),
                 dataTo: local.templateRenderMyApp(
-                    local.assetsDict['/assets.lib.template.js'],
-                    {}
+                    local.assetsDict['/assets.my_app.template.js'],
+                    options
                 )
             });
             // search-and-replace - customize dataTo
             [
-                // customize body before istanbul instrument in package
-                (/[\S\s]*?^\/\* istanbul instrument in package /m),
+                // customize top-level comment-description
+                (/\n\/\*\n \* \S.*?\n \* \S.*?\n \*\n(?: \* \S[\S\s]*?\n)? \*\/\n/),
                 // customize body after /* validateLineSortedReset */
                 (/\n {8}\/\* validateLineSortedReset \*\/\n[\S\s]*?$/)
             ].forEach(function (rgx) {
@@ -19324,11 +19756,9 @@ local.assetsDict['/favicon.ico'] = '';
             });
             dictFncBase = dictFncAll[0];
             dictFncAll = dictFncAll[1];
-            // save lib.xxx.js
-            local.fs.writeFileSync(
-                'lib.' + local.env.npm_package_nameLib + '.js',
-                options.dataTo
-            );
+            // save lib.my_app.js
+            result = options.dataTo;
+            local.fs.writeFileSync('lib.' + local.env.npm_package_nameLib + '.js', result);
             // normalize file
             [
                 'README.md',
@@ -19357,7 +19787,7 @@ local.assetsDict['/favicon.ico'] = '';
                         '[\\S\\s]*?\\n {8}\/\/ init lib main\\n')
                 );
                 dataLib = dataLib.replace((
-                    /^ {8}local\.(\w+) = (function \([\S\s]*?\n {8}\});\n+/gm
+                    /^ {8}local\.(.*?) = (function \([\S\s]*?\n {8}\});\n+/gm
                 ), function (match0, key, match2, match3) {
                     // local-function - duplicate
                     if (dictFnc[key]) {
@@ -19450,12 +19880,14 @@ local.assetsDict['/favicon.ico'] = '';
                 }
             });
             onError();
+            return result;
         };
 
         local.buildReadme = function (options, onError) {
         /*
          * this function will build the readme in my-app-lite style
          */
+            var result;
             if (local.env.npm_package_buildCustomOrg && !options.modeForce) {
                 onError();
                 return;
@@ -19490,9 +19922,12 @@ local.assetsDict['/favicon.ico'] = '';
                 });
                 local.objectSetDefault(
                     options.packageJson,
-                    JSON.parse(local.templateRenderMyApp(options.packageJsonRgx.exec(
-                        local.assetsDict['/assets.readme.template.md']
-                    )[1], options)),
+                    JSON.parse(local.templateRenderMyApp(
+                        options.packageJsonRgx.exec(
+                            local.assetsDict['/assets.readme.template.md']
+                        )[1],
+                        options
+                    )),
                     2
                 );
                 // avoid npm-installing self
@@ -19682,7 +20117,8 @@ local.assetsDict['/favicon.ico'] = '';
                 .replace((/\n{5,}/g), '\n\n\n\n')
                 .replace((/(\S)\n{3}(\S)/g), '$1\n\n$2');
             // save README.md
-            local.fs.writeFileSync('README.md', options.dataTo);
+            result = options.dataTo;
+            local.fs.writeFileSync('README.md', result);
             // customize assets.swgg.swagger.json
             if (local.fs.existsSync('assets.swgg.swagger.json')) {
                 // normalize assets.swgg.swagger.json
@@ -19708,18 +20144,20 @@ local.assetsDict['/favicon.ico'] = '';
                 ) + '\n');
             }
             onError();
+            return result;
         };
 
         local.buildTest = function (options, onError) {
         /*
          * this function will build the test
          */
+            var result;
             local.objectSetDefault(options, {
                 customize: local.nop,
                 dataFrom: local.fsReadFileOrEmptyStringSync('test.js', 'utf8'),
                 dataTo: local.templateRenderMyApp(
                     local.assetsDict['/assets.test.template.js'],
-                    {}
+                    options
                 )
             });
             // search-and-replace - customize dataTo
@@ -19747,8 +20185,10 @@ local.assetsDict['/favicon.ico'] = '';
             });
             options.customize(options);
             // save test.js
-            local.fs.writeFileSync('test.js', options.dataTo);
+            result = options.dataTo;
+            local.fs.writeFileSync('test.js', result);
             onError();
+            return result;
         };
 
         local.childProcessSpawnWithTimeout = function () {
@@ -19804,19 +20244,12 @@ local.assetsDict['/favicon.ico'] = '';
         /*
          * this function will run the cli
          */
-            var nop;
-            nop = function () {
-            /*
-             * this function will do nothing
-             */
-                return;
-            };
             local.cliDict._eval = local.cliDict._eval || function () {
             /*
              * <code>
              * will eval <code>
              */
-                local.global.local = local;
+                global.local = local;
                 require('vm').runInThisContext(process.argv[3]);
             };
             local.cliDict['--eval'] = local.cliDict['--eval'] || local.cliDict._eval;
@@ -19826,7 +20259,7 @@ local.assetsDict['/favicon.ico'] = '';
              *
              * will print help
              */
-                var commandList, file, packageJson, text, textDict;
+                var commandList, file, packageJson, rgxComment, text, textDict;
                 commandList = [{
                     argList: '<arg2>  ...',
                     description: 'usage:',
@@ -19838,6 +20271,13 @@ local.assetsDict['/favicon.ico'] = '';
                 }];
                 file = __filename.replace((/.*\//), '');
                 packageJson = require('./package.json');
+                // validate comment
+                rgxComment = new RegExp('\\) \\{\\n' +
+                    '(?: {8}| {12})\\/\\*\\n' +
+                    '(?: {9}| {13})\\*( (?:<\\S*?>))*\\n' +
+                    '(?: {9}| {13})\\* (will .*?\\S)\\n' +
+                    '(?: {9}| {13})\\*\\/\\n' +
+                    '(?: {12}| {16})\\w');
                 textDict = {};
                 Object.keys(local.cliDict).sort().forEach(function (key, ii) {
                     if (key[0] === '_' && key !== '_default') {
@@ -19851,16 +20291,21 @@ local.assetsDict['/favicon.ico'] = '';
                     if (commandList[ii]) {
                         commandList[ii].command.push(key);
                     } else {
-                        commandList[ii] = (/\n +?\*(.*?)\n +?\*(.*?)\n/).exec(text);
-                        // coverage-hack - ignore else-statement
-                        nop(local.global.__coverage__ && (function () {
-                            commandList[ii] = commandList[ii] || ['', '', ''];
-                        }()));
-                        commandList[ii] = {
-                            argList: commandList[ii][1].trim(),
-                            command: [key],
-                            description: commandList[ii][2].trim()
-                        };
+                        try {
+                            commandList[ii] = rgxComment.exec(text);
+                            commandList[ii] = {
+                                argList: (commandList[ii][1] || ''),
+                                command: [key],
+                                description: commandList[ii][2]
+                            };
+                        } catch (errorCaught) {
+                            throw new Error('cliRun - cannot parse comment in COMMAND ' +
+                                key + ':\nnew RegExp(' + JSON.stringify(rgxComment.source) +
+                                ').exec(' + JSON.stringify(text)
+                                .replace((/\\\\/g), '\x00')
+                                .replace((/\\n/g), '\\n\\\n')
+                                .replace((/\x00/g), '\\\\') + ');');
+                        }
                     }
                 });
                 (options && options.modeError
@@ -19891,7 +20336,7 @@ local.assetsDict['/favicon.ico'] = '';
                             }
                             return element.description + '\n  ' + file +
                                 ('  ' + element.command.sort().join('|') + '  ')
-                                .replace((/^ {4}$/), '  ') +
+                                .replace((/^ {4}$/), '') +
                                 element.argList.join('  ');
                         })
                         .join('\n\n')
@@ -19906,7 +20351,7 @@ local.assetsDict['/favicon.ico'] = '';
              *
              * will start interactive-mode
              */
-                local.global.local = local;
+                global.local = local;
                 local.replStart();
             };
             if (typeof local.replStart === 'function') {
@@ -20163,6 +20608,9 @@ local.assetsDict['/favicon.ico'] = '';
         /*
          * this function will prepend the message to error.message and error.stack
          */
+            if (error === local.errorDefault) {
+                return;
+            }
             error.message = message + error.message;
             error.stack = message + error.stack;
             return error;
@@ -20192,14 +20640,18 @@ local.assetsDict['/favicon.ico'] = '';
 
         local.fsReadFileOrEmptyStringSync = function (file, options) {
         /*
-         * this function will try to read the file or return an empty string
+         * this function will try to read the file or return empty-string
+         * if options === 'json', then try to JSON.parse the file or return null
          */
-            var data;
             try {
-                data = local.fs.readFileSync(file, options);
-            } catch (ignore) {
+                return options === 'json'
+                    ? JSON.parse(local.fs.readFileSync(file, 'utf8'))
+                    : local.fs.readFileSync(file, options);
+            } catch (errorCaught) {
+                return options === 'json'
+                    ? null
+                    : '';
             }
-            return data || '';
         };
 
         local.fsRmrSync = function (dir) {
@@ -20710,6 +21162,7 @@ local.assetsDict['/favicon.ico'] = '';
                     return;
                 }
                 isDone = true;
+                // cleanup timerTimeout
                 clearTimeout(timerTimeout);
                 // debug middlewareForwardProxy
                 console.error('serverLog - ' + JSON.stringify({
@@ -20725,7 +21178,7 @@ local.assetsDict['/favicon.ico'] = '';
                 if (!error) {
                     return;
                 }
-                // cleanup client
+                // cleanup clientRequest and clientResponse
                 local.streamCleanup(options.clientRequest);
                 local.streamCleanup(options.clientResponse);
                 nextMiddleware(error);
@@ -20767,10 +21220,11 @@ local.assetsDict['/favicon.ico'] = '';
         /*
          * this function will run the middleware that will init the request and response
          */
-            // debug server-request
-            local._debugServerRequest = request;
-            // debug server-response
-            local._debugServerResponse = response;
+            // debug request and response
+            local._debugServerRequestResponse4 = local._debugServerRequestResponse3;
+            local._debugServerRequestResponse3 = local._debugServerRequestResponse2;
+            local._debugServerRequestResponse2 = local._debugServerRequestResponse1;
+            local._debugServerRequestResponse1 = { request: request, response: response };
             // init timerTimeout
             local.serverRespondTimeoutDefault(request, response, local.timeoutDefault);
             // init request.urlParsed
@@ -20788,20 +21242,6 @@ local.assetsDict['/favicon.ico'] = '';
                     'Content-Type': 'text/html; charset=utf-8'
                 });
             }
-            // init response.end and response.write to accept Uint8Array instance
-            ['end', 'write'].forEach(function (key) {
-                if (local.isBrowser) {
-                    return;
-                }
-                response[key + '_original'] = response[key + '_original'] ||
-                    response[key].bind(response);
-                response[key] = function (bff, encoding, callback) {
-                    if (bff instanceof Uint8Array && !Buffer.isBuffer(bff)) {
-                        Object.setPrototypeOf(bff, Buffer.prototype);
-                    }
-                    return response[key + '_original'](bff, encoding, callback);
-                };
-            });
             // default to nextMiddleware
             nextMiddleware();
         };
@@ -21029,7 +21469,7 @@ local.assetsDict['/favicon.ico'] = '';
                 }
                 // else set dict[key] with overrides[key]
                 dict[key] = dict === env
-                    // if dict is env, then overrides falsey value with empty string
+                    // if dict is env, then overrides falsy-value with empty-string
                     ? overrides2 || ''
                     : overrides2;
             });
@@ -21056,7 +21496,7 @@ local.assetsDict['/favicon.ico'] = '';
         /*
          * this function will if error exists, then print it to stderr
          */
-            if (error && !local.global.__coverage__) {
+            if (error) {
                 console.error(error);
             }
             return error;
@@ -21254,6 +21694,31 @@ local.assetsDict['/favicon.ico'] = '';
                     : message)));
             // coerce to finite integer
             }, timeout);
+        };
+
+        local.profile = function (fnc, onError) {
+        /*
+         * this function will profile the async fnc in milliseconds with the callback onError
+         */
+            var timeStart;
+            timeStart = Date.now();
+            // run async fnc
+            fnc(function (error) {
+                // call onError with difference in milliseconds between Date.now() and timeStart
+                onError(error, Date.now() - timeStart);
+            });
+        };
+
+        local.profileSync = function (fnc) {
+        /*
+         * this function will profile the sync fnc in milliseconds
+         */
+            var timeStart;
+            timeStart = Date.now();
+            // run sync fnc
+            fnc();
+            // return difference in milliseconds between Date.now() and timeStart
+            return Date.now() - timeStart;
         };
 
         local.replStart = function () {
@@ -21523,10 +21988,7 @@ vendor)s{0,1}(\\b|_)\
             );
             global.utility2_moduleExports.global = global;
             // read script from README.md
-            script = local.templateRenderMyApp(
-                local.assetsDict['/assets.example.template.js'],
-                {}
-            );
+            script = local.templateRenderMyApp(local.assetsDict['/assets.example.template.js'], {});
             local.tryCatchOnError(function () {
                 tmp = !local.env.npm_package_buildCustomOrg &&
                     (/```\w*?(\n[\W\s]*?example\.js[\n\"][\S\s]*?)\n```/).exec(
@@ -21600,7 +22062,7 @@ vendor)s{0,1}(\\b|_)\
                 '/assets.utility2.rollup.js',
                 '/assets.utility2.rollup.begin.js',
                 'local.stateInit',
-                '/assets.lib.js',
+                '/assets.my_app.js',
                 '/assets.example.js',
                 '/assets.test.js',
                 '/assets.utility2.rollup.end.js'
@@ -21628,7 +22090,7 @@ instruction\n\
 ' + local.assetsDict['/assets.utility2.rollup.begin.js']
     .replace((/utility2_rollup/g), 'utility2_app');
 /* jslint-ignore-end */
-                case '/assets.lib.js':
+                case '/assets.my_app.js':
                     // handle large string-replace
                     tmp = '/assets.' + local.env.npm_package_nameLib + '.js';
                     script = local.assetsDict['/assets.utility2.rollup.content.js']
@@ -21650,9 +22112,10 @@ instruction\n\
                     // add extra physical files to assetsDict
                     local.fs.readdirSync('.').forEach(function (file) {
                         file = '/' + file;
-                        if (file.indexOf('/assets.') === 0 &&
-                                local.fsReadFileOrEmptyStringSync('.' + file, 'utf8') ===
-                                local.assetsDict[file]) {
+                        if (local.assetsDict[file] &&
+                                local.assetsDict[file].length <= 0x100000 &&
+                                String(local.assetsDict[file]) ===
+                                    local.fsReadFileOrEmptyStringSync('.' + file, 'utf8')) {
                             tmp.utility2.assetsDict[file] = local.assetsDict[file];
                         }
                     });
@@ -22020,6 +22483,16 @@ instruction\n\
                 .replace((/\x00/g), '\\\\');
         };
 
+        local.stringStringifyWithNewline = function (text) {
+        /*
+         * this function will JSON.stringify text, with newlines backslashed and preserved
+         */
+            return JSON.stringify(text)
+                .replace((/\\\\/g), '\x00')
+                .replace((/\\n/g), '\\n\\\n')
+                .replace((/\x00/g), '\\\\');
+        };
+
         local.stringTruncate = function (text, maxLength) {
         /*
          * this function will truncate text to the given maxLength
@@ -22298,8 +22771,7 @@ instruction\n\
         /*
          * this function will render the my-app-lite template with the given options.packageJson
          */
-            options.packageJson = options.packageJson ||
-                JSON.parse(local.fs.readFileSync('package.json', 'utf8'));
+            options.packageJson = JSON.parse(local.fs.readFileSync('package.json', 'utf8'));
             local.objectSetDefault(options.packageJson, {
                 nameLib: options.packageJson.name.replace((/\W/g), '_'),
                 repository: { url: 'https://github.com/kaizhu256/node-' +
@@ -22317,12 +22789,14 @@ instruction\n\
                 options.packageJson.nameHeroku ||
                     ('h1-' + options.packageJson.nameLib.replace((/_/g), '-'))
             );
-            template = template.replace(
-                'assets.{{env.npm_package_nameLib}}',
-                'assets.' + options.packageJson.nameLib
-            );
             template = template.replace((/my-app-lite/g), options.packageJson.name);
             template = template.replace((/my_app/g), options.packageJson.nameLib);
+            template = template.replace((
+                /\{\{\packageJson\.(\S+)\}\}/g
+            ), function (match0, match1) {
+                match0 = match1;
+                return options.packageJson[match0];
+            });
             return template;
         };
 
@@ -22556,17 +23030,17 @@ instruction\n\
                     ? 'pending'
                     : 'passed';
                 // sort testCaseList by status and name
-                testPlatform.testCaseList.sort(function (arg0, arg1) {
-                    return arg0.status.replace('passed', 'z') + arg0.name >
-                        arg1.status.replace('passed', 'z') + arg1.name
+                testPlatform.testCaseList.sort(function (aa, bb) {
+                    return aa.status.replace('passed', 'z') + aa.name >
+                        bb.status.replace('passed', 'z') + bb.name
                         ? 1
                         : -1;
                 });
             });
             // sort testPlatformList by status and name
-            testReport.testPlatformList.sort(function (arg0, arg1) {
-                return arg0.status.replace('passed', 'z') + arg0.name >
-                    arg1.status.replace('passed', 'z') + arg1.name
+            testReport.testPlatformList.sort(function (aa, bb) {
+                return aa.status.replace('passed', 'z') + aa.name >
+                    bb.status.replace('passed', 'z') + bb.name
                     ? 1
                     : -1;
             });
@@ -22697,7 +23171,8 @@ instruction\n\
             /*
              * this function will ignore serverLog-messages during test-run
              */
-                if (!(typeof arg0 === 'string' && arg0.indexOf('serverLog - {') === 0)) {
+                if (!(local.env.npm_config_mode_coverage ||
+                        (typeof arg0 === 'string' && arg0.indexOf('serverLog - {') === 0))) {
                     local._testRunConsoleError.apply(console, arguments);
                 }
             };
@@ -22766,8 +23241,10 @@ instruction\n\
                     }
                     // if error occurred, then fail testCase
                     if (error) {
+                        // restore console.log
+                        console.error = local._testRunConsoleError;
                         testCase.status = 'failed';
-                        console.error('\ntestCase ' + testCase.name + ' failed\n' +
+                        local._testRunConsoleError('\ntestCase failed - ' + testCase.name + '\n' +
                             error.message + '\n' + error.stack);
                         testCase.errorStack = testCase.errorStack ||
                             error.message + '\n' + error.stack;
@@ -22787,7 +23264,7 @@ instruction\n\
                     }
                     // stop testCase timer
                     local.timeElapsedPoll(testCase);
-                    console.error('[' + (local.isBrowser
+                    local._testRunConsoleError('[' + (local.isBrowser
                         ? 'browser'
                         : 'node') + ' test-case ' +
                         testPlatform.testCaseList.filter(function (testCase) {
@@ -22832,7 +23309,7 @@ instruction\n\
                     );
                 }
                 setTimeout(function () {
-                    // restore serverLog
+                    // restore console.log
                     console.error = local._testRunConsoleError;
                     // restore process.exit
                     if (processExit) {
@@ -23361,314 +23838,6 @@ instruction\n\
             }
         }
         // init cli
-        local.cliDict = {};
-        local.cliDict['utility2.ajaxCrawl'] = function () {
-        /*
-         * <urlList>
-         * will web-crawl in parallel, comma-separated <urlList>
-         */
-            local.ajaxCrawl({
-                urlList: process.argv[3].split(/[,\s]/g).filter(local.echo)
-            }, local.onErrorThrow);
-        };
-        local.cliDict['utility2.ajaxFetch'] = function () {
-        /*
-         * <urlList>
-         * will fetch in parallel, comma-separated <urlList>
-         */
-            local.ajaxCrawl({
-                urlList: process.argv[3].split(/[,\s]/g).filter(local.echo)
-            }, local.onErrorThrow);
-        };
-        local.cliDict['utility2.browserTest'] = function () {
-        /*
-         * <urlList> <mode>
-         * will browser-test in parallel, comma-separated <urlList> with the given <mode>
-         */
-            process.argv[3].split(process.argv[3].indexOf('?') >= 0
-                ? (/\s/g)
-                : (/[,\s]/g)).filter(local.echo).forEach(function (url) {
-                local.browserTest({ url: url }, local.onErrorDefault);
-            });
-        };
-        local.cliDict['utility2.customOrgRepoCreate'] = function () {
-        /*
-         * <repoList>
-         * will create in parallel, comma-separated <repoList> of travis-ci-enabled github-repos
-         */
-            process.env.TRAVIS_DOMAIN = process.env.TRAVIS_DOMAIN || 'travis-ci.org';
-            process.chdir('/tmp');
-            local.child_process.spawnSync([
-                'if [ ! -d /tmp/githubRepo/kaizhu256/base ]; then (',
-                'git clone https://github.com/kaizhu256/base /tmp/githubRepo/kaizhu256/base',
-                'cd /tmp/githubRepo/kaizhu256/base',
-                'git checkout -b alpha origin/alpha',
-                'git checkout -b beta origin/beta',
-                'git checkout -b gh-pages origin/gh-pages',
-                'git checkout -b master origin/master',
-                'git checkout -b publish origin/publish',
-                'git checkout alpha',
-                ') fi'
-            ].join('\n'), { shell: true, stdio: ['ignore', 1, 2] });
-            local.onParallelList({
-                list: process.argv[3].split(/[,\s]/g).filter(local.echo)
-            }, function (options2, onParallel) {
-                var options;
-                onParallel.counter += 1;
-                options = {};
-                local.onNext(options, function (error, data) {
-                    switch (options.modeNext) {
-                    case 1:
-                        options2.onParallel2 = local.onParallel(options.onNext);
-                        options2.shBuildPrintPrefix =
-                            '\n\u001b[35m[MODE_BUILD=shCustomOrgRepoCreate]\u001b[0m - ';
-                        console.error(options2.shBuildPrintPrefix + new Date().toISOString() +
-                            options2.element + ' - creating ...');
-                        local.childProcessSpawnWithUtility2(
-                            'shGithubRepoBaseCreate ' + options2.element,
-                            options.onNext
-                        );
-                        break;
-                    case 2:
-                        local.ajax({
-                            headers: {
-                                Authorization: 'token ' + process.env.TRAVIS_ACCESS_TOKEN
-                            },
-                            url: 'https://api.' + process.env.TRAVIS_DOMAIN + '/repos/' +
-                                options2.element
-                        }, options.onNext);
-                        break;
-                    case 3:
-                        options2.id = JSON.parse(data.responseText).id;
-                        setTimeout(options.onNext, 5000);
-                        break;
-                    case 4:
-                        local.ajax({
-                            data: '{"hook":{"active":true}}',
-                            headers: {
-                                Authorization: 'token ' + process.env.TRAVIS_ACCESS_TOKEN,
-                                'Content-Type': 'application/json; charset=utf-8'
-                            },
-                            method: 'PUT',
-                            url: 'https://api.' + process.env.TRAVIS_DOMAIN + '/hooks/' +
-                                options2.id
-                        }, options.onNext);
-                        break;
-                    case 5:
-                        setTimeout(options.onNext, 5000);
-                        break;
-                    case 6:
-                        options2.onParallel2.counter += 1;
-                        options2.onParallel2.counter += 1;
-                        local.ajax({
-                            data: '{"setting.value":true}',
-                            headers: {
-                                Authorization: 'token ' + process.env.TRAVIS_ACCESS_TOKEN,
-                                'Content-Type': 'application/json; charset=utf-8',
-                                'Travis-API-Version': 3
-                            },
-                            method: 'PATCH',
-                            url: 'https://api.' + process.env.TRAVIS_DOMAIN + '/repo/' +
-                                options2.id + '/setting/builds_only_with_travis_yml'
-                        }, options2.onParallel2);
-                        options2.onParallel2.counter += 1;
-                        local.ajax({
-                            data: '{"setting.value":true}',
-                            headers: {
-                                Authorization: 'token ' + process.env.TRAVIS_ACCESS_TOKEN,
-                                'Content-Type': 'application/json; charset=utf-8',
-                                'Travis-API-Version': 3
-                            },
-                            method: 'PATCH',
-                            url: 'https://api.' + process.env.TRAVIS_DOMAIN + '/repo/' +
-                                options2.id + '/setting/auto_cancel_pushes'
-                        }, options2.onParallel2);
-                        options2.onParallel2();
-                        break;
-                    case 7:
-                        options2.onParallel2.counter += 1;
-                        options2.onParallel2.counter += 1;
-                        local.ajax({
-                            url: 'https://raw.githubusercontent.com' +
-                                '/kaizhu256/node-utility2/alpha/.gitignore'
-                        }, function (error, xhr) {
-                            local.assert(!error, error);
-                            local.fs.writeFile(
-                                '/tmp/githubRepo/' + options2.element + '/.gitignore',
-                                xhr.responseText,
-                                options2.onParallel2
-                            );
-                        });
-                        options2.onParallel2.counter += 1;
-                        local.ajax({
-                            url: 'https://raw.githubusercontent.com' +
-                                '/kaizhu256/node-utility2/alpha/.travis.yml'
-                        }, function (error, xhr) {
-                            local.assert(!error, error);
-                            local.fs.writeFile(
-                                '/tmp/githubRepo/' + options2.element + '/.travis.yml',
-                                xhr.responseText,
-                                options2.onParallel2
-                            );
-                        });
-                        options2.onParallel2.counter += 1;
-                        local.fs.open('README.md', 'w', function (error, fd) {
-                            local.assert(!error, error);
-                            local.fs.close(fd, options2.onParallel2);
-                        });
-                        options2.onParallel2.counter += 1;
-                        local.fs.writeFile(
-                            '/tmp/githubRepo/' + options2.element + '/package.json',
-                            JSON.stringify({
-                                devDependencies: {
-                                    'electron-lite': 'kaizhu256/node-electron-lite#alpha',
-                                    utility2: 'kaizhu256/node-utility2#alpha'
-                                },
-                                name: options2.element.replace((/.+?\/node-|.+?\//), ''),
-                                homepage: 'https://github.com/' + options2.element,
-                                repository: {
-                                    type: 'git',
-                                    url: 'https://github.com/' + options2.element + '.git'
-                                },
-                                scripts: {
-                                    'build-ci': 'utility2 shBuildCi'
-                                },
-                                version: '0.0.1'
-                            }, null, 4),
-                            options2.onParallel2
-                        );
-                        options2.onParallel2();
-                        break;
-                    case 8:
-                        local.childProcessSpawnWithUtility2([
-                            'cd /tmp/githubRepo/' + options2.element,
-                            'unset GITHUB_ORG',
-                            'unset GITHUB_REPO',
-                            'shBuildInit',
-                            'shCryptoTravisEncrypt > /dev/null',
-                            'git add -f . .gitignore .travis.yml',
-                            'git commit -am "[npm publishAfterCommitAfterBuild]"',
-                            'shGitCommandWithGithubToken push https://github.com/' +
-                                options2.element + ' -f' + ' alpha'
-                        ].join(' &&\n'), options.onNext);
-                        break;
-                    default:
-                        console.error(options2.shBuildPrintPrefix + new Date().toISOString() +
-                            options2.element + (error
-                                ? ' - ... failed to create - modeNext = ' + options.modeNext
-                                : ' - ... created'));
-                        onParallel(local.onErrorDefault(options.modeNext !== 1002 && error));
-                    }
-                });
-                options.modeNext = 0;
-                options.onNext();
-            }, local.onErrorThrow);
-        };
-        local.cliDict['utility2.githubCrudContentDelete'] = function () {
-        /*
-         * <fileRemote|dirRemote> <commitMessage>
-         * will delete from github <fileRemote|dirRemote>
-         */
-            local.github_crud.githubCrudContentDelete({
-                message: process.argv[4],
-                url: process.argv[3]
-            }, function (error) {
-                process.exit(!!error);
-            });
-        };
-        local.cliDict['utility2.githubCrudContentGet'] = function () {
-        /*
-         * <fileRemote>
-         * will get from github <fileRemote>
-         */
-            local.github_crud.githubCrudContentGet({
-                url: process.argv[3]
-            }, function (error, data) {
-                try {
-                    process.stdout.write(data);
-                } catch (ignore) {
-                }
-                process.exit(!!error);
-            });
-        };
-        local.cliDict['utility2.githubCrudContentPut'] = function () {
-        /*
-         * <fileRemote> <fileLocal> <commitMessage>
-         * will put on github <fileLocal> -> <fileRemote>
-         */
-            local.github_crud.githubCrudContentPutFile({
-                message: process.argv[5],
-                url: process.argv[3],
-                file: process.argv[4]
-            }, function (error) {
-                process.exit(!!error);
-            });
-        };
-        local.cliDict['utility2.githubCrudContentTouch'] = function () {
-        /*
-         * <fileRemoteList> <commitMessage>
-         * will touch on github in parallel, comma-separated <fileRemoteList>
-         */
-            local.github_crud.githubCrudContentTouchList({
-                message: process.argv[4],
-                urlList: process.argv[3].split(/[,\s]/g).filter(local.echo)
-            }, function (error) {
-                process.exit(!!error);
-            });
-        };
-        local.cliDict['utility2.githubCrudRepoCreate'] = function () {
-        /*
-         * <repoList>
-         * will create on github in parallel, comma-separated <repoList>
-         */
-            local.github_crud.githubCrudRepoCreateList({
-                urlList: process.argv[3].split(/[,\s]/g).filter(local.echo)
-            }, function (error) {
-                process.exit(!!error);
-            });
-        };
-        local.cliDict['utility2.githubCrudRepoDelete'] = function () {
-        /*
-         * <repoList>
-         * will delete from github in parallel, comma-separated <repoList>
-         */
-            local.github_crud.githubCrudRepoDeleteList({
-                urlList: process.argv[3].split(/[,\s]/g).filter(local.echo)
-            }, function (error) {
-                process.exit(!!error);
-            });
-        };
-        local.cliDict['utility2.start'] = function () {
-        /*
-         * <port>
-         * will start utility2 server on the given port (default 8081)
-         */
-            local.env.PORT = process.argv[3] || local.env.PORT;
-            local.global.local = local;
-            local.replStart();
-            local.testRunServer({});
-        };
-        local.cliDict['utility2.swaggerValidateFile'] = function () {
-        /*
-         * <file/url>
-         * will swagger-validate file/url
-         */
-            setTimeout(function () {
-                local.swgg.swaggerValidateFile({ file: process.argv[3] }, function (error, data) {
-                    console.error(data);
-                    process.exit(error);
-                });
-            });
-        };
-        local.cliDict['utility2.testReportCreate'] = function () {
-        /*
-         *
-         * will create test-report
-         */
-            local.exit(local.testReportCreate(local.tryCatchOnError(function () {
-                return require(local.env.npm_config_dir_build + '/test-report.json');
-            }, local.onErrorDefault)).testsFailed);
-        };
         if (module === require.main && (!local.global.utility2_rollup || (process.argv[2] &&
                 local.cliDict[process.argv[2]] &&
                 process.argv[2].indexOf('utility2.') === 0))) {
@@ -23827,10 +23996,7 @@ instruction\n\
                 script = local.assetsDict['/assets.utility2.rollup.content.js']
                     .split('/* utility2.rollup.js content */');
                 script.splice(1, 0, 'local.assetsDict["' + key + '"] = ' +
-                    JSON.stringify(local.assetsDict[key])
-                    .replace((/\\\\/g), '\x00')
-                    .replace((/\\n/g), '\\n\\\n')
-                    .replace((/\x00/g), '\\\\'));
+                    local.stringStringifyWithNewline(local.assetsDict[key]));
                 script = script.join('');
                 script += '\n';
                 break;
@@ -23859,6 +24025,32 @@ instruction\n\
 
 
 /* script-begin /assets.swgg.js */
+// usr/bin/env node
+/*
+ * validate
+ * 5.4.4.4. If "additionalProperties" has boolean value false
+ *
+ * In this case, validation of the instance depends on the property set of
+ * "properties" and "patternProperties". In this section, the property names of
+ * "patternProperties" will be called regexes for convenience.
+ *
+ * The first step is to collect the following sets:
+ *
+ * s
+ * The property set of the instance to validate.
+ * p
+ * The property set from "properties".
+ * pp
+ * The property set from "patternProperties".
+ * Having collected these three sets, the process is as follows:
+ *
+ * remove from "s" all elements of "p", if any;
+ * for each regex in "pp", remove all elements of "s" which this regex matches.
+ * Validation of the instance succeeds if, after these two steps, set "s" is empty.
+ */
+
+
+
 /* istanbul instrument in package swgg */
 /* jslint-utility2 */
 /*jslint
@@ -29260,7 +29452,7 @@ instruction\n\
         local.testRunServer(local);\n\
         // init assets\n\
         /* jslint-ignore-next-line */\n\
-        local.assetsDict['/assets.hello'] = 'hello\\ud83d\\udc4b\\u0020\\n';\n\
+        local.assetsDict['/assets.hello.txt'] = 'hello\\ud83d\\ude01\\u0020\\n';\n\
         local.assetsDict['/assets.index.template.html'] = '';\n\
     }());\n\
 \n\
@@ -29277,15 +29469,15 @@ instruction\n\
                 return;\n\
             }\n\
             options = {};\n\
-            // test ajax-path 'assets.hello'\n\
-            local.ajax({ url: 'assets.hello' }, function (error, xhr) {\n\
+            // test ajax-path 'assets.hello.txt'\n\
+            local.ajax({ url: 'assets.hello.txt' }, function (error, xhr) {\n\
                 local.tryCatchOnError(function () {\n\
                     // validate no error occurred\n\
                     local.assert(!error, error);\n\
                     // validate data\n\
                     options.data = xhr.responseText;\n\
                     /* jslint-ignore-next-line */\n\
-                    local.assert(options.data === 'hello\\ud83d\\udc4b\\u0020\\n', options.data);\n\
+                    local.assert(options.data === 'hello\\ud83d\\ude01\\u0020\\n', options.data);\n\
                     onError();\n\
                 }, onError);\n\
             });\n\
@@ -30343,12 +30535,12 @@ local.assetsDict["/assets.utility2.test.js"] = "/* istanbul instrument in packag
          * this function will test FormData's default handling-behavior\n\
          */\n\
             options = {};\n\
-            options.blob1 = new local.Blob(['aa', 'bb', '\\u1234 ', 0]);\n\
-            options.blob2 = new local.Blob(['aa', 'bb', '\\u1234 ', 0], {\n\
+            options.blob1 = new local.Blob(['aa', 'bb', '\\ud83d\\ude01 ', 0]);\n\
+            options.blob2 = new local.Blob(['aa', 'bb', '\\ud83d\\ude01 ', 0], {\n\
                 type: 'text/plain; charset=utf-8'\n\
             });\n\
             options.data = new local.FormData();\n\
-            options.data.append('text1', 'aabb\\u1234 0');\n\
+            options.data.append('text1', 'aabb\\ud83d\\ude01 0');\n\
             // test file-upload handling-behavior\n\
             options.data.append('file1', options.blob1);\n\
             // test file-upload and filename handling-behavior\n\
@@ -30361,16 +30553,16 @@ local.assetsDict["/assets.utility2.test.js"] = "/* istanbul instrument in packag
                 // validate responseText\n\
                 local.assert(xhr.responseText.indexOf(\n\
                     '\\r\\nContent-Disposition: form-data; ' +\n\
-                        'name=\"text1\"\\r\\n\\r\\naabb\\u1234 0\\r\\n'\n\
+                        'name=\"text1\"\\r\\n\\r\\naabb\\ud83d\\ude01 0\\r\\n'\n\
                 ) >= 0, xhr.responseText);\n\
                 local.assert(xhr.responseText.indexOf(\n\
                     '\\r\\nContent-Disposition: form-data; ' +\n\
-                        'name=\"file1\"\\r\\n\\r\\naabb\\u1234 0\\r\\n'\n\
+                        'name=\"file1\"\\r\\n\\r\\naabb\\ud83d\\ude01 0\\r\\n'\n\
                 ) >= 0, xhr.responseText);\n\
                 local.assert(xhr.responseText.indexOf(\n\
                     '\\r\\nContent-Disposition: form-data; name=\"file2\"; ' +\n\
                         'filename=\"filename2.txt\"\\r\\nContent-Type: text/plain; ' +\n\
-                        'charset=utf-8\\r\\n\\r\\naabb\\u1234 0\\r\\n'\n\
+                        'charset=utf-8\\r\\n\\r\\naabb\\ud83d\\ude01 0\\r\\n'\n\
                 ) >= 0, xhr.responseText);\n\
                 onError(null, options);\n\
             });\n\
@@ -30473,18 +30665,18 @@ local.assetsDict["/assets.utility2.test.js"] = "/* istanbul instrument in packag
                 switch (options.modeNext) {\n\
                 case 1:\n\
                     // test http GET handling-behavior\n\
-                    local.ajax({ url: 'assets.hello' }, options.onNext);\n\
+                    local.ajax({ url: 'assets.hello.txt' }, options.onNext);\n\
                     break;\n\
                 case 2:\n\
                     // validate responseText\n\
                     /* jslint-ignore-next-line */\n\
-                    local.assertJsonEqual(data.responseText, 'hello\\ud83d\\udc4b\\u0020\\n');\n\
+                    local.assertJsonEqual(data.responseText, 'hello\\ud83d\\ude01\\u0020\\n');\n\
                     // test http GET 304 cache handling-behavior\n\
                     local.ajax({\n\
                         headers: {\n\
                             'If-Modified-Since': new Date(Date.now() + 0xffff).toUTCString()\n\
                         },\n\
-                        url: 'assets.hello'\n\
+                        url: 'assets.hello.txt'\n\
                     }, options.onNext);\n\
                     break;\n\
                 case 3:\n\
@@ -30503,6 +30695,8 @@ local.assetsDict["/assets.utility2.test.js"] = "/* istanbul instrument in packag
         local.testCase_ajax_echo = function (options, onError) {\n\
             // test /test.echo handling-behavior\n\
             local.ajax({\n\
+                _aa: 'aa',\n\
+                aa: 'aa',\n\
                 data: 'aa',\n\
                 // test request-header handling-behavior\n\
                 headers: { 'X-Request-Header-Test': 'aa' },\n\
@@ -30523,6 +30717,9 @@ local.assetsDict["/assets.utility2.test.js"] = "/* istanbul instrument in packag
                 );\n\
                 // validate responseHeaders\n\
                 local.assertJsonEqual(xhr.responseHeaders['x-response-header-test'], 'bb');\n\
+                // validate properties\n\
+                local.assertJsonEqual(xhr._aa, undefined);\n\
+                local.assertJsonEqual(xhr.aa, 'aa');\n\
                 onError(null, options);\n\
             });\n\
         };\n\
@@ -30627,7 +30824,7 @@ local.assetsDict["/assets.utility2.test.js"] = "/* istanbul instrument in packag
                 local.ajax({\n\
                     // test nodejs response handling-behavior\n\
                     responseType: responseType,\n\
-                    url: 'assets.hello'\n\
+                    url: 'assets.hello.txt'\n\
                 }, function (error, xhr) {\n\
                     // validate no error occurred\n\
                     local.assert(!error, error);\n\
@@ -30644,14 +30841,14 @@ local.assetsDict["/assets.utility2.test.js"] = "/* istanbul instrument in packag
                         local.assertJsonEqual(xhr.responseBuffer[4], 0x6f);\n\
                         local.assertJsonEqual(xhr.responseBuffer[5], 0xf0);\n\
                         local.assertJsonEqual(xhr.responseBuffer[6], 0x9f);\n\
-                        local.assertJsonEqual(xhr.responseBuffer[7], 0x91);\n\
-                        local.assertJsonEqual(xhr.responseBuffer[8], 0x8b);\n\
+                        local.assertJsonEqual(xhr.responseBuffer[7], 0x98);\n\
+                        local.assertJsonEqual(xhr.responseBuffer[8], 0x81);\n\
                         local.assertJsonEqual(xhr.responseBuffer[9], 0x20);\n\
                         local.assertJsonEqual(xhr.responseBuffer[10], 0x0a);\n\
                         break;\n\
                     default:\n\
                         /* jslint-ignore-next-line */\n\
-                        local.assertJsonEqual(xhr.responseText, 'hello\\ud83d\\udc4b\\u0020\\n');\n\
+                        local.assertJsonEqual(xhr.responseText, 'hello\\ud83d\\ude01\\u0020\\n');\n\
                         break;\n\
                     }\n\
                     onParallel(null, options);\n\
@@ -30772,7 +30969,7 @@ local.assetsDict["/assets.utility2.test.js"] = "/* istanbul instrument in packag
          * this function will test base64Xxx's default handling-behavior\n\
          */\n\
             options = {};\n\
-            options.base64 = local.base64FromBuffer(local.stringCharsetAscii + '\\u1234');\n\
+            options.base64 = local.base64FromBuffer(local.stringCharsetAscii + '\\ud83d\\ude01');\n\
             // test null-case handling-behavior\n\
             local.assertJsonEqual(local.base64FromBuffer(), '');\n\
             local.assertJsonEqual(local.bufferToString(local.base64ToBuffer()), '');\n\
@@ -30796,8 +30993,8 @@ local.assetsDict["/assets.utility2.test.js"] = "/* istanbul instrument in packag
          * this function will test blobRead's default handling-behavior\n\
          */\n\
             local.onParallelList({ list: [\n\
-                new local.Blob(['aa', 'bb', '\\u1234 ', 0]),\n\
-                new local.Blob(['aa', 'bb', '\\u1234 ', 0], {\n\
+                new local.Blob(['aa', 'bb', '\\ud83d\\ude01 ', 0]),\n\
+                new local.Blob(['aa', 'bb', '\\ud83d\\ude01 ', 0], {\n\
                     type: 'text/plain; charset=utf-8'\n\
                 })\n\
             ] }, function (options2, onParallel) {\n\
@@ -30811,19 +31008,19 @@ local.assetsDict["/assets.utility2.test.js"] = "/* istanbul instrument in packag
                         switch (encoding) {\n\
                         case 'dataURL':\n\
                             if (options2.ii === 0) {\n\
-                                local.assertJsonEqual(data, 'data:;base64,YWFiYuGItCAw');\n\
+                                local.assertJsonEqual(data, 'data:;base64,YWFiYvCfmIEgMA==');\n\
                                 break;\n\
                             }\n\
                             local.assertJsonEqual(\n\
                                 data,\n\
-                                'data:text/plain; charset=utf-8;base64,YWFiYuGItCAw'\n\
+                                'data:text/plain; charset=utf-8;base64,YWFiYvCfmIEgMA=='\n\
                             );\n\
                             break;\n\
                         case 'text':\n\
-                            local.assertJsonEqual(data, 'aabb\\u1234 0');\n\
+                            local.assertJsonEqual(data, 'aabb\\ud83d\\ude01 0');\n\
                             break;\n\
                         default:\n\
-                            local.assertJsonEqual(local.bufferToString(data), 'aabb\\u1234 0');\n\
+                            local.assertJsonEqual(local.bufferToString(data), 'aabb\\ud83d\\ude01 0');\n\
                         }\n\
                         onParallel(null, options);\n\
                     });\n\
@@ -30858,8 +31055,8 @@ local.assetsDict["/assets.utility2.test.js"] = "/* istanbul instrument in packag
         /*\n\
          * this function will test browserTest's electron handling-behavior\n\
          */\n\
-            options = function (arg0, arg1, arg3) {\n\
-                [arg0, arg1, arg3].forEach(function (fnc, ii) {\n\
+            options = function (aa, bb, cc) {\n\
+                [aa, bb, cc].forEach(function (fnc, ii) {\n\
                     if (typeof fnc === 'function') {\n\
                         fnc(ii && options);\n\
                         options.onNext(null, options);\n\
@@ -30981,7 +31178,7 @@ local.assetsDict["/assets.utility2.test.js"] = "/* istanbul instrument in packag
             for (options.ii = 0; options.ii < 0x10000; options.ii += 1) {\n\
                 options.text1 += String.fromCodePoint(options.ii);\n\
             }\n\
-            for (options.ii = 0x10000; options.ii < 0x110000; options.ii += 0x100) {\n\
+            for (options.ii = 0x100000; options.ii < 0x110000; options.ii += 0x100) {\n\
                 options.text1 += String.fromCodePoint(options.ii);\n\
             }\n\
             // test utf8 handling-behavior\n\
@@ -31052,8 +31249,8 @@ local.assetsDict["/assets.utility2.test.js"] = "/* istanbul instrument in packag
             local.testCase_buildLib_default(options, local.onErrorThrow);\n\
             local.testCase_buildTest_default(options, local.onErrorThrow);\n\
             local.buildApp({ assetsList: [{\n\
-                file: '/assets.hello',\n\
-                url: '/assets.hello'\n\
+                file: '/assets.hello.txt',\n\
+                url: '/assets.hello.txt'\n\
             }, {\n\
                 file: '/assets.script_only.html',\n\
                 url: '/assets.script_only.html'\n\
@@ -31323,32 +31520,35 @@ local.assetsDict["/assets.utility2.test.js"] = "/* istanbul instrument in packag
             }, onError);\n\
         };\n\
 \n\
-        local.testCase_cliRun_default = function (options, onError) {\n\
-        /*\n\
-         * this function will test cliRun's default handling-behavior\n\
-         */\n\
-            if (local.isBrowser) {\n\
-                onError(null, options);\n\
-                return;\n\
-            }\n\
-            local.testMock([\n\
-                [local, { replStart: null }],\n\
-                [local.cliDict, { _default: null }],\n\
-                [local.vm, { runInThisContext: local.nop }],\n\
-                [process, { argv: [] }]\n\
-            ], function (onError) {\n\
-                local.cliRun();\n\
-                process.argv[2] = 'undefined';\n\
-                local.cliRun();\n\
-                local.replStart = local.nop;\n\
-                process.argv[2] = '--help';\n\
-                local.cliRun();\n\
-                ['--eval', '--help', '--interactive', '--version'].forEach(function (key) {\n\
-                    local.cliDict[key]();\n\
-                });\n\
-                onError(null, options);\n\
-            }, onError);\n\
-        };\n\
+        //!! local.testCase_cliRun_default = function (options, onError) {\n\
+        //!! /*\n\
+         //!! * this function will test cliRun's default handling-behavior\n\
+         //!! */\n\
+            //!! if (local.isBrowser) {\n\
+                //!! onError(null, options);\n\
+                //!! return;\n\
+            //!! }\n\
+            //!! local.testMock([\n\
+                //!! [local, { replStart: null }],\n\
+                //!! [local.cliDict, { _default: null }],\n\
+                //!! [local.vm, { runInThisContext: local.nop }],\n\
+                //!! [process, { argv: [] }]\n\
+            //!! ], function (onError) {\n\
+                //!! local.cliRun();\n\
+                //!! // test command-invalid handling-behavior\n\
+                //!! process.argv[2] = 'undefined';\n\
+                //!! local.cliRun();\n\
+                //!! // test no-command handling-behavior\n\
+                //!! local.cliDict._default = local.nop;\n\
+                //!! local.replStart = local.nop;\n\
+                //!! process.argv[2] = '--help';\n\
+                //!! local.cliRun();\n\
+                //!! ['--eval', '--help', '--interactive', '--version'].forEach(function (key) {\n\
+                    //!! local.cliDict[key]();\n\
+                //!! });\n\
+                //!! onError(null, options);\n\
+            //!! }, onError);\n\
+        //!! };\n\
 \n\
         local.testCase_corsBackendHostInject_default = function (options, onError) {\n\
         /*\n\
@@ -31394,10 +31594,10 @@ local.assetsDict["/assets.utility2.test.js"] = "/* istanbul instrument in packag
          */\n\
             options = {};\n\
             // bug-workaround - electron's (< v2.0) cross-origin webview does not have crypto.subtle\n\
-            setTimeout(function () {\n\
+            if (local.isBrowser) {\n\
                 onError(null, options);\n\
                 onError = local.nop;\n\
-            }, 5000);\n\
+            }\n\
             local.onNext(options, function (error, data) {\n\
                 switch (options.modeNext) {\n\
                 case 1:\n\
@@ -31436,7 +31636,7 @@ local.assetsDict["/assets.utility2.test.js"] = "/* istanbul instrument in packag
                     options.onNext();\n\
                     break;\n\
                 default:\n\
-                    onError(!local.isBrowser && error, options);\n\
+                    onError(error, options);\n\
                     onError = local.nop;\n\
                 }\n\
             });\n\
@@ -31773,13 +31973,13 @@ local.assetsDict["/assets.utility2.test.js"] = "/* istanbul instrument in packag
             // test forward-proxy-http handling-behavior\n\
             onParallel.counter += 1;\n\
             local.ajax({ headers: {\n\
-                'forward-proxy-url': '/assets.hello'\n\
+                'forward-proxy-url': '/assets.hello.txt'\n\
             }, url: '' }, function (error, xhr) {\n\
                 // validate no error occurred\n\
                 local.assert(!error, error);\n\
                 // validate responseText\n\
                 /* jslint-ignore-next-line */\n\
-                local.assertJsonEqual(xhr.responseText, 'hello\\ud83d\\udc4b\\u0020\\n');\n\
+                local.assertJsonEqual(xhr.responseText, 'hello\\ud83d\\ude01\\u0020\\n');\n\
                 onParallel(null, options, xhr);\n\
             });\n\
             // test error handling-behavior\n\
@@ -31881,7 +32081,7 @@ local.assetsDict["/assets.utility2.test.js"] = "/* istanbul instrument in packag
             // test null-case handling-behavior\n\
             local.objectSetDefault();\n\
             local.objectSetDefault({});\n\
-            // test falsey handling-behavior\n\
+            // test falsy handling-behavior\n\
             ['', 0, false, null, undefined].forEach(function (aa) {\n\
                 ['', 0, false, null, undefined].forEach(function (bb) {\n\
                     local.assertJsonEqual(\n\
@@ -31916,7 +32116,7 @@ local.assetsDict["/assets.utility2.test.js"] = "/* istanbul instrument in packag
             // test null-case handling-behavior\n\
             local.objectSetOverride();\n\
             local.objectSetOverride({});\n\
-            // test falsey handling-behavior\n\
+            // test falsy handling-behavior\n\
             ['', 0, false, null, undefined].forEach(function (aa) {\n\
                 ['', 0, false, null, undefined].forEach(function (bb) {\n\
                     local.assertJsonEqual(\n\
@@ -32198,6 +32398,34 @@ local.assetsDict["/assets.utility2.test.js"] = "/* istanbul instrument in packag
             // coverage-hack - use 1500 ms to cover setInterval\n\
             }, 1500, function () {\n\
                 return 'testCase_onTimeout_errorTimeout';\n\
+            });\n\
+        };\n\
+\n\
+        local.testCase_profileXxx_default = function (options, onError) {\n\
+        /*\n\
+         * this function will test profileXxx's default handling-behavior\n\
+         */\n\
+            options = {};\n\
+            // test profileSync's handling-behavior\n\
+            options.timeElapsed = local.profileSync(function () {\n\
+                return;\n\
+            });\n\
+            // validate timeElapsed\n\
+            local.assert(\n\
+                0 <= options.timeElapsed && options.timeElapsed < 1000,\n\
+                options.timeElapsed\n\
+            );\n\
+            // test profile's async handling-behavior\n\
+            local.profile(function (onError) {\n\
+                setTimeout(onError);\n\
+            }, function (error, timeElapsed) {\n\
+                // validate no error occurred\n\
+                local.assert(!error, error);\n\
+                options.timeElapsed = timeElapsed;\n\
+                // validate timeElapsed\n\
+                local.assert(0 <= options.timeElapsed &&\n\
+                    options.timeElapsed < local.timeoutDefault, options.timeElapsed);\n\
+                onError(null, options);\n\
             });\n\
         };\n\
 \n\

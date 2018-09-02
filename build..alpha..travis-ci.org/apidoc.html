@@ -595,19 +595,12 @@ e){return[this[0],e]}},r={},i=[];return{walk:s,dive:o,with_walkers:u,parent:func
 <span class="apidocCodeCommentSpan">/*
  * this function will run the cli
  */
-</span>    var nop;
-    nop = function () {
-    /*
-     * this function will do nothing
-     */
-        return;
-    };
-    local.cliDict._eval = local.cliDict._eval || function () {
+</span>    local.cliDict._eval = local.cliDict._eval || function () {
     /*
      * &lt;code&gt;
      * will eval &lt;code&gt;
      */
-        local.global.local = local;
+        global.local = local;
         require(&apos;vm&apos;).runInThisContext(process.argv[3]);
     };
     local.cliDict[&apos;--eval&apos;] = local.cliDict[&apos;--eval&apos;] || local.cliDict._eval;
@@ -617,7 +610,7 @@ e){return[this[0],e]}},r={},i=[];return{walk:s,dive:o,with_walkers:u,parent:func
      *
      * will print help
      */
-        var commandList, file, packageJson, text, textDict;
+        var commandList, file, packageJson, rgxComment, text, textDict;
         commandList = [{
             argList: &apos;&lt;arg2&gt;  ...&apos;,
             description: &apos;usage:&apos;,
@@ -629,6 +622,13 @@ e){return[this[0],e]}},r={},i=[];return{walk:s,dive:o,with_walkers:u,parent:func
         }];
         file = __filename.replace((/.*\//), &apos;&apos;);
         packageJson = require(&apos;./package.json&apos;);
+        // validate comment
+        rgxComment = new RegExp(&apos;\\) \\{\\n&apos; +
+            &apos;(?: {8}| {12})\\/\\*\\n&apos; +
+            &apos;(?: {9}| {13})\\*( (?:&lt;\\S*?&gt;))*\\n&apos; +
+            &apos;(?: {9}| {13})\\* (will .*?\\S)\\n&apos; +
+            &apos;(?: {9}| {13})\\*\\/\\n&apos; +
+            &apos;(?: {12}| {16})\\w&apos;);
         textDict = {};
         Object.keys(local.cliDict).sort().forEach(function (key, ii) {
             if (key[0] === &apos;_&apos; &amp;&amp; key !== &apos;_default&apos;) {
@@ -642,16 +642,21 @@ e){return[this[0],e]}},r={},i=[];return{walk:s,dive:o,with_walkers:u,parent:func
             if (commandList[ii]) {
                 commandList[ii].command.push(key);
             } else {
-                commandList[ii] = (/\n +?\*(.*?)\n +?\*(.*?)\n/).exec(text);
-                // coverage-hack - ignore else-statement
-                nop(local.global.__coverage__ &amp;&amp; (function () {
-                    commandList[ii] = commandList[ii] || [&apos;&apos;, &apos;&apos;, &apos;&apos;];
-                }()));
-                commandList[ii] = {
-                    argList: commandList[ii][1].trim(),
-                    command: [key],
-                    description: commandList[ii][2].trim()
-                };
+                try {
+                    commandList[ii] = rgxComment.exec(text);
+                    commandList[ii] = {
+                        argList: (commandList[ii][1] || &apos;&apos;),
+                        command: [key],
+                        description: commandList[ii][2]
+                    };
+                } catch (errorCaught) {
+                    throw new Error(&apos;cliRun - cannot parse comment in COMMAND &apos; +
+                        key + &apos;:\nnew RegExp(&apos; + JSON.stringify(rgxComment.source) +
+                        &apos;).exec(&apos; + JSON.stringify(text)
+                        .replace((/\\\\/g), &apos;\x00&apos;)
+                        .replace((/\\n/g), &apos;\\n\\\n&apos;)
+                        .replace((/\x00/g), &apos;\\\\&apos;) + &apos;);&apos;);
+                }
             }
         });
         (options &amp;&amp; options.modeError
@@ -677,27 +682,15 @@ e){return[this[0],e]}},r={},i=[];return{walk:s,dive:o,with_walkers:u,parent:func
                     default:
                         element.argList = element.argList.split(&apos; &apos;);
                         element.description = &apos;# COMMAND &apos; +
-                            (element.command[0] || &apos;&lt;none&gt;&apos;) + &apos;\n# &apos; +
-                            element.description;
-                    }
-                    return element.description + &apos;\n  &apos; + file +
-                        (&apos;  &apos; + element.command.sort().join(&apos;|&apos;) + &apos;  &apos;)
-                        .replace((/^ {4}$/), &apos;  &apos;) +
-                        element.argList.join(&apos;  &apos;);
-                })
-                .join(&apos;\n\n&apos;)
-        );
-    };
-    local.cliDict[&apos;--help&apos;] = local.cliDict[&apos;--help&apos;] || local.cliDict._help;
-    loca...</pre></li>
+                            (element.command[0] || &apos;&lt;none&gt;&apos;) + &apos;\n# &apos; +...</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-            }
             // uglify file
             process.stdout.write(local.uglify(local.fs.readFileSync(
                 local.path.resolve(process.cwd(), process.argv[2]),
                 &apos;utf8&apos;
             ), process.argv[2]));
         };
+
         local.<span class="apidocCodeKeywordSpan">cliRun</span>();
     }());
 }());
