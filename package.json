@@ -23,10 +23,6 @@
     "nameAliasPublish": "uglifyjs-classic",
     "nameLib": "uglifyjs",
     "nameOriginal": "uglifyjs-lite",
-    "os": [
-        "darwin",
-        "linux"
-    ],
     "repository": {
         "type": "git",
         "url": "https://github.com/kaizhu256/node-uglifyjs-lite.git"
